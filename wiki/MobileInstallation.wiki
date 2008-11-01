@@ -22,8 +22,9 @@ With MobileInstallation, make sure you use ldid or isha to rehash it!
 *Please note that these patches are for specific situations, therefore some have not been tested. If you use one successfully, please post a comment indicating so.*
 
 || *Offset* || *Old* || *New* || *Function* ||
-|| 1AA4 || 0B 48 || 00 20 || If the device UUID is not included on the Provisioning Profile, do not error out ||
-|| 1AC8 || 00 E0 || 00 20 || If an expired provisioning profile is loaded, do not error out ||
+|| 1AA2 || 01 D1 || 01 E0 || If the device UUID is not included on the Provisioning Profile, do not error out (1/2)
+|| 1AA4 || 0B 48 || 00 20 || If the device UUID is not included on the Provisioning Profile, do not error out (2/2) ||
+|| 1AC6 || 05 48 || 00 20 || If an expired provisioning profile is loaded, do not error out ||
 
 Rehashing *appears* to not be needed, but I cannot fully confirm.
 
