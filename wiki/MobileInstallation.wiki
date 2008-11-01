@@ -33,6 +33,8 @@ Rehashing *appears* to not be needed, but I cannot fully confirm.
 
 *0xE8008010* - Provisioning Profile Version is not equal to 1 (?)
 
-*0xE8008012* - Device UUID is not included in Provisioning Profile that is being loaded
+*0xE8008012* - The UUID of the device does not match any in the Provisioning Profile being loaded
 
-*0xE8008011* - Provisioning Profile Expired (?)
+*0xE8008011* - The Provisioning Profile being loaded is expired
+
+*0xE8008003* - No UUID included in the Provisioning Profile that is being loaded
