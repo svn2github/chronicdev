@@ -25,7 +25,7 @@ With MobileInstallation, make sure you use ldid or isha to rehash it!
 || 1AA4 || 0B 48 || 00 20 || If the device UUID is not included on the Provisioning Profile, do not error out ||
 || 1AC8 || 00 E0 || 00 20 || If an expired provisioning profile is loaded, do not error out ||
 
-Rehashing appears to not be needed. That should be a given, because of the way that these work, but I just thought it would be best to re-enforce.
+Rehashing *appears* to not be needed, but I cannot fully confirm.
 
 =Errors=
 *0xE8008003* - It was unable to get the Creation Date of the Provisioning Profile being loaded
