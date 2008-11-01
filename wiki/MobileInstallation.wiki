@@ -1,0 +1,37 @@
+#summary Notes about the MobileInstallation Framework on 2.* devices
+
+=What it is=
+The MobileInstallation framework controls and regulates application installation on the iPhone and iPod Touch. The libmis.dylib library contains many functions that MobileInstallation uses.
+
+=Patches=
+==Firmware 2.1==
+===MobileInstallation===
+*Found in*: /System/Library/PrivateFrameworks/MobileInstallation.framework/MobileInstallation
+
+|| *Offset* || *Old* || *New* || *Function* ||
+|| 9C74 || 00 40 A0 13 || 00 40 A0 E3 || No minimum OS version for AppStore applications (1/2) ||
+|| 9C78 || 04 00 00 1A || 04 00 00 EA || No minimum OS version for AppStore applications (2/2) ||
+|| 9D04 || 00 40 E0 E3 || 00 40 EA E3 || Always validate IPA signature (1/2) ||
+|| 9D14 || A4 04 00 0A || A4 04 00 EA || Always validate IPA signature (2/2) ||
+
+With MobileInstallation, make sure you use ldid or isha to rehash it!
+
+===libmis.dylib===
+*Found in*: /usr/lib/libmis.dylib
+
+*Please note that these patches are for specific situations, therefore some have not been tested. If you use one successfully, please post a comment indicating so.*
+
+|| *Offset* || *Old* || *New* || *Function* ||
+|| 1AA4 || 0B 48 || 00 20 || If the device UUID is not included on the Provisioning Profile, do not error out
+|| 1AC8 || 00 E0 || 00 20 || If an expired provisioning profile is loaded, do not error out 
+
+Rehashing appears to not be needed. That should be a given, because of the way that these work, but I just thought it would be best to re-enforce.
+
+=Errors=
+*0xE8008003* - It was unable to get the Creation Date of the Provisioning Profile being loaded
+
+*0xE8008010* - Provisioning Profile Version is not equal to 1 (?)
+
+*0xE8008012* - Device UUID is not included in Provisioning Profile that is being loaded
+
+*0xE8008011* - Provisioning Profile Expired (?)
