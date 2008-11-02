@@ -17,7 +17,7 @@ I am guessing that this is what is used when a Remote Wipe via Exchange is done,
 
 extern boolean_t execServer(mach_msg_header_t*, mach_msg_header_t*);
 
-void obliterateDataPartition() {
+int obliterateDataPartition() {
      mach_port_t                       servicePort;
      kern_return_t                               a;
      int                                unknownVar;
@@ -85,7 +85,7 @@ void obliterateDataPartition() {
      }
 
      logText("obliterate", "Disabling auto boot");
-     setAutoBoot(0); /* Sets the "auto-boot" NVRAM variable to 0 */
+     setAutoBoot(0); /* Sets the "auto-boot" NVRAM variable to 0, so it will boot to Recovery Mode if the process is interrupted, to prevent some kind of damage I presume */
 
      logText("obliterate", "Taking the device off the USB bus");
      usbService = IOServiceMatching("IOIpodUSBDevice");
@@ -226,13 +226,54 @@ void obliterateDataPartition() {
      checkIfExists("/private/var/run");
      checkIfExists("/private/var/tmp");
      checkIfExists("/private/var/vm"); /* wouldn't it be nice if IDA had a script for this kind of thing? -_- */
+
+     logText("obliterate", "Unmounting the Data partition");
+     if(unmount("/private/var", MNT_FORCE) == -1) {
+          int *err = __error();
+          int strerr = strerror(*err);
+          logText("umount_data_partition", "Could not unmount %s: %s", "/private/var" sterr);
+          logText("obliterate", "Could not unmount the Data partition");
+          reboot(0);
+     }
+     logText("obliterate", "Obliterating the Data partition");
+     void *allocated = malloc(1048576);
+     /* find out what is going on here */
      
+     logText("obliterate", "Reformatting the Data partition");
+     int reformatStatus = doCmd("/sbin/newfs_hfs", "-s", "-v", "Data", "/dev/disk0s2", 0);
+     if(reformatStatus != 0) {
+          logText("reformat_data_partition", "Could not newfs_hfs the Data partition: %d", reformatStatus);
+          logText("obliterate", "Could not reformat the Data partition");
+          reboot(0);
+     }
      
+     logText("obliterate", "Remounting the Data partition");
+     remountStatus = doCmd("/sbin/mount_hfs", "/dev/disk0s2", "/private/var");
+     if(remountStatus != 0) {
+          logText("remount_data_partition", "Could not mount_hfs the Data partition: %d", remountStatus);
+          logText("obliterate", "Cannot remount the Data partition");
+          reboot(0);
+     }
      
+     logText("obliterate", "Rebuilding the Data partition");
+     if(symlink("/usr/share/zoneinfo/US/Pacific", ""/private/var/db/timezone/localtime") == -1) {
+          int *err = __error();
+          int sterr = strerror(*err);
+          logText("rebuild_data_partition", "Could not symlink the timezone file: %s", sterr);
+     }
+     int Opend = open("/private/var/root/.obliterated", 513, 420);
+     if(Opend == -1) {
+          int *err = __error();
+          int sterr = strerror(*err);
+          logText("rebuild_data_partition", "Could not create touch file: %s", sterr);
+     } else {
+          close(Opend);
+     }
      
-     
-     
-     
-     
+     logText("obliterate", "And you will know my name is the Lord when I lay my vengeance upon thee"); /* Pulp Fiction FTW! This is why I love Apple :) */
+     logText("obliterate", "Enabling auto boot");
+     setAutoBoot(1); /* Sets the "auto-boot" NVRAM variable to 1, so that it will not boot to Recovery Mode at boot up */
+     reboot(0);
+     return(0);
 }
 }}}
