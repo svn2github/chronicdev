@@ -1,0 +1,901 @@
+#summary It all started when you clicked that shiny "Use For Development" button in XCode.
+
+=Introduction=
+(Thanks to AriX for helping research this)
+
+If you attach an iPhone or iPod touch to your Mac, open Xcode, and click "Use For Development", an image gets uploaded onto your device. It is called "DeveloperDiskImage.dmg", and the DMG can be found here on your Mac:
+{{{
+/Developer/Platforms/iPhoneOS.platform/DiskImages/DeveloperDiskImage.dmg
+}}}
+
+It appears to contain iPhone (ARM) ports of the tools found in:
+{{{
+/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk/Developer
+}}}
+
+You can check to see if it is mounted by SSHing into your device and typing 'mount':
+{{{
+iPwned-3G:/ root# mount
+/dev/disk0s1 on / (hfs, local, noatime)
+devfs on /dev (devfs, local)
+/dev/disk0s2 on /private/var (hfs, local, noatime)
+/dev/disk1 on /Developer (hfs, local, read-only) /* DeveloperDiskImage.dmg */
+}}}
+
+And if you don't believe that it is really the same Image as the one on your computer, run fsck on it:
+{{{
+iPwned-3G:/ root# fsck_hfs /dev/disk1
+** /dev/rdisk1 (NO WRITE)
+** Checking Non-journaled HFS Plus volume.
+** Checking Extents Overflow file.
+** Checking Catalog file.
+** Checking multi-linked files.
+** Checking Catalog hierarchy.
+** Checking Extended Attributes file.
+** Checking volume bitmap.
+** Checking volume information.
+** The volume DeveloperDiskImage appears to be OK.
+}}}
+
+=File Listing=
+{{{
+iPwned-3G:/usr/sbin root# ls -lnR /Developer
+/Developer:
+total 0
+drwxrwxr-x 7 0 80 238 Jun 18 17:59 Library/
+drwxrwxr-x 6 0 80 204 Jun 18 17:59 usr/
+
+/Developer/Library:
+total 0
+drwxrwxr-x  4 0 80 136 Jun 18 17:59 Application\ Support/
+drwxrwxr-x  3 0 80 102 Jun 18 17:36 Daemons/
+drwxrwxr-x  4 0 80 136 Jun 18 17:59 Lockdown/
+drwxrwxr-x 11 0 80 374 Jun 18 17:59 PrivateFrameworks/
+
+/Developer/Library/Application Support:
+total 0
+drwxrwxr-x 5 0 80 170 Jun 18 17:59 Shark/
+
+/Developer/Library/Application Support/Shark:
+total 0
+drwxrwxr-x 4 0 80 136 Jun 18 17:36 Configs/
+drwxrwxr-x 6 0 80 204 Jun 18 17:59 PlugIns/
+
+/Developer/Library/Application Support/Shark/Configs:
+total 32
+-rw-rw-r-- 1 0 80 15412 Jun 16 01:27 time-wtf.cfg
+-rw-rw-r-- 1 0 80 15454 Jun 16 01:27 time.cfg
+
+/Developer/Library/Application Support/Shark/PlugIns:
+total 0
+drwxrwxr-x 4 0 80 136 Jun 18 17:35 Analysis/
+drwxrwxr-x 5 0 80 170 Jun 18 17:35 DataSource/
+drwxrwxr-x 8 0 80 272 Jun 18 17:35 Viewer/
+
+/Developer/Library/Application Support/Shark/PlugIns/Analysis:
+total 0
+drwxrwxr-x 25 0 80 850 Jun 18 17:37 EagleAnalysis.bundle/
+drwxrwxr-x  7 0 80 238 Jun 18 17:37 SharkProfileAnalysis.bundle/
+
+/Developer/Library/Application Support/Shark/PlugIns/Analysis/EagleAnalysis.bundle:
+total 820
+-rw-rw-r-- 1 0 80  44696 Jun 16 01:26 BSDSysCall.tif
+-rw-rw-r-- 1 0 80  32712 Jun 16 01:26 COW.tif
+-rw-rw-r-- 1 0 80  26824 Jun 16 01:26 CacheHit.tif
+lrwxr-xr-x 1 0 80     28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rwxrwxr-x 1 0 80 214192 Jun 16 01:26 EagleAnalysis*
+-rw-rw-r-- 1 0 80  26592 Jun 16 01:26 Failed.tif
+-rw-rw-r-- 1 0 80  31512 Jun 16 01:26 Guard.tif
+-rw-rw-r-- 1 0 80    517 Jun 16 01:26 Info.plist
+-rw-rw-r-- 1 0 80  37456 Jun 16 01:26 Interrupt.tif
+-rw-rw-r-- 1 0 80  44512 Jun 16 01:26 MIGMessage.tif
+-rw-rw-r-- 1 0 80  43416 Jun 16 01:26 MachSysCall.tif
+-rw-rw-r-- 1 0 80  13186 Jun 16 01:26 Mutex.tif
+-rw-rw-r-- 1 0 80  26252 Jun 16 01:26 NZF.tif
+-rw-rw-r-- 1 0 80  27600 Jun 16 01:26 PageIn.tif
+-rw-rw-r-- 1 0 80  27820 Jun 16 01:26 PageOut.tif
+-rw-rw-r-- 1 0 80    150 Jun 16 01:26 ResourceRules.plist
+-rw-rw-r-- 1 0 80  41852 Jun 16 01:26 SignPost.tif
+-rw-rw-r-- 1 0 80  34148 Jun 16 01:26 SysCall.tif
+-rw-rw-r-- 1 0 80  42648 Jun 16 01:26 Thread.tif
+-rw-rw-r-- 1 0 80  24192 Jun 16 01:26 ThreadMadeRunnable.tif
+-rw-rw-r-- 1 0 80  24404 Jun 16 01:26 VMFault.tif
+-rw-rw-r-- 1 0 80  29148 Jun 16 01:26 ZeroFill.tif
+drwxrwxr-x 3 0 80    102 Jun 18 17:36 _CodeSignature/
+
+/Developer/Library/Application Support/Shark/PlugIns/Analysis/EagleAnalysis.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Application Support/Shark/PlugIns/Analysis/SharkProfileAnalysis.bundle:
+total 24
+lrwxr-xr-x 1 0 80   28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80  588 Jun 16 01:27 Info.plist
+-rw-rw-r-- 1 0 80  150 Jun 16 01:27 ResourceRules.plist
+-rwxrwxr-x 1 0 80 9856 Jun 16 01:27 SharkProfileAnalysis*
+drwxrwxr-x 3 0 80  102 Jun 18 17:36 _CodeSignature/
+
+/Developer/Library/Application Support/Shark/PlugIns/Analysis/SharkProfileAnalysis.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Application Support/Shark/PlugIns/DataSource:
+total 0
+drwxrwxr-x 7 0 80 238 Jun 18 17:37 CHUDDataSource.bundle/
+drwxrwxr-x 7 0 80 238 Jun 18 17:37 KDebugDataSource.bundle/
+drwxrwxr-x 7 0 80 238 Jun 18 17:37 StackSnapshotDataSource.bundle/
+
+/Developer/Library/Application Support/Shark/PlugIns/DataSource/CHUDDataSource.bundle:
+total 112
+-rwxrwxr-x 1 0 80 100864 Jun 16 01:26 CHUDDataSource*
+lrwxr-xr-x 1 0 80     28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80    519 Jun 16 01:26 Info.plist
+-rw-rw-r-- 1 0 80    150 Jun 16 01:26 ResourceRules.plist
+drwxrwxr-x 3 0 80    102 Jun 18 17:36 _CodeSignature/
+
+/Developer/Library/Application Support/Shark/PlugIns/DataSource/CHUDDataSource.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Application Support/Shark/PlugIns/DataSource/KDebugDataSource.bundle:
+total 56
+lrwxr-xr-x 1 0 80    28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80   525 Jun 16 01:26 Info.plist
+-rwxrwxr-x 1 0 80 43872 Jun 16 01:26 KDebugDataSource*
+-rw-rw-r-- 1 0 80   150 Jun 16 01:26 ResourceRules.plist
+drwxrwxr-x 3 0 80   102 Jun 18 17:36 _CodeSignature/
+
+/Developer/Library/Application Support/Shark/PlugIns/DataSource/KDebugDataSource.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Application Support/Shark/PlugIns/DataSource/StackSnapshotDataSource.bundle:
+total 40
+lrwxr-xr-x 1 0 80    28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80   539 Jun 16 01:26 Info.plist
+-rw-rw-r-- 1 0 80   150 Jun 16 01:26 ResourceRules.plist
+-rwxrwxr-x 1 0 80 26080 Jun 16 01:26 StackSnapshotDataSource*
+drwxrwxr-x 3 0 80   102 Jun 18 17:36 _CodeSignature/
+
+/Developer/Library/Application Support/Shark/PlugIns/DataSource/StackSnapshotDataSource.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer:
+total 0
+drwxrwxr-x 39 0 80 1326 Jun 18 17:37 EagleViewer.bundle/
+drwxrwxr-x 16 0 80  544 Jun 18 17:37 EventTraceViewer.bundle/
+drwxrwxr-x 18 0 80  612 Jun 18 17:37 GuruViewer.bundle/
+drwxrwxr-x  9 0 80  306 Jun 18 17:37 SharkChartViewer.bundle/
+drwxrwxr-x 11 0 80  374 Jun 18 17:37 SharkCodeBrowser.bundle/
+drwxrwxr-x  8 0 80  272 Jun 18 17:37 SharkProfileViewer.bundle/
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle:
+total 504
+-rw-rw-r-- 1 0 80 17712 Jun 16 01:27 BSDSysCall.tif
+-rw-rw-r-- 1 0 80 17488 Jun 16 01:27 COW.tif
+-rw-rw-r-- 1 0 80 17512 Jun 16 01:27 CacheHit.tif
+lrwxr-xr-x 1 0 80    28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 EagleEventPalette.nib/
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 EagleKeyPalette.nib/
+-rwxrwxr-x 1 0 80 37024 Jun 16 01:27 EagleViewer*
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 EagleViewer.nib/
+-rw-rw-r-- 1 0 80 15360 Jun 16 01:27 Failed.tif
+-rw-rw-r-- 1 0 80 15392 Jun 16 01:27 Guard.tif
+-rw-rw-r-- 1 0 80   531 Jun 16 01:27 Info.plist
+-rw-rw-r-- 1 0 80 19744 Jun 16 01:27 Info.tif
+-rw-rw-r-- 1 0 80 17632 Jun 16 01:27 Interrupt.tif
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 InterruptInspector.nib/
+-rw-rw-r-- 1 0 80 17724 Jun 16 01:27 MIGMessage.tif
+-rw-rw-r-- 1 0 80 17688 Jun 16 01:27 MachSysCall.tif
+-rw-rw-r-- 1 0 80 17868 Jun 16 01:27 Measure.tif
+-rw-rw-r-- 1 0 80 13186 Jun 16 01:27 Mutex.tif
+-rw-rw-r-- 1 0 80 26252 Jun 16 01:27 NZF.tif
+-rw-rw-r-- 1 0 80 17604 Jun 16 01:27 PageIn.tif
+-rw-rw-r-- 1 0 80 17588 Jun 16 01:27 PageOut.tif
+-rw-rw-r-- 1 0 80   150 Jun 16 01:27 ResourceRules.plist
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 SchedulerEventInspector.nib/
+-rw-rw-r-- 1 0 80 17588 Jun 16 01:27 SignPost.tif
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 SignPostInspector.nib/
+-rw-rw-r-- 1 0 80 17468 Jun 16 01:27 SysCall.tif
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 SysCallInspector.nib/
+-rw-rw-r-- 1 0 80 17516 Jun 16 01:27 Thread.tif
+-rw-rw-r-- 1 0 80 17496 Jun 16 01:27 ThreadMadeRunnable.tif
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 ThreadTenureInspector.nib/
+-rw-rw-r-- 1 0 80 17312 Jun 16 01:27 VMFault.tif
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 VMFaultInspector.nib/
+-rw-rw-r-- 1 0 80 17684 Jun 16 01:27 ZeroFill.tif
+-rw-rw-r-- 1 0 80 18944 Jun 16 01:27 Zoom.tif
+drwxrwxr-x 3 0 80   102 Jun 18 17:36 _CodeSignature/
+-rw-rw-r-- 1 0 80 16440 Jun 16 01:27 larger.tif
+-rw-rw-r-- 1 0 80 16308 Jun 16 01:27 smaller.tif
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle/EagleEventPalette.nib:
+total 28
+-rw-rw-r-- 1 0 80  2453 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   555 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 16392 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle/EagleKeyPalette.nib:
+total 16
+-rw-rw-r-- 1 0 80  968 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  565 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 8176 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle/EagleViewer.nib:
+total 36
+-rw-rw-r-- 1 0 80  3635 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   969 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 25599 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle/InterruptInspector.nib:
+total 16
+-rw-rw-r-- 1 0 80  847 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  564 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 6338 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle/SchedulerEventInspector.nib:
+total 16
+-rw-rw-r-- 1 0 80  662 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  563 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 4483 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle/SignPostInspector.nib:
+total 28
+-rw-rw-r-- 1 0 80  2236 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   566 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 16444 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle/SysCallInspector.nib:
+total 24
+-rw-rw-r-- 1 0 80  2077 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  1162 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 14718 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle/ThreadTenureInspector.nib:
+total 24
+-rw-rw-r-- 1 0 80  1569 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   562 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 15072 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle/VMFaultInspector.nib:
+total 24
+-rw-rw-r-- 1 0 80  2043 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   563 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 13590 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EagleViewer.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EventTraceViewer.bundle:
+total 80
+-rw-rw-r-- 1 0 80 17413 Jun 16 01:27 CallstackClosed.psd
+-rw-rw-r-- 1 0 80 17413 Jun 16 01:27 CallstackOpen.psd
+lrwxr-xr-x 1 0 80    28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rwxrwxr-x 1 0 80 26896 Jun 16 01:27 EventTraceViewer*
+drwxrwxr-x 7 0 80   238 Jun 18 17:36 EventTraceViewer.nib/
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 IOKitTraceController.nib/
+-rw-rw-r-- 1 0 80   566 Jun 16 01:27 Info.plist
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 InterruptTraceController.nib/
+-rw-rw-r-- 1 0 80   150 Jun 16 01:27 ResourceRules.plist
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 SchedulerTraceController.nib/
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 SignPostTraceController.nib/
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 SysCallTraceController.nib/
+drwxrwxr-x 5 0 80   170 Jun 18 17:36 VMFaultTraceController.nib/
+drwxrwxr-x 3 0 80   102 Jun 18 17:36 _CodeSignature/
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EventTraceViewer.bundle/EventTraceViewer.nib:
+total 28
+-rw-rw-r-- 1 0 80  834 Jun 16 01:27 CallstackClosed.tiff
+-rw-rw-r-- 1 0 80  834 Jun 16 01:27 CallstackOpen.tiff
+-rw-rw-r-- 1 0 80 2165 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  597 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 9877 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EventTraceViewer.bundle/IOKitTraceController.nib:
+total 20
+-rw-rw-r-- 1 0 80 2310 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  668 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 9734 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EventTraceViewer.bundle/InterruptTraceController.nib:
+total 20
+-rw-rw-r-- 1 0 80 1759 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  669 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 8498 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EventTraceViewer.bundle/SchedulerTraceController.nib:
+total 20
+-rw-rw-r-- 1 0 80  2419 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   734 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 11053 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EventTraceViewer.bundle/SignPostTraceController.nib:
+total 28
+-rw-rw-r-- 1 0 80  2829 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   669 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 20474 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EventTraceViewer.bundle/SysCallTraceController.nib:
+total 28
+-rw-rw-r-- 1 0 80  2637 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   668 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 18496 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EventTraceViewer.bundle/VMFaultTraceController.nib:
+total 24
+-rw-rw-r-- 1 0 80  2691 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   668 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 16095 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/EventTraceViewer.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle:
+total 52
+lrwxr-xr-x  1 0 80    28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rwxrwxr-x  1 0 80 37968 Jun 16 01:27 GuruViewer*
+drwxrwxr-x  7 0 80   238 Jun 18 17:37 GuruViewer.nib/
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 IOKitSummaryStatsController.nib/
+-rw-rw-r--  1 0 80   552 Jun 16 01:27 Info.plist
+-rw-rw-r--  1 0 80   150 Jun 16 01:27 ResourceRules.plist
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 SchedulerSummaryStatsController.nib/
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 SignPostSummaryStatsController.nib/
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 SysCallProfileController.nib/
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 SysCallProfilePalette.nib/
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 SysCallSummaryStatsController.nib/
+drwxrwxr-x 13 0 80   442 Jun 18 17:37 Textures/
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 VMFaultProfileController.nib/
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 VMFaultProfilePalette.nib/
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 VMFaultSummaryStatsController.nib/
+drwxrwxr-x  3 0 80   102 Jun 18 17:37 _CodeSignature/
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/GuruViewer.nib:
+total 40
+-rw-rw-r-- 1 0 80   834 Jun 16 01:27 CallstackClosed.tiff
+-rw-rw-r-- 1 0 80   834 Jun 16 01:27 CallstackOpen.tiff
+-rw-rw-r-- 1 0 80  3243 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  1175 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 23932 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/IOKitSummaryStatsController.nib:
+total 20
+-rw-rw-r-- 1 0 80  2337 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   669 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 10373 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/SchedulerSummaryStatsController.nib:
+total 20
+-rw-rw-r-- 1 0 80 1802 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  669 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 9922 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/SignPostSummaryStatsController.nib:
+total 16
+-rw-rw-r-- 1 0 80 2173 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  670 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 7842 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/SysCallProfileController.nib:
+total 16
+-rw-rw-r-- 1 0 80 2265 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  667 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 5720 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/SysCallProfilePalette.nib:
+total 16
+-rw-rw-r-- 1 0 80  984 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  565 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 6591 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/SysCallSummaryStatsController.nib:
+total 16
+-rw-rw-r-- 1 0 80 2118 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  670 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 7530 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/Textures:
+total 1084
+-rw-rw-r-- 1 0 80  96284 Jun 16 01:27 blue.tif
+-rw-rw-r-- 1 0 80 103168 Jun 16 01:27 brown.tif
+-rw-rw-r-- 1 0 80  82468 Jun 16 01:27 darkgrey.tif
+-rw-rw-r-- 1 0 80  89564 Jun 16 01:27 green.tif
+-rw-rw-r-- 1 0 80 100468 Jun 16 01:27 lightgreen.tif
+-rw-rw-r-- 1 0 80  82464 Jun 16 01:27 lightgrey.tif
+-rw-rw-r-- 1 0 80  97724 Jun 16 01:27 orange.tif
+-rw-rw-r-- 1 0 80  99804 Jun 16 01:27 purple.tif
+-rw-rw-r-- 1 0 80  96900 Jun 16 01:27 red.tif
+-rw-rw-r-- 1 0 80 117176 Jun 16 01:27 violet.tif
+-rw-rw-r-- 1 0 80 119248 Jun 16 01:27 yellow.tif
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/VMFaultProfileController.nib:
+total 16
+-rw-rw-r-- 1 0 80 2265 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  670 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 5720 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/VMFaultProfilePalette.nib:
+total 16
+-rw-rw-r-- 1 0 80  984 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  565 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 6757 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/VMFaultSummaryStatsController.nib:
+total 16
+-rw-rw-r-- 1 0 80 2163 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  670 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 7850 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/GuruViewer.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkChartViewer.bundle:
+total 48
+lrwxr-xr-x 1 0 80    28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80   543 Jun 16 01:27 Info.plist
+-rw-rw-r-- 1 0 80   150 Jun 16 01:27 ResourceRules.plist
+drwxrwxr-x 5 0 80   170 Jun 18 17:37 SharkChartPalette.nib/
+-rwxrwxr-x 1 0 80 36528 Jun 16 01:27 SharkChartViewer*
+drwxrwxr-x 7 0 80   238 Jun 18 17:37 SharkChartViewer.nib/
+drwxrwxr-x 3 0 80   102 Jun 18 17:37 _CodeSignature/
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkChartViewer.bundle/SharkChartPalette.nib:
+total 20
+-rw-rw-r-- 1 0 80  1179 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   565 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 11001 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkChartViewer.bundle/SharkChartViewer.nib:
+total 44
+-rw-rw-r-- 1 0 80   492 Jun 16 01:27 CallstackClosed.tiff
+-rw-rw-r-- 1 0 80   514 Jun 16 01:27 CallstackOpen.tiff
+-rw-rw-r-- 1 0 80  3113 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   569 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 25789 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkChartViewer.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkCodeBrowser.bundle:
+total 40
+lrwxr-xr-x  1 0 80    28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r--  1 0 80   543 Jun 16 01:27 Info.plist
+-rw-rw-r--  1 0 80   150 Jun 16 01:27 ResourceRules.plist
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 SharkAsmBrowserPalette.nib/
+-rwxrwxr-x  1 0 80 28448 Jun 16 01:27 SharkCodeBrowser*
+drwxrwxr-x 11 0 80   374 Jun 18 17:37 SharkCodeBrowser.nib/
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 SharkCodeBrowserPalette.nib/
+drwxrwxr-x  5 0 80   170 Jun 18 17:37 SharkSrcBrowserPalette.nib/
+drwxrwxr-x  3 0 80   102 Jun 18 17:37 _CodeSignature/
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkCodeBrowser.bundle/SharkAsmBrowserPalette.nib:
+total 20
+-rw-rw-r-- 1 0 80  1050 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   566 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 10365 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkCodeBrowser.bundle/SharkCodeBrowser.nib:
+total 80
+-rw-rw-r-- 1 0 80   826 Jun 16 01:27 Back.tiff
+-rw-rw-r-- 1 0 80   906 Jun 16 01:27 BackDisabled.tiff
+-rw-rw-r-- 1 0 80  1054 Jun 16 01:27 BackPressed.tiff
+-rw-rw-r-- 1 0 80   958 Jun 16 01:27 Forward.tiff
+-rw-rw-r-- 1 0 80  1040 Jun 16 01:27 ForwardDisabled.tiff
+-rw-rw-r-- 1 0 80  1168 Jun 16 01:27 ForwardPressed.tiff
+-rw-rw-r-- 1 0 80  6509 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   983 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 43469 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkCodeBrowser.bundle/SharkCodeBrowserPalette.nib:
+total 20
+-rw-rw-r-- 1 0 80  1064 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80   564 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 10389 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkCodeBrowser.bundle/SharkSrcBrowserPalette.nib:
+total 16
+-rw-rw-r-- 1 0 80  682 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  564 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 4951 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkCodeBrowser.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkProfileViewer.bundle:
+total 40
+lrwxr-xr-x 1 0 80    28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80   547 Jun 16 01:27 Info.plist
+-rw-rw-r-- 1 0 80   150 Jun 16 01:27 ResourceRules.plist
+-rwxrwxr-x 1 0 80 25936 Jun 16 01:27 SharkProfileViewer*
+drwxrwxr-x 8 0 80   272 Jun 18 17:37 SharkProfileViewer.nib/
+drwxrwxr-x 3 0 80   102 Jun 18 17:37 _CodeSignature/
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkProfileViewer.bundle/SharkProfileViewer.nib:
+total 28
+-rw-rw-r-- 1 0 80  492 Jun 16 01:27 CallstackClosed.tiff
+-rw-rw-r-- 1 0 80  514 Jun 16 01:27 CallstackOpen.tiff
+-rw-rw-r-- 1 0 80 3782 Jun 16 01:27 OutlineBrowser.tiff
+-rw-rw-r-- 1 0 80 3405 Jun 16 01:27 classes.nib
+-rw-rw-r-- 1 0 80  669 Jun 16 01:27 info.nib
+-rw-rw-r-- 1 0 80 7091 Jun 16 01:27 keyedobjects.nib
+
+/Developer/Library/Application Support/Shark/PlugIns/Viewer/SharkProfileViewer.bundle/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/Daemons:
+total 44
+-rwxrwxr-x 1 0 80 43920 Jun 18 17:19 DTMobileIS*
+
+/Developer/Library/Lockdown:
+total 0
+drwxrwxr-x 7 0 80 238 Jun 18 17:58 ServiceAgents/
+
+/Developer/Library/Lockdown/ServiceAgents:
+total 20
+-rw-rw-r-- 1 0 80 427 Jun 16 01:30 com.apple.CHUD.MobileShark.plist
+-rw-rw-r-- 1 0 80 457 Jun 16 01:53 com.apple.debugserver.applist.plist
+-rw-rw-r-- 1 0 80 420 Jun 16 01:53 com.apple.debugserver.plist
+-rw-rw-r-- 1 0 80 397 Jun 16 01:58 com.apple.instruments.DTMobileIS.plist
+-rw-rw-r-- 1 0 80 381 Jun 16 01:31 com.apple.mobile.screenshotr.plist
+
+/Developer/Library/PrivateFrameworks:
+total 0
+drwxrwxr-x  8 0 80 272 Jun 18 17:59 ARMDisassembler.framework/
+drwxrwxr-x 10 0 80 340 Jun 18 17:59 CHUD.framework/
+drwxrwxr-x  8 0 80 272 Jun 18 17:59 Coach.framework/
+drwxrwxr-x 10 0 80 340 Jun 18 17:59 DTInstrumentsServer.framework/
+drwxrwxr-x  8 0 80 272 Jun 18 17:59 DTMessageQueueing.framework/
+drwxrwxr-x  8 0 80 272 Jun 18 17:59 PPCDisasm.framework/
+drwxrwxr-x 23 0 80 782 Jun 18 17:59 PerfTool.framework/
+drwxrwxr-x  9 0 80 306 Jun 18 17:59 diStorm.framework/
+
+/Developer/Library/PrivateFrameworks/ARMDisassembler.framework:
+total 376
+-rwxrwxr-x 1 0 80 372624 Jun 18 17:15 ARMDisassembler*
+lrwxr-xr-x 1 0 80     28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80    515 Jun 16 01:24 Info.plist
+-rw-rw-r-- 1 0 80    150 Jun 16 01:24 ResourceRules.plist
+drwxrwxr-x 3 0 80    102 Jun 18 17:36 _CodeSignature/
+
+/Developer/Library/PrivateFrameworks/ARMDisassembler.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/PrivateFrameworks/CHUD.framework:
+total 28
+-rwxrwxr-x 1 0 80 8656 Jun 18 17:15 CHUD*
+lrwxr-xr-x 1 0 80   28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+lrwxr-xr-x 1 0 80   21 Jun 18 17:59 Frameworks -> Versions/A/Frameworks/
+-rw-rw-r-- 1 0 80  485 Jun 16 01:24 Info.plist
+-rw-rw-r-- 1 0 80  150 Jun 16 01:24 ResourceRules.plist
+drwxrwxr-x 4 0 80  136 Jun 18 17:59 Versions/
+drwxrwxr-x 3 0 80  102 Jun 18 17:37 _CodeSignature/
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions:
+total 0
+drwxrwxr-x 4 0 80 136 Jun 18 17:59 A/
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A:
+total 0
+drwxrwxr-x 7 0 80 238 Jun 18 17:59 Frameworks/
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks:
+total 0
+drwxrwxr-x 51 0 80 1734 Jun 18 17:59 CHUDApp.framework/
+drwxrwxr-x  8 0 80  272 Jun 18 17:59 CHUDCore.framework/
+drwxrwxr-x  8 0 80  272 Jun 18 17:59 CHUDMessageQueueing.framework/
+drwxrwxr-x  9 0 80  306 Jun 18 17:59 CHUDSymbolication.framework/
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework:
+total 596
+-rw-rw-r-- 1 0 80   2522 Jun 16 01:24 Acknowledgments.rtf
+-rw-rw-r-- 1 0 80   1468 Jun 16 01:24 Add.tif
+-rw-rw-r-- 1 0 80   1484 Jun 16 01:24 AddDisabled.tif
+-rw-rw-r-- 1 0 80   1734 Jun 16 01:24 AddPressed.tif
+-rw-rw-r-- 1 0 80   1304 Jun 16 01:24 Back.tif
+-rw-rw-r-- 1 0 80   1378 Jun 16 01:24 BackDisabled.tif
+-rw-rw-r-- 1 0 80   1664 Jun 16 01:24 BackPressed.tif
+-rwxrwxr-x 1 0 80 170176 Jun 18 17:15 CHUDApp*
+-rw-rw-r-- 1 0 80  22632 Jun 16 01:24 CHUDLogo.tif
+lrwxr-xr-x 1 0 80     28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 DisclosureBox.nib/
+-rw-rw-r-- 1 0 80  19312 Jun 16 01:24 Down.tif
+-rw-rw-r-- 1 0 80  19328 Jun 16 01:24 DownDisabled.tif
+-rw-rw-r-- 1 0 80  19680 Jun 16 01:24 DownPressed.tif
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 FindPanel.nib/
+-rw-rw-r-- 1 0 80  17080 Jun 16 01:24 Forward.tif
+-rw-rw-r-- 1 0 80  17156 Jun 16 01:24 ForwardDisabled.tif
+-rw-rw-r-- 1 0 80  17352 Jun 16 01:24 ForwardPressed.tif
+-rw-rw-r-- 1 0 80    500 Jun 16 01:24 Info.plist
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 MiniMarker.nib/
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTAboutPanel.nib/
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTArchitecturePicker.nib/
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTLaunchProcessPanel.nib/
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTNetProManagerView.nib/
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTNetworkConnectPanel.nib/
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTOpenProcessPanel.nib/
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTSavePanelAccessory.nib/
+lrwxr-xr-x 1 0 80     18 Jun 18 17:59 PlugIns -> Versions/A/PlugIns
+-rw-rw-r-- 1 0 80   1568 Jun 16 01:24 Reload.tif
+-rw-rw-r-- 1 0 80   1566 Jun 16 01:24 ReloadDisabled.tif
+-rw-rw-r-- 1 0 80   1878 Jun 16 01:24 ReloadPressed.tif
+-rw-rw-r-- 1 0 80    150 Jun 16 01:24 ResourceRules.plist
+-rw-rw-r-- 1 0 80  19028 Jun 16 01:24 Up.tif
+-rw-rw-r-- 1 0 80  19144 Jun 16 01:24 UpDisabled.tif
+-rw-rw-r-- 1 0 80  19540 Jun 16 01:24 UpPressed.tif
+drwxrwxr-x 3 0 80    102 Jun 18 17:37 _CodeSignature/
+-rw-rw-r-- 1 0 80   9002 Jun 16 01:24 button_g3_disabled.png
+-rw-rw-r-- 1 0 80  20356 Jun 16 01:24 button_g3_normal.png
+-rw-rw-r-- 1 0 80   9403 Jun 16 01:24 button_g4_disabled.png
+-rw-rw-r-- 1 0 80  21952 Jun 16 01:24 button_g4_normal.png
+-rw-rw-r-- 1 0 80   6591 Jun 16 01:24 button_g5_disabled.png
+-rw-rw-r-- 1 0 80   8628 Jun 16 01:24 button_g5_normal.png
+-rw-rw-r-- 1 0 80   6517 Jun 16 01:24 button_generic_disabled.png
+-rw-rw-r-- 1 0 80   9009 Jun 16 01:24 button_generic_normal.png
+-rw-rw-r-- 1 0 80  12108 Jun 16 01:24 button_p4_disabled.png
+-rw-rw-r-- 1 0 80  14870 Jun 16 01:24 button_p4_normal.png
+-rw-rw-r-- 1 0 80  16218 Jun 16 01:24 iconViewButton.psd
+-rw-rw-r-- 1 0 80  16088 Jun 16 01:24 listViewButton.psd
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/DisclosureBox.nib:
+total 12
+-rw-rw-r-- 1 0 80  550 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80  565 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 3801 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/FindPanel.nib:
+total 16
+-rw-rw-r-- 1 0 80  826 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80  454 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 6604 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/MiniMarker.nib:
+total 16
+-rw-rw-r-- 1 0 80  600 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80  453 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 6841 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/PTAboutPanel.nib:
+total 20
+-rw-rw-r-- 1 0 80  1089 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80   499 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 10148 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/PTArchitecturePicker.nib:
+total 16
+-rw-rw-r-- 1 0 80 2087 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80  566 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 6330 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/PTLaunchProcessPanel.nib:
+total 24
+-rw-rw-r-- 1 0 80  2760 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80   582 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 16187 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/PTNetProManagerView.nib:
+total 24
+-rw-rw-r-- 1 0 80  1902 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80   500 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 15877 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/PTNetworkConnectPanel.nib:
+total 20
+-rw-rw-r-- 1 0 80  1842 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80   453 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 10775 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/PTOpenProcessPanel.nib:
+total 20
+-rw-rw-r-- 1 0 80  1618 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80   450 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 10467 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/PTSavePanelAccessory.nib:
+total 16
+-rw-rw-r-- 1 0 80 1814 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80  564 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 4359 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDApp.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDCore.framework:
+total 3592
+-rwxrwxr-x 1 0 80 3665104 Jun 18 17:15 CHUDCore*
+lrwxr-xr-x 1 0 80      28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80     503 Jun 16 01:24 Info.plist
+-rw-rw-r-- 1 0 80     150 Jun 16 01:24 ResourceRules.plist
+drwxrwxr-x 3 0 80     102 Jun 18 17:37 _CodeSignature/
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDCore.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDMessageQueueing.framework:
+total 104
+-rwxrwxr-x 1 0 80 93280 Jun 18 17:15 CHUDMessageQueueing*
+lrwxr-xr-x 1 0 80    28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80   535 Jun 16 01:24 Info.plist
+-rw-rw-r-- 1 0 80   150 Jun 16 01:24 ResourceRules.plist
+drwxrwxr-x 3 0 80   102 Jun 18 17:37 _CodeSignature/
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDMessageQueueing.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDSymbolication.framework:
+total 324
+-rwxrwxr-x 1 0 80 318992 Jun 18 17:15 CHUDSymbolication*
+lrwxr-xr-x 1 0 80     28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+drwxrwxr-x 3 0 80    102 Jun 18 17:37 English.lproj/
+-rw-rw-r-- 1 0 80    503 Jun 16 01:24 Info.plist
+-rw-rw-r-- 1 0 80    150 Jun 16 01:24 ResourceRules.plist
+drwxrwxr-x 3 0 80    102 Jun 18 17:37 _CodeSignature/
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDSymbolication.framework/English.lproj:
+total 4
+-rw-rw-r-- 1 0 80 130 Jun 16 01:24 InfoPlist.strings
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/Versions/A/Frameworks/CHUDSymbolication.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/PrivateFrameworks/CHUD.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/PrivateFrameworks/Coach.framework:
+total 128
+-rwxrwxr-x 1 0 80 115168 Jun 18 17:15 Coach*
+lrwxr-xr-x 1 0 80     28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80    481 Jun 16 01:24 Info.plist
+-rw-rw-r-- 1 0 80    150 Jun 16 01:24 ResourceRules.plist
+drwxrwxr-x 3 0 80    102 Jun 18 17:37 _CodeSignature/
+
+/Developer/Library/PrivateFrameworks/Coach.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/PrivateFrameworks/DTInstrumentsServer.framework:
+total 312
+lrwxr-xr-x 1 0 80     28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rwxrwxr-x 1 0 80 238560 Jun 18 17:17 DTInstrumentsServer*
+-rw-rw-r-- 1 0 80    499 Jun 16 01:29 Info.plist
+-rw-rw-r-- 1 0 80    150 Jun 16 01:29 ResourceRules.plist
+drwxrwxr-x 3 0 80    102 Jun 18 17:36 _CodeSignature/
+-rwxrwxr-x 1 0 80  45952 Jun 18 17:17 libfsmonitor_interpose.dylib*
+-rwxrwxr-x 1 0 80  14800 Jun 18 17:17 libremoteoainject.dylib*
+
+/Developer/Library/PrivateFrameworks/DTInstrumentsServer.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:41 CodeResources
+
+/Developer/Library/PrivateFrameworks/DTMessageQueueing.framework:
+total 152
+lrwxr-xr-x 1 0 80     28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rwxrwxr-x 1 0 80 140144 Jun 18 17:16 DTMessageQueueing*
+-rw-rw-r-- 1 0 80    526 Jun 16 01:23 Info.plist
+-rw-rw-r-- 1 0 80    150 Jun 16 01:23 ResourceRules.plist
+drwxrwxr-x 3 0 80    102 Jun 18 17:36 _CodeSignature/
+
+/Developer/Library/PrivateFrameworks/DTMessageQueueing.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:36 CodeResources
+
+/Developer/Library/PrivateFrameworks/PPCDisasm.framework:
+total 80
+lrwxr-xr-x 1 0 80    28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80   516 Jun 16 01:24 Info.plist
+-rwxrwxr-x 1 0 80 66304 Jun 18 17:15 PPCDisasm*
+-rw-rw-r-- 1 0 80   150 Jun 16 01:24 ResourceRules.plist
+drwxrwxr-x 3 0 80   102 Jun 18 17:37 _CodeSignature/
+
+/Developer/Library/PrivateFrameworks/PPCDisasm.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/PrivateFrameworks/PerfTool.framework:
+total 1108
+-rw-rw-r-- 1 0 80  17413 Jun 16 01:24 CallstackClosed.psd
+-rw-rw-r-- 1 0 80  17413 Jun 16 01:24 CallstackOpen.psd
+lrwxr-xr-x 1 0 80     28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80  20121 Jun 16 01:24 EmptyButton.psd
+-rw-rw-r-- 1 0 80    483 Jun 16 01:25 Info.plist
+-rw-rw-r-- 1 0 80  22482 Jun 16 01:24 OutlineBrowser.psd
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTCallstackDisplayPalette.nib/
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTCallstackFilterPalette.nib/
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTCalltreeView.nib/
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 PTPerfCountFilterPalette.nib/
+-rwxrwxr-x 1 0 80 903712 Jun 16 01:25 PerfTool*
+drwxrwxr-x 5 0 80    170 Jun 18 17:37 Report.nib/
+-rw-rw-r-- 1 0 80    150 Jun 16 01:25 ResourceRules.plist
+-rw-rw-r-- 1 0 80   1918 Jun 16 01:24 SaveDocumentItemImage.tiff
+drwxrwxr-x 3 0 80    102 Jun 18 17:37 _CodeSignature/
+-rw-rw-r-- 1 0 80  14494 Jun 16 01:24 kdebug_iPhoneOS2.0.h
+-rw-rw-r-- 1 0 80  13294 Jun 16 01:24 kdebug_tiger.h
+-rw-rw-r-- 1 0 80  39603 Jun 16 01:24 trace_iPhoneOS2.0.codes
+-rwxrwxr-x 1 0 80  30819 Jun 16 01:24 trace_tiger.codes*
+-rw-rw-r-- 1 0 80  17136 Jun 16 01:24 visible.tiff
+
+/Developer/Library/PrivateFrameworks/PerfTool.framework/PTCallstackDisplayPalette.nib:
+total 24
+-rw-rw-r-- 1 0 80  1175 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80   723 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 13012 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/PerfTool.framework/PTCallstackFilterPalette.nib:
+total 24
+-rw-rw-r-- 1 0 80  1632 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80   724 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 13058 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/PerfTool.framework/PTCalltreeView.nib:
+total 48
+-rw-rw-r-- 1 0 80  6035 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80   439 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 33328 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/PerfTool.framework/PTPerfCountFilterPalette.nib:
+total 20
+-rw-rw-r-- 1 0 80 1170 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80  723 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 8482 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/PerfTool.framework/Report.nib:
+total 16
+-rw-rw-r-- 1 0 80  956 Jun 16 01:24 classes.nib
+-rw-rw-r-- 1 0 80  442 Jun 16 01:24 info.nib
+-rw-rw-r-- 1 0 80 4827 Jun 16 01:24 keyedobjects.nib
+
+/Developer/Library/PrivateFrameworks/PerfTool.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/Library/PrivateFrameworks/diStorm.framework:
+total 164
+-rwxrwxr-x 1 0 80   1553 Jun 16 01:24 COPYING*
+lrwxr-xr-x 1 0 80     28 Jun 18 17:59 CodeResources -> _CodeSignature/CodeResources
+-rw-rw-r-- 1 0 80    481 Jun 16 01:24 Info.plist
+-rw-rw-r-- 1 0 80    150 Jun 16 01:24 ResourceRules.plist
+drwxrwxr-x 3 0 80    102 Jun 18 17:37 _CodeSignature/
+-rwxrwxr-x 1 0 80 149088 Jun 18 17:15 diStorm*
+
+/Developer/Library/PrivateFrameworks/diStorm.framework/_CodeSignature:
+total 4
+-rw-rw-r-- 1 0 80 1222 Jun 18 17:35 CodeResources
+
+/Developer/usr:
+total 0
+drwxrwxr-x 9 0 80 306 Jun 18 17:58 bin/
+drwxrwxr-x 5 0 80 170 Jun 18 17:40 lib/
+drwxrwxr-x 4 0 80 136 Jun 18 17:58 libexec/
+
+/Developer/usr/bin:
+total 860
+-rwxrwxr-x 1 0 80  15712 Jun 18 17:19 ScreenShotr*
+-rwxrwxr-x 1 0 80  13888 Jun 16 01:30 chudRemoteCtrl*
+-rwxrwxr-x 1 0 80 162816 Jun 18 17:17 debugserver*
+-rwxrwxr-x 1 0 80  18736 Jun 16 01:30 hwprefs*
+-rwxrwxr-x 1 0 80   8656 Jun 16 01:30 purge*
+-rwxrwxr-x 1 0 80 523344 Jun 16 01:30 reggie_se*
+-rwxrwxr-x 1 0 80 126224 Jun 16 01:30 shark*
+
+/Developer/usr/lib:
+total 196
+-rwxrwxr-x 1 0 80   8672 Jun 18 17:17 CFDataFormatters.dylib*
+-rwxrwxr-x 1 0 80  22880 Jun 18 17:17 libXcodeDebuggerSupport.dylib*
+-rwxrwxr-x 1 0 80 161712 Jun 18 17:17 libdebugnub.dylib*
+
+/Developer/usr/libexec:
+total 64
+-rwxrwxr-x 1 0 80 18144 Jun 18 17:15 chum*
+-rwxrwxr-x 1 0 80 41472 Jun 16 01:30 pilotfish*
+}}}
