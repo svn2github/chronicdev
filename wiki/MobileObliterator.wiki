@@ -23,6 +23,7 @@ void obliterateDataPartition() {
      int                          iopmassertionOut;
      CFNotificationCenterRef appNotificationCenter;
      CFMutableDictionaryRef             usbService;
+     CFMutableDictionaryRef   watchdogServMatching;
      io_service_t               matchingUsbService;
      CFMutableDictionaryRef      commandDictionary;
      kern_return_t                         sendCmd;
@@ -134,9 +135,13 @@ void obliterateDataPartition() {
           reboot(0);
      }
      
-     
-     
-     
+     logText("obliterator", "Disabling the watchdog timer");
+     watchdogServMatching = IOServiceMatching("IOWatchdogTimer");
+     if(!watchdogServMatching) {
+          logText("disable_watchdog", "Could not allocate the matching dictionary");
+          logText("obliterate", "Could not disable the watchdog timer");
+          reboot(0);
+     }
      
      
      
