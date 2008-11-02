@@ -24,6 +24,9 @@ void obliterateDataPartition() {
      CFNotificationCenterRef appNotificationCenter;
      CFMutableDictionaryRef             usbService;
      io_service_t               matchingUsbService;
+     CFMutableDictionaryRef      commandDictionary;
+     kern_return_t                         sendCmd;
+     int                               killDaemons;
 
      openlog("mobile_obliterate", 1, 24);
      a = bootstrap_check_in(
@@ -89,11 +92,60 @@ void obliterateDataPartition() {
           reboot(0);
      }
      
+     commandDictionary = CFDictionaryCreateMutable(
+                                                      kCFAllocatorDefault,
+                                                      0,
+                                                      kCFTypeDictionaryKeyCallBacks,
+                                                      kCFTypeDictionaryValueCallBacks
+                                                      );
+     if(!commandDictionary) {
+          logText("getoff_bus", "Could not create the command dictionary");     
+          IOObjectRelease(matchingUsbService);
+          logText("obliterate", "Could not get off the USB bus");
+          reboot(0);
+     }
+     
+     CFDictionarySetValue(commandDictionary, "USBDeviceCommand", "ForceOffBusEnable");
+     sendCmd = IORegistryEntrySetCFProperties(matchingUsbService, commandDictionary);
+     if(sendCmd != 0) {
+          logText("getoff_bus", "Could not send the command to the USB device %08x", sendCmd);
+          logText("obliterate", "Could not get off the USB bus");
+          reboot(0);
+     }
+     CFRelease(commandDictionary);
+     IOObjectRelease(matchingUsbService);
+     
+     logText("obliterate", "Killing some daemons");
+     killDaemons = doCmd(
+                         "/bin/launchctl",
+                         "unload",
+                         "/System/Library/LaunchDaemons/com.apple.mediaserverd.plist", //kill sound daemon
+                         "/System/Library/LaunchDaemons/com.apple.locationd82.plist", //kill GPS daemon
+                         "/System/Library/LaunchDaemons/com.apple.itunesstored.plist", //kill iTunes Store daemon
+                         "/System/Library/LaunchDaemons/com.apple.datamigrator.plist", //kill DataMigrator daemon
+                         "/System/Library/LaunchDaemons/com.apple.dataaccess.dataaccessd.plist", //kill DataAccess daemon
+                         "/System/Library/LaunchDaemons/com.apple.SpringBoard.plist", //kill SpringBoard
+                         "/System/Library/LaunchDaemons/com.apple.AddressBook.plist", //kill AddressBook daemon
+                         "/System/Library/LaunchDaemons/com.apple.AOSNotification.plist" //kill some kind of Push daemon
+                         );
+     if(killDaemons != 0) {
+          logText("buffy_summers", "Could not kill the daemons: %d", killDaemons);
+          logText("obliterate", "Could not kill daemons");
+          reboot(0);
+     }
      
      
      
      
-     /* taking a break kthx */
+     
+     
+     
+     
+     
+     
+     
+     
+     
      
      
      
