@@ -189,17 +189,43 @@ void obliterateDataPartition() {
      }
      
      logText("obliterate", "Capturing the Data partition state");
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
+     checkIfExists("/private/var/Keychains");
+     checkIfExists("/private/var/Managed Preferences");
+     checkIfExists("/private/var/Managed Preferences/mobile");
+     checkIfExists("/private/var/MobileDevice");
+     checkIfExists("/private/var/db");
+     checkIfExists("/private/var/db/timezone");
+     checkIfExists("/private/var/empty");
+     checkIfExists("/private/var/folders");
+     checkIfExists("/private/var/log");
+     checkIfExists("/private/var/log/asl");
+     checkIfExists("/private/var/log/ppp");
+     checkIfExists("/private/var/log/sa");
+     checkIfExists("/private/var/logs");
+     checkIfExists("/private/var/logs/Baseband");
+     checkIfExists("/private/var/mobile");
+     checkIfExists("/private/var/mobile/Applications");
+     checkIfExists("/private/var/mobile/Library");
+     checkIfExists("/private/var/mobile/Library/AddressBook");
+     checkIfExists("/private/var/mobile/Library/Caches");
+     checkIfExists("/private/var/mobile/Library/ConfigurationProfiles");
+     checkIfExists("/private/var/mobile/Library/Cookies");
+     checkIfExists("/private/var/mobile/Library/Keyboard");
+     checkIfExists("/private/var/mobile/Library/Preferences");
+     checkIfExists("/private/var/mobile/Library/Safari");
+     checkIfExists("/private/var/mobile/Library/WebClips");
+     checkIfExists("/private/var/mobile/Library/WebKit");
+     checkIfExists("/private/var/mobile/Media");
+     checkIfExists("/private/var/mobile/Media/DCIM");
+     checkIfExists("/private/var/mobile/Media/Photos");
+     checkIfExists("/private/var/msgs");
+     checkIfExists("/private/var/preferences");
+     checkIfExists("/private/var/root");
+     checkIfExists("/private/var/root/Library");
+     checkIfExists("/private/var/root/Library/Preferences");
+     checkIfExists("/private/var/run");
+     checkIfExists("/private/var/tmp");
+     checkIfExists("/private/var/vm"); /* wouldn't it be nice if IDA had a script for this kind of thing? -_- */
      
      
      
