@@ -2,13 +2,15 @@
 #labels Reversing
 
 =Data Partition Obliteration Routine=
-Here is the routine used to reformat the data partition. I have reversed it to the best of my ability.
+Here is the routine used to reformat the Data partition. I have reversed it to the best of my ability.
+
+I am guessing that this is what is used when a Remote Wipe via Exchange is done, or a wipe from using Settings > General > Reset. The init of MobileFrameBuffer adds some validity to this, as you would know if you have ever tested the wipe feature.
 
 {{{
 // MobileObliterator
 // Obliterate Data Partition routine
 //
-// Reversed by Chronic (any contributors may add their name)
+// Reversed by Chronic
 //
 // NOTE: Some functions used, such as logText();, are internal functions of MobileObliterator,
 // I just didn't feel the need to reverse it, since I pretty much know what they do.
@@ -186,7 +188,7 @@ void obliterateDataPartition() {
           reboot(0);
      }
      
-     
+     logText("obliterate", "Capturing the Data partition state");
      
      
      
