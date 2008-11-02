@@ -25,9 +25,13 @@ void obliterateDataPartition() {
      CFMutableDictionaryRef             usbService;
      CFMutableDictionaryRef   watchdogServMatching;
      io_service_t               matchingUsbService;
+     io_service_t          matchingWatchdogService;
      CFMutableDictionaryRef      commandDictionary;
      kern_return_t                         sendCmd;
+     kern_return_t             setWatchdogProperty;
      int                               killDaemons;
+     int                                 numCreate;
+     const void *                        numberPtr;
 
      openlog("mobile_obliterate", 1, 24);
      a = bootstrap_check_in(
@@ -142,11 +146,32 @@ void obliterateDataPartition() {
           logText("obliterate", "Could not disable the watchdog timer");
           reboot(0);
      }
+     matchingWatchdogService = IOServiceGetMatchingService(kIOMasterPortDefault, watchdogServMatching);
+     if(!matchingWatchdogService) {
+          logText("disable_watchdog", "Could not lookup the watchdog service");
+          logText("obliterate", "Could not disable the watchdog timer");
+          reboot(0);
+     }
+     numCreate = CFNumberCreate(kCFAllocatorDefault, 3, &numberPtr);
+     if(!numCreate) {
+          logText("disable_watchdog", "Could not create number");
+          IOObjectRelease(matchingWatchdogService);
+          logText("obliterate", "Could not disable the watchdog timer");
+          reboot(0);
+     }
+     setWatchdogProperty = IORegistryEntrySetCFProperties(matchingWatchdogService, numCreate);
+     if( != 0) {
+          logText("disable_watchdog", "Could not set the watchdog property: 0x%x", setWatchdogProperty);
+          CFRelease(numCreate);
+          IOObjectRelease(matchingWatchdogService);
+          logText("obliterate", "Could not disable the watchdog timer");
+          reboot(0);
+     }
+     CFRelease(numCreate);
+     IOObjectRelease(matchingWatchdogService);
      
-     
-     
-     
-     
+     initMobileFrameBuffer();
+     logText("obliterate", "Examining the Data partition");
      
      
      
