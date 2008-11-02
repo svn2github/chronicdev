@@ -1,0 +1,104 @@
+#summary Notes on Mobile Oblitorator
+
+=Data Partition Obliteration Routine=
+Here is the routine used to reformat the data partition. I have reversed it to the best of my ability.
+
+{{{
+// MobileObliterator
+// Obliterate Data Partition routine
+//
+// Reversed by Chronic (any contributors may add their name)
+//
+// NOTE: Some functions used, such as logText();, are internal functions of MobileObliterator,
+// I just didn't feel the need to reverse it, since I pretty much know what they do.
+
+extern boolean_t execServer(mach_msg_header_t*, mach_msg_header_t*);
+
+void obliterateDataPartition() {
+     mach_port_t                       servicePort;
+     kern_return_t                               a;
+     int                                unknownVar;
+     ?                               unkownPointer;
+     int                          iopmassertionOut;
+     CFNotificationCenterRef appNotificationCenter;
+     CFMutableDictionaryRef             usbService;
+     io_service_t               matchingUsbService;
+
+     openlog("mobile_obliterate", 1, 24);
+     a = bootstrap_check_in(
+                            bootstrap_port,                       /* port         */
+                            "com.apple.mobile.obliteration",      /* service name */
+                            &servicePort                          /* service port */
+                            );
+     if(!a) {
+         mach_msg_server_once(
+                              execServer,
+                              4096,
+                              servicePort,
+                              50331648                            /* timeout (?)  */
+                              );      
+     } else {
+          logTxt("main", "bootstrap_check_in failed: 0x%x", a);
+     }
+
+     if(!unknownVar) {
+          return(0);
+     }
+
+     iopmassertionOut = IOPMAssertionCreateWithName(
+                                                    "NoIdleSleepAssertion",
+                                                    255,
+                                                    "mobile_obliterate",
+                                                    &unkownPointer
+                                                    );
+     
+     if(iopmassertionOut != 0) {
+          logText("obliterate", "Cannot prevent idle sleep");
+          reboot(0);
+     }
+
+     logText("obliterate", "Posting the data eschaton notification");
+     appNotificationCenter = CFNotificationCenterGetDarwinNotifyCenter();
+     if(appNotificationCenter != 0) {
+          CFNotificationCenterPostNotification(
+                                               appNotificationCenter;
+                                               "com.apple.mobile.data_eschaton";
+                                               iopmassertionOut
+                                               iopmassertionOut
+                                               );
+          
+     } else {
+          logText("post_notification", "Could not get the darwin notification center");
+     }
+
+     logText("obliterate", "Disabling auto boot");
+     setAutoBoot(0); /* Sets the "auto-boot" NVRAM variable to 0 */
+
+     logText("obliterate", "Taking the device off the USB bus");
+     usbService = IOServiceMatching("IOIpodUSBDevice");
+     if(!usbService) {
+          logText("getoff_bus", "Could not allocate the matching dictionary");
+          logText("obliterate", "Could not get off the USB bus");
+          reboot(0);
+     }
+     matchingUsbService = IOServiceGetMatchingService(kIOMasterPortDefault, usbService);
+     if(!matchingUsbService) {
+          logText("getoff_bus", "Could not lookup the USB device");
+          logText("obliterate", "Could not get off the USB bus");
+          reboot(0);
+     }
+     
+     
+     
+     
+     
+     /* taking a break kthx */
+     
+     
+     
+     
+     
+     
+     
+}
+}}}
