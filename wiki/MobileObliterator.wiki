@@ -256,7 +256,7 @@ int obliterateDataPartition() {
      }
      
      logText("obliterate", "Rebuilding the Data partition");
-     if(symlink("/usr/share/zoneinfo/US/Pacific", ""/private/var/db/timezone/localtime") == -1) {
+     if(symlink("/usr/share/zoneinfo/US/Pacific", "/private/var/db/timezone/localtime") == -1) {
           int *err = __error();
           int sterr = strerror(*err);
           logText("rebuild_data_partition", "Could not symlink the timezone file: %s", sterr);
