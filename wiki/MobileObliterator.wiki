@@ -23,6 +23,7 @@ void obliterateDataPartition() {
      int                          iopmassertionOut;
      CFNotificationCenterRef appNotificationCenter;
      CFMutableDictionaryRef             usbService;
+     int                               statPrivVar;
      CFMutableDictionaryRef   watchdogServMatching;
      io_service_t               matchingUsbService;
      io_service_t          matchingWatchdogService;
@@ -31,6 +32,7 @@ void obliterateDataPartition() {
      kern_return_t             setWatchdogProperty;
      int                               killDaemons;
      int                                 numCreate;
+     struct statfs *            DataPartStatStruct;
      const void *                        numberPtr;
 
      openlog("mobile_obliterate", 1, 24);
@@ -172,6 +174,27 @@ void obliterateDataPartition() {
      
      initMobileFrameBuffer();
      logText("obliterate", "Examining the Data partition");
+     statPrivVar = statfs("/private/var", &DataPartStatStruct);
+     if(statPrivVar == -1) {
+          int *err = __error();
+          char sterr = strerror(*err);
+          logText("examine_data_partition",
+                  "Could not statfs %s: %s",
+                  "/private/var"
+                  sterr);
+          logText("obliterate", "Could not examine Data partition");
+          reboot(0);
+     }
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
      
      
      
