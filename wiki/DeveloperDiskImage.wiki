@@ -1,4 +1,5 @@
 #summary It all started when you clicked that shiny "Use For Development" button in XCode.
+#labels Reversing,Information,Featured
 
 =Introduction=
 (Thanks to AriX for helping research this)
@@ -36,6 +37,121 @@ iPwned-3G:/ root# fsck_hfs /dev/disk1
 ** Checking volume information.
 ** The volume DeveloperDiskImage appears to be OK.
 }}}
+=Mounting Procedure=
+Pay attention when reading the iPhone part, as it can be a little bit confusing.
+==From the XCode side==
+XCode does the sending of the DeveloperDiskImage, as well as sending a plist file to the mobile_image_mounter daemon to communicate with it. At the time, the XCode side of things has not been reversed, so a detailed / verbose procedure cannot be provided as it is below.
+==From the iPhone / iPod side==
+1. Device receives plist of 'map'
+
+2. Makes sure plist size is OK
+
+3. Allocates memory according to the size of the plist
+
+4. Creates a CFData object for it
+
+5. Convert raw XML to plist
+
+6. CFRelease the CFData in step 4
+
+7. Free the memory that was malloc'd in step 3
+
+8. Get value of the key "Command" from the sent plist
+
+9. If it is not equal to "LookupImage", jump to step 18
+
+=== If the "Command" value is equal to "LookupImage" ===
+
+10. Get value of the key "ImageType" from the sent plist
+
+11. Load Image Map
+
+12. Create Mutable Dictionary (for response)
+
+13. In the response dictionary, set key "ImagePresent" to value kCFBooleanFalse, and key "Status" to "Complete"
+
+13b. Check if the value grabbed in 10. If it is not equal to NULL, then set up a dictionary with the following: "ImagePresent" set to kCFBooleanTrue, "ImageType" set to the value got in step 10, and "ImageDigest" set to what it was set to in the sent plist
+
+14. Send response dictionary back to XCode
+
+15. CFRelease the response dictionary
+
+16. CFRelease the Image Map
+
+17. Routine end
+
+=== If the "Command" value is not equal to "LookupImage", a jump is made to this point ===
+
+18. If the "Command value is not equal to "MountImage", jump to step ___plach___
+
+=== If the "Command" value is equal to "MountImage" ===
+
+19. Get value of "ImageType" from sent plist
+
+20. Get value of "ImageSignature" from sent plist
+
+21. Get value of "ImagePath" from sent plist
+
+22. If "ImageType" is "Developer" set a value to "/tmp/mobile_image_mounter/developer.dimage". If "ImageType" is "Developer", then set a value to "debug.dimage"
+
+23. Create the directory "/tmp/mobile_image_mounter/" with permissions 755
+
+24. Rename the directory created in step 23 with the value set in step 24
+
+25. If "ImageType" is Developer, set a value to "/Developer". If "ImageType" is "Debug", then set a value to "/var/debug_mount/"
+
+26. Use some 'fts' functions to assure that the directory defined in step 25 exist, that they can be read from, and that they are empty.
+
+27. SHA1 hash the content of the path in step 22
+
+28. Parse /System/Library/Lockdown/iPhoneDebug.pem
+
+29. Create CFArray with certificate parsed in step 28
+
+30. Create basic policy from array in created step 29
+
+31. Create trust from policy created in step 30
+
+32. Evaluate trust created in step 31
+
+33. Copy public key from trust created in step 31
+
+34. CFRelease trust created in step 31
+
+35. CFRelease policy created in step 30
+
+36. Get length of value returned from "ImageSignature" in step 20
+
+37. Allocate memory for the length of the value retrieved in step 36
+
+38. Verify public key
+
+39. Free allocated memory
+
+40. CFRelease the copied public key
+
+41. CFRelease the parsed cert
+
+42. Make the directory defined in step 25 with permissions 755
+
+43. Create a response dictionary with some uninteresting info
+
+44. Attach disk image
+
+45. Find /dev node
+
+46. Stat node
+
+47. Store image map in /tmp/mobile_image_mounter/map.plist
+
+48. If "ImageType" is "Developer", then post to notification center: com.apple.mobile.developer_image_mounted
+
+49. Send response plist to XCode with key "Status" and value "Completed"
+
+50. Done
+
+=== If the "Command" value is equal to "Hangup" ===
+51. This seems to not even be worth reversing. Thoughts?
 
 =File Listing=
 {{{
