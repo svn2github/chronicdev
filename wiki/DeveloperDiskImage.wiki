@@ -82,7 +82,7 @@ XCode does the sending of the DeveloperDiskImage, as well as sending a plist fil
 
 === If the "Command" value is not equal to "LookupImage", a jump is made to this point ===
 
-18. If the "Command value is not equal to "MountImage", jump to step ___plach___
+18. If the "Command value is not equal to "MountImage", jump to step 51
 
 === If the "Command" value is equal to "MountImage" ===
 
