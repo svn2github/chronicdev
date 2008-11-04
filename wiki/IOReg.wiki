@@ -254,7 +254,6 @@
 
 =iPhone 3G=
 {{{
-iPwned-3G:/ root# ioreg
 +-o Root  <class IORegistryEntry, retain 6>
   +-o N82AP  <class IOPlatformExpertDevice, registered, matched, active, busy 0$
     +-o AppleARMPE  <class AppleARMPE, !registered, !matched, active, busy 0, r$
