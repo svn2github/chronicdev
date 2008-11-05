@@ -1,5 +1,12 @@
 CC = gcc
-CFLAGS = -lusb -framework CoreFoundation -framework IOKit
+CFLAGS_OSX = -lusb -framework CoreFoundation -framework IOKit
+CFLAGS_LNX = -lusb
 
 all:
-	$(CC) iRecovery.c libusb.a -o iRecovery $(CFLAGS)
+		@echo 'make linux or make macosx'
+	
+macosx:
+		$(CC) iRecovery.c -o iRecovery $(CFLAGS_OSX)
+
+linux:
+		$(CC) iRecovery.c -o iRecovery $(CFLAGS_LNX)
