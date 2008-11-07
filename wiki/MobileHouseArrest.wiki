@@ -9,7 +9,7 @@ Special functions, such as sending a message to host, sending response dictionar
 int main() {
     openlog("mobile_house_arrest", 0, 24);
     if(lockdown_checkin(0, 0) == -1) {
-        log("main", ""Could not checkin with lockdown");
+        log("main", "Could not checkin with lockdown");
         return(0);
     }
     
