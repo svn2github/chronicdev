@@ -1,0 +1,40 @@
+#summary Notes on the Mobile House Arrest daemon
+#labels Reversing
+
+=Introduction=
+
+=RCE of main()=
+Special functions, such as sending a message to host, sending response dictionary to host, etc. have not been reversed.
+{{{
+int main() {
+    openlog("mobile_house_arrest", 0, 24);
+    if(lockdown_checkin(0, 0) == -1) {
+        log("main", ""Could not checkin with lockdown");
+        return(0);
+    }
+    
+    ssize_t recvLen;
+    char buff[1156];
+    recvLen = recv(0, buf, 4, 0);
+    if(recvLen == 4) {
+        int *err = __error();
+        char *strr = strerror(err);
+        log("receive_message", "Could not receive size of message: %ld %s", recvLen, strr);
+        log("main", "Could not receive request from host.");
+        close(lockdown_checkin(0, 0));
+        return(0);
+    }
+    
+    /* todo - finish all */
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+}
+}}}
