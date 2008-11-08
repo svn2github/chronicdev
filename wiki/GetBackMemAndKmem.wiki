@@ -21,4 +21,4 @@ This has only been tested on an iPhone 3G and 2G, although the kernel is postbab
 
 =Pics or it didn't happen=
 Fellow Chronic Dev member wEsTbAeR-- was the brave soul that tested my patches, and was so excited that it works he took a pretty screenshot :)
-[http://www.grabup.com/uploads/3548830ede9ea17ebee623a29ab203c8.png?direct]
+[http://www.grabup.com/uploads/3a8ae5e983bbc12a15bcbf8c11595d0a.png?direct]
