@@ -1,0 +1,24 @@
+#summary Get back access to /dev/kmem and /dev/mem on your iPhone or iPod Touch!
+#labels Reversing,Featured
+
+= Introduction =
+
+In iPhone firmwares 1.0.0 through 1.0.2 it was like heaven. We had full access to /dev/mem and /dev/kmem, and the iPhone was like a hackers holy grail. Then 1.1.1 struck, with 8900 encryption, a revamped and way more secure restore procedure, and worst of all, /dev/kmem and /dev/mem were AWOL. Because in Mac OS X the kernel builds the device nodes instead of having a script for it like they do on some other systems, we were unable to patch it out, as the system would not boot if you tried patching the kernel. Now, with Pwnage, those checks are patched out, and we can patch the kernel at will :D
+
+= Patches =
+*Warning: Please! Make sure you know what you are doing when you apply these patches! You could mess something up and require a DFU restore!*
+
+Patch your kernel with the following patches.
+
+==Firmware 2.1==
+This has only been tested on an iPhone 3G and 2G, although the kernel is postbably the same 
+||Offset||Old Bytes||New Bytes||
+||93090||20 D1||20 E0||
+||12BAD2||01 D1||01 E0||
+||12BC1E||00 D1||00 E0||
+||12BC54||00 D1||00 E0||
+||1E6670||00 00||70 00||
+
+=Pics or it didn't happen=
+Fellow Chronic Dev member wEsTbAeR-- was the brave soul that tested my patches, and was so excited that it works he took a pretty screenshot :)
+[http://www.grabup.com/uploads/3548830ede9ea17ebee623a29ab203c8.png?direct]
