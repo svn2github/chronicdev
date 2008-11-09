@@ -11,14 +11,14 @@ In iPhone firmwares 1.0.0 through 1.0.2 it was like heaven. We had full access t
 Patch your kernel with the following patches.
 
 ==Firmware 2.1==
-This has only been tested on an iPhone 3G and 2G, although the kernel is postbably the same 
 ||Offset||Old Bytes||New Bytes||
 ||93090||20 D1||20 E0||
 ||12BAD2||01 D1||01 E0||
 ||12BC1E||00 D1||00 E0||
 ||12BC54||00 D1||00 E0||
 ||1E6670||00 00||70 00||
-
+*Tested on*: iPhone 2G and iPhone 3G
 =Pics or it didn't happen=
 Fellow Chronic Dev member wEsTbAeR-- was the brave soul that tested my patches, and was so excited that it works he took a pretty screenshot :)
+
 [http://www.grabup.com/uploads/3a8ae5e983bbc12a15bcbf8c11595d0a.png?direct]
