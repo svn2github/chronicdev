@@ -28,6 +28,119 @@ Fellow Chronic Dev member wEsTbAeR-- was the brave soul that tested my patches, 
 
 [http://www.grabup.com/uploads/3a8ae5e983bbc12a15bcbf8c11595d0a.png?direct]
 
+=How it works=
+After 1.0.2, Apple (hastily) blocked off the setting up of the /dev/kmem and /dev/mem nodes by setting the setup_kmem flag to 0, in turn, causing some checks made that would normally set it up, to not set it up, at devfs mounting. The first four patches neuter the checks, and then the last patch flips the setup_kmem flag to 1, just to be safe. This allows the device to do all the proper setup to get /dev/kmem and /dev/mem mounted properly. For example, here is essentially what the devnode mounting routine for them does:
+{{{
+void setupMemNodes() {
+    devfs_make_node(
+                    makedev(3,0); /* major=1 / minor=1 */
+                    DEVFS_CHAR    /* chrblk=0 (char)   */
+                    UID_ROOT,     /* uid=0   (root)    */
+                    GID_KMEM,     /* gid=2   (kmem)    */
+                    0640,         /* permissions       */
+                    "mem",        /* dev node format   */
+                    );
+
+    devfs_make_node(
+                    makedev(3,1); /* major=1 / minor=2 */
+                    DEVFS_CHAR    /* chrblk=0 (char)   */
+                    UID_ROOT,     /* uid=0   (root)    */
+                    GID_KMEM,     /* gid=2   (kmem)    */
+                    0640,         /* permissions       */
+                    "kmem",       /* dev node format   */
+                    );
+}
+}}}
+With our patches, the following check will not skip the setupMemNodes(); routine:
+{{{
+__text:C009B08A 014 17 4B                       LDR     R3, =_setup_kmem ; Load address of setup_kmem flag
+__text:C009B08C 014 1B 68                       LDR     R3, [R3]         ; Load value of setup_kmem flag
+__text:C009B08E 014 00 2B                       CMP     R3, #0           ; Check if setup_kmem flag = 0 (It does not, with our patch)
+__text:C009B090 014 20 E0                       BNE     setup_mem        ; Jump to routine that will setup the nodes and return, if setup_kmem flag is not equal to 0
+                                                                         ; If it is equal to zero, then just go directly to the below routine.
+                                                                         ; Our patch neuters the check and changes BNE (Branch if Not Equal) to B (unconditional Branch), so it will always do the jump anyway :)
+---------------------------------------------------------------------------
+__text:C009B092                 setupOtherNormalNodes                   ; CODE XREF: sub_C009B044+94j
+__text:C009B092 014 16 4B                       LDR     R3, =aNull 
+__text:C009B094 014 00 21                       MOVS    R1, #0     
+__text:C009B096 014 01 93                       STR     R3, [SP,#0x14+fmt] 
+__text:C009B098 014 00 22                       MOVS    R2, #0          
+__text:C009B09A 014 00 23                       MOVS    R3, #0         
+__text:C009B09C 014 14 48                       LDR     R0, =0x3000002 
+__text:C009B09E 014 00 94                       STR     R4, [SP,#0x14+perms] 
+__text:C009B0A0 014 FE F7 C2 FE                 BL      _devfs_make_node 
+__text:C009B0A4 014 13 4B                       LDR     R3, =aZero      
+__text:C009B0A6 014 00 21                       MOVS    R1, #0         
+__text:C009B0A8 014 01 93                       STR     R3, [SP,#0x14+fmt] 
+__text:C009B0AA 014 00 22                       MOVS    R2, #0         
+__text:C009B0AC 014 00 23                       MOVS    R3, #0         
+__text:C009B0AE 014 12 48                       LDR     R0, =0x3000003 
+__text:C009B0B0 014 00 94                       STR     R4, [SP,#0x14+perms] 
+__text:C009B0B2 014 FE F7 B9 FE                 BL      _devfs_make_node 
+__text:C009B0B6 014 C0 23 5B 00                 MOVLS   R3, 0x180
+__text:C009B0BA 014 00 93                       STR     R3, [SP,#0x14+perms]
+__text:C009B0BC 014 0F 4B                       LDR     R3, =aKlog     
+__text:C009B0BE 014 C0 20                       MOVS    R0, #0xC0     
+__text:C009B0C0 014 01 93                       STR     R3, [SP,#0x14+fmt] 
+__text:C009B0C2 014 00 21                       MOVS    R1, #0         
+__text:C009B0C4 014 00 22                       MOVS    R2, #0     
+__text:C009B0C6 014 00 23                       MOVS    R3, #0       
+__text:C009B0C8 014 C0 04                       LSLS    R0, R0, #0x13   
+__text:C009B0CA 014 FE F7 AD FE                 BL      _devfs_make_node 
+__text:C009B0CE 014 02 B0                       ADD     SP, SP, #8   
+__text:C009B0D0 00C 00 20                       MOVS    R0, #0       
+__text:C009B0D2 00C 90 BD                       POP     {R4,R7,PC}               ; return(0;
+---------------------------------------------------------------------------
+__text:C009B0D4                 setup_mem                                        ; CODE XREF: sub_C009B044+4Cj
+__text:C009B0D4 014 FF F7 96 FF                 BL      setupMemNodes            ; Setup /dev/kmem and /dev/mem
+__text:C009B0D8 014 DB E7                       B       setupOtherNormalNodes    ; Jump back to setupOtherNormalNodes
+
+In plain English:
+1. Check setup_kem flag
+2a. If it is equal to anything except 0, setup /dev/kmem and /dev/mem, then setup the rest of the normal nodes
+2b. If it is equal to 0, then setup the rest of the normal nodes.
+}}}
+
+If ARM is not your thing, here is that same check decompiled in C:
+{{{
+    if(setupKmem != 0) {
+        setupMemNodes();
+    }
+
+    devfs_make_node(makedev(3, 2), DEVFS_CHAR, UID_ROOT, GID_WHEEL, 0666, "null"); //setup /dev/null
+    devfs_make_node(makedev(3, 3), DEVFS_CHAR, UID_ROOT, GID_WHEEL, 0666, "zero"); //setup /dev/zero
+    devfs_make_node(makedev(6, 0), DEVFS_CHAR, UID_ROOT, GID_WHEEL, 0600, "klog"); //setup /dev/klog
+    return(0);
+}}}
+
+Finally, I would just like to point out something interesting. Take a look at the above decompiled C. After a bit of searching, as well as slamming my head against the wall because I spent half an hour doing reversing and calculations that I didn't need to do, I found this little gem:
+{{{
+devfs_init(struct vfsconf *vfsp)
+{
+    devfs_vfsp = (struct vfstable *)vfsp; /* remember this for devfs_kernel_mount below */
+
+    if (devfs_sinit())
+	return (ENOTSUP);
+    devfs_make_node(makedev(0, 0), DEVFS_CHAR,
+		    UID_ROOT, GID_WHEEL, 0622, "console");
+    devfs_make_node(makedev(2, 0), DEVFS_CHAR,
+		    UID_ROOT, GID_WHEEL, 0666, "tty");
+    devfs_make_node(makedev(3, 0), DEVFS_CHAR,
+		    UID_ROOT, GID_KMEM, 0640, "mem");
+    devfs_make_node(makedev(3, 1), DEVFS_CHAR,
+		    UID_ROOT, GID_KMEM, 0640, "kmem");
+    devfs_make_node(makedev(3, 2), DEVFS_CHAR,
+		    UID_ROOT, GID_WHEEL, 0666, "null");
+    devfs_make_node(makedev(3, 3), DEVFS_CHAR,
+		    UID_ROOT, GID_WHEEL, 0666, "zero");
+    devfs_make_node(makedev(6, 0), DEVFS_CHAR,
+		    UID_ROOT, GID_WHEEL, 0600, "klog");
+    return 0;
+}
+Look familiar? Well it is. I spent more than half an hour decompiling this routine (yeah, i fail at dev nodes), and the answer was right here. This is some code from the Darwin XNU kernel, which the iPhone uses a modified version of. Little did I realize, all they did was sheepishly neuter it to prevent users from having access to /dev/kmem and /dev/mem. 
+
+}}}
+
 =Credits=
 Chronic / Patches
 
