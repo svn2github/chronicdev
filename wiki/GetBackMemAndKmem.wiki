@@ -53,12 +53,17 @@ void setupMemNodes() {
 }}}
 With our patches, the following check will not skip the setupMemNodes(); routine:
 {{{
-__text:C009B08A 014 17 4B                       LDR     R3, =_setup_kmem ; Load address of setup_kmem flag
-__text:C009B08C 014 1B 68                       LDR     R3, [R3]         ; Load value of setup_kmem flag
-__text:C009B08E 014 00 2B                       CMP     R3, #0           ; Check if setup_kmem flag = 0 (It does not, with our patch)
-__text:C009B090 014 20 E0                       BNE     setup_mem        ; Jump to routine that will setup the nodes and return, if setup_kmem flag is not equal to 0
-                                                                         ; If it is equal to zero, then just go directly to the below routine.
-                                                                         ; Our patch neuters the check and changes BNE (Branch if Not Equal) to B (unconditional Branch), so it will always do the jump anyway :)
+In plain English:
+1. Check setup_kem flag
+2a. If it is equal to anything except 0, setup /dev/kmem and /dev/mem, then setup the rest of the normal nodes
+2b. If it is equal to 0, then setup the rest of the normal nodes.
+
+__text:C009B08A 014 17 4B                       LDR     R3, =_setup_kmem // Load address of setup_kmem flag
+__text:C009B08C 014 1B 68                       LDR     R3, [R3]         // Load value of setup_kmem flag
+__text:C009B08E 014 00 2B                       CMP     R3, #0           // Check if setup_kmem flag = 0 (It does not, with our patch)
+__text:C009B090 014 20 E0                       BNE     setup_mem        // Jump to routine that will setup the nodes and return, if setup_kmem flag is not equal to 0
+                                                                         // If it is equal to zero, then just go directly to the below routine.
+                                                                         // Our patch neuters the check and changes BNE (Branch if Not Equal) to B (unconditional Branch), so it will always do the jump anyway :)
 ---------------------------------------------------------------------------
 __text:C009B092                 setupOtherNormalNodes                   ; CODE XREF: sub_C009B044+94j
 __text:C009B092 014 16 4B                       LDR     R3, =aNull 
@@ -89,20 +94,21 @@ __text:C009B0C8 014 C0 04                       LSLS    R0, R0, #0x13
 __text:C009B0CA 014 FE F7 AD FE                 BL      _devfs_make_node 
 __text:C009B0CE 014 02 B0                       ADD     SP, SP, #8   
 __text:C009B0D0 00C 00 20                       MOVS    R0, #0       
-__text:C009B0D2 00C 90 BD                       POP     {R4,R7,PC}               ; return(0;
+__text:C009B0D2 00C 90 BD                       POP     {R4,R7,PC}               // return(0;
 ---------------------------------------------------------------------------
 __text:C009B0D4                 setup_mem                                        ; CODE XREF: sub_C009B044+4Cj
-__text:C009B0D4 014 FF F7 96 FF                 BL      setupMemNodes            ; Setup /dev/kmem and /dev/mem
-__text:C009B0D8 014 DB E7                       B       setupOtherNormalNodes    ; Jump back to setupOtherNormalNodes
-
-In plain English:
-1. Check setup_kem flag
-2a. If it is equal to anything except 0, setup /dev/kmem and /dev/mem, then setup the rest of the normal nodes
-2b. If it is equal to 0, then setup the rest of the normal nodes.
+__text:C009B0D4 014 FF F7 96 FF                 BL      setupMemNodes            // Setup /dev/kmem and /dev/mem
+__text:C009B0D8 014 DB E7                       B       setupOtherNormalNodes    // Jump back to setupOtherNormalNodes
 }}}
 
 If ARM is not your thing, here is that same check decompiled in C:
 {{{
+//please note that the "int setupKmem = 0;" may not be how they do the flag checking, and is probably not,
+//at the very least it is declared as a global variable. i am still learning C so bear with me, as this is kind of pseudocode-ish,
+//but should still give you an idea of what is going on
+
+    int setupKmem = 0;
+
     if(setupKmem != 0) {
         setupMemNodes();
     }
@@ -110,6 +116,7 @@ If ARM is not your thing, here is that same check decompiled in C:
     devfs_make_node(makedev(3, 2), DEVFS_CHAR, UID_ROOT, GID_WHEEL, 0666, "null"); //setup /dev/null
     devfs_make_node(makedev(3, 3), DEVFS_CHAR, UID_ROOT, GID_WHEEL, 0666, "zero"); //setup /dev/zero
     devfs_make_node(makedev(6, 0), DEVFS_CHAR, UID_ROOT, GID_WHEEL, 0600, "klog"); //setup /dev/klog
+
     return(0);
 }}}
 
@@ -117,7 +124,7 @@ Finally, I would just like to point out something interesting. Take a look at th
 {{{
 devfs_init(struct vfsconf *vfsp)
 {
-    devfs_vfsp = (struct vfstable *)vfsp; /* remember this for devfs_kernel_mount below */
+    devfs_vfsp = (struct vfstable *)vfsp;
 
     if (devfs_sinit())
 	return (ENOTSUP);
@@ -137,9 +144,8 @@ devfs_init(struct vfsconf *vfsp)
 		    UID_ROOT, GID_WHEEL, 0600, "klog");
     return 0;
 }
-Look familiar? Well it is. I spent more than half an hour decompiling this routine (yeah, i fail at dev nodes), and the answer was right here. This is some code from the Darwin XNU kernel, which the iPhone uses a modified version of. Little did I realize, all they did was sheepishly neuter it to prevent users from having access to /dev/kmem and /dev/mem. 
-
 }}}
+Look familiar? Well it is. I spent more than half an hour decompiling this routine (yeah, i fail at dev nodes), and the answer was right here. This is some code from the Darwin XNU kernel, which the iPhone uses a modified version of. Little did I realize, all they did was sheepishly neuter it to prevent users from having access to /dev/kmem and /dev/mem. 
 
 =Credits=
 Chronic / Patches
