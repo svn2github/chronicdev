@@ -33,7 +33,7 @@ After 1.0.2, Apple (hastily) blocked off the setting up of the /dev/kmem and /de
 {{{
 void setupMemNodes() {
     devfs_make_node(
-                    makedev(3,0); /* major=1 / minor=1 */
+                    makedev(3,0); /* major=3 / minor=0 */
                     DEVFS_CHAR    /* chrblk=0 (char)   */
                     UID_ROOT,     /* uid=0   (root)    */
                     GID_KMEM,     /* gid=2   (kmem)    */
@@ -42,7 +42,7 @@ void setupMemNodes() {
                     );
 
     devfs_make_node(
-                    makedev(3,1); /* major=1 / minor=2 */
+                    makedev(3,1); /* major=3 / minor=1 */
                     DEVFS_CHAR    /* chrblk=0 (char)   */
                     UID_ROOT,     /* uid=0   (root)    */
                     GID_KMEM,     /* gid=2   (kmem)    */
@@ -145,7 +145,7 @@ devfs_init(struct vfsconf *vfsp)
     return 0;
 }
 }}}
-Look familiar? Well it is. I spent more than half an hour decompiling this routine (yeah, i fail at dev nodes), and the answer was right here. This is some code from the Darwin XNU kernel, which the iPhone uses a modified version of. Little did I realize, all they did was sheepishly neuter it to prevent users from having access to /dev/kmem and /dev/mem. 
+Look familiar? Well it is. I spent more than half an hour decompiling this routine (yeah, i fail at dev nodes), and the answer was right here. This is some code from the Darwin XNU kernel, which the iPhone uses a modified version of. Little did I realize, all they did was sheepishly neuter it to prevent users from having access to the /dev/kmem and /dev/mem device nodes.
 
 =Credits=
 Chronic / Patches
