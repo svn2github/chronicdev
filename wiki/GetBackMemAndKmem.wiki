@@ -3,7 +3,7 @@
 
 =Introduction=
 
-In iPhone firmwares 1.0.0 through 1.0.2 it was like heaven. We had full access to /dev/mem and /dev/kmem, and the iPhone was like a hacker's holy grail. Then 1.1.1 struck, with 8900 encryption, a revamped and way more secure restore procedure, and worst of all, /dev/kmem and /dev/mem were AWOL. Because in Mac OS X the kernel builds the device nodes instead of having a script for it like they do on some other systems, we were unable to patch it out, as the system would not boot if you tried patching the kernel. Now, with Pwnage, those checks are patched out, and we can patch the kernel at will :D
+In iPhone firmwares 1.0.0 through 1.0.2 it was like heaven. We had full access to /dev/mem and /dev/kmem, and the iPhone was like a hacker's holy grail. Then 1.1.1 struck, with 8900 encryption, a revamped and way more secure restore procedure, and worst of all, /dev/kmem and /dev/mem were MIA. Because in Mac OS X the kernel builds the device nodes instead of having a script for it like they do on some other systems, we were unable to patch it out, as the system would not boot if you tried patching the kernel. Now, with Pwnage, those checks are patched out, and we can patch the kernel at will :D
 
 =Patches=
 *Warning: Please! Make sure you know what you are doing when you apply these patches! You could mess something up and require a DFU restore!*
