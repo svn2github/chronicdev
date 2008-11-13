@@ -1,0 +1,42 @@
+#summary Some kernel hacks for firmware 2.1
+#labels Featured,Patches,Reversing
+
+= WARNING =
+
+Only use these if you know what you are doing! These are not intended for the average end user. Most of these patches are for people that have a specific purpose for them, and are testing / tinkering with something.
+
+*These are for firmware 2.1*
+
+*NOTE: Some of these are untested*
+
+=Patches=
+==Device Nodes==
+||Offset||Normal Bytes||Patched Bytes||Comment||
+||93090||20 D1||20 E0||Neuter check of setup_kmem flag||
+||12BAD2||01 D1||01 E0||Neuter check of setup_kmem flag||
+||12BC1E||00 D1||00 E0||Neuter check of setup_kmem flag||
+||12BC54||00 D1||00 E0||Neuter check of setup_kmem flag||
+||1E6670||00 00 00 00||00 00 00 10||Patch setup_kmem flag to allow /dev/kmem and /dev/mem to be mounted at boot.||
+
+==Kernel Settings==
+||Offset||Normal Bytes||Patched Bytes||Comment||
+||1EC5F8||02 00 00 80||02 00 00 C0||Make 'kern.secure_kernel' writable. (Thanks to scotty2 for this)||
+||1E9F28||02 00 00 80||02 00 00 C0||Make 'kern.safeboot' writable||
+||1E9F04||02 00 00 80||02 00 00 C0||Make 'kern.singleuser' writable||
+||1E9F94||02 00 00 80||02 00 00 C0||Make 'kern.shreg_private' writable||
+
+==Codesign Settings==
+||Offset||Normal Bytes||Patched Bytes||Comment||
+||1E9860||00 00 00 00||00 00 00 10||Turn on Codesign Debug flag||
+||1EBAE8||02 00 00 80||02 00 00 C0||Make 'vm.cs_blog_size_max' writable.||
+||1EBB0C||02 00 00 80||02 00 00 C0||Make 'vm.cs_blob_size_peak' writable.||
+||1EBB30||02 00 00 80||02 00 00 C0||Make 'vm.cs_blob_count_peak' writable.||
+||1EBB54||02 00 00 80||02 00 00 C0||Make 'vm.cs_blob_count' writable.||
+||1EBB78||02 00 00 80||02 00 00 C0||Make 'vm.cs_blob_size' writable.||
+
+=Secure_Kernel=
+It is probably best to normally keep kern.secure_kernel set to 1 when you do not explicitly need it to be off. So instead of patching it, and because I would only need to use it when I am in SSH, I just added this to my /etc/profile:
+{{{
+sysctl -w kern.secure_kernel=0 > /dev/null 2&>1
+}}}
+Now, whenever you SSH in, or open MobileTerminal, it will silently turn secure_kernel to 0. Make sure you have the patch above to make the kern.secure_kernel variable writable, or this will not work.
