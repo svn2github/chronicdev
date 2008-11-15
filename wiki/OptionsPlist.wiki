@@ -19,4 +19,4 @@ If the value is set to 0, then it will skip the baseband flashing procedure and 
 Not yet fully documented.
 
 == SystemPartitionSize ==
-The default for a restore is 500MB on 2.* and 300MB on 1.* firmwares. But, if this value is set to anything else (in MB), then it will resize to the given size.
+The default for a restore is 500MB on 2.x and 300MB on 1.x firmwares. But, if this value is set to anything else (in MB), then it will resize to the given size.
