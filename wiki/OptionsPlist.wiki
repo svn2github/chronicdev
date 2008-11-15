@@ -1,0 +1,22 @@
+#summary A property list used in 2.* restores to determine what is done during the restore
+#labels Information
+
+= Introduction =
+
+It is located at /usr/local/share/restore/options.plist on the restore ramdisk. During the restore procedure, the restore daemon (restored_external) will parse it to see if there is a certain step that it should or should not do.
+
+= Values =
+== WaitForStorageDevice ==
+Not yet documented.
+
+== FlashNOR ==
+If the value is 0, then it will skip the NOR flashing procedure and you will retain your old NOR. If you use this, please know what you are doing, because sometimes the kernel will not be too fond of the old NOR and you may need to DFU restore.
+
+== UpgradeBaseband ==
+If the value is set to 0, then it will skip the baseband flashing procedure and you will retain your old baseband. This has been utilized by XPwn and PwnageTool to assure that the 3G baseband is not upgraded (so that any future exploits will not be closed, presumably).
+
+== CreateFilesystemPartitions ==
+Not yet fully documented.
+
+== SystemPartitionSize ==
+The default for a restore is 500MB on 2.* and 300MB on 1.* firmwares. But, if this value is set to anything else (in MB), then it will resize to the given size.
