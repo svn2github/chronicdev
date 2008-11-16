@@ -1,5 +1,5 @@
 #summary Notes on Mobile Oblitorator
-#labels Reversing,Featured
+#labels Reversing
 
 =Data Partition Obliteration Routine=
 Here is the routine used to reformat the Data partition. I have reversed it to the best of my ability.
