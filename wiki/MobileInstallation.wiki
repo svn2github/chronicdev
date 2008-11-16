@@ -1,5 +1,5 @@
 #summary Notes about the MobileInstallation Framework on 2.* devices
-#labels Patches,Reversing,Featured
+#labels Patches,Reversing
 
 =What it is=
 The MobileInstallation framework controls and regulates application installation on the iPhone and iPod Touch. The libmis.dylib library contains many functions that MobileInstallation uses.
