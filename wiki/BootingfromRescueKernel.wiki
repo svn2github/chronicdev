@@ -1,0 +1,29 @@
+#summary How to boot in iPhoneOS with a fucked up kernel.
+#labels Information
+
+= Introduction =
+
+As you all know, we're working day and night on kernel patches. Unfortunately it's like a bitch and a half to restore the iPhone everytime when you've done something wrong. Here is what we are using to prevent restoring the iPhone. It's really simple but it works.
+
+= Details =
+
+Copy a vanilla (and pwnage-patched) kernel and rename it to kernel.backup.
+
+{{{
+cp /System/Library/Caches/com.apple.kernelcaches/kernelcache.s5l8900x /System/Library/Caches/com.apple.kernelcaches/kernel.backup
+}}}
+
+Done. Now, apply patches to your kernel. Apply them to kernelcache.s5l8900x.
+
+When you fucked up something boot your iPhone in Recovery and start iRecovery
+{{{
+./iRecovery -s
+}}}
+
+Now, change the boot-path to your rescue kernel and save the nvram changes.
+{{{
+setenv boot-path /System/Library/Caches/com.apple.kernelcaches/kernel.backup
+saveenv
+}}}
+
+Enter *reboot* or *fsboot* to boot into iPhoneOS. Now you're back, so that you can replace the kernel and patch it again. Yay!
