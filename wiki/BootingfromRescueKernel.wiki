@@ -27,3 +27,9 @@ saveenv
 }}}
 
 Enter *reboot* or *fsboot* to boot into iPhoneOS. Now you're back, so that you can replace the kernel and patch it again. Yay!
+
+To fix your old messed up kernel:
+{{{
+rm -rf /System/Library/Caches/com.apple.kernelcaches/kernelcache.s5l8900x
+cp /System/Library/Caches/com.apple.kernelcaches/kernel.backup /System/Library/Caches/com.apple.kernelcaches/kernelcache.s5l8900x
+}}}
