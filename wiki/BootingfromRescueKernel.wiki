@@ -1,4 +1,4 @@
-#summary How to boot in iPhoneOS with a fucked up kernel.
+#summary How to create a 'rescue kernel' that you can boot to for kernel patches gone wrong
 #labels Information
 
 = Introduction =
