@@ -20,10 +20,11 @@ Only use these if you know what you are doing! These are not intended for the av
 
 ==Kernel Settings==
 ||Offset||Normal Bytes||Patched Bytes||Comment||
-||1EC5F8||02 00 00 80||02 00 00 C0||Make 'kern.secure_kernel' writable. (Thanks to scotty2 for this)||
 ||1E9F28||02 00 00 80||02 00 00 C0||Make 'kern.safeboot' writable||
 ||1E9F04||02 00 00 80||02 00 00 C0||Make 'kern.singleuser' writable||
 ||1E9F94||02 00 00 80||02 00 00 C0||Make 'kern.shreg_private' writable||
+||1EC5F8||02 00 00 80||02 00 00 C0||Make 'kern.secure_kernel' writable. (Thanks to scotty2 for this)||
+||1EC60C||01 00 00 00||00 00 00 00||Set 'kern.secure_kernel' to 0||
 
 ==Codesign Settings==
 ||Offset||Normal Bytes||Patched Bytes||Comment||
