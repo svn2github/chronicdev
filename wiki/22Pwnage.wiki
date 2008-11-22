@@ -1,12 +1,15 @@
-#summary Pwnage on 2.2
+#summary Pwnage for the iPhone 2G and 3G on 2.2 (BETA - wait for devteam release if you want things to be totally stable!)
+#labels Featured
 
-= Introduction =
+=Instructions=
 
 Download the latest PwnageTool from the iPhone Dev Team (blog.iphone-dev.org). 
 Click on the PwnageTool Icon, click "Show Package Contents". Move the CydiaInstaller (from the 3G Bundle) into Contents/Resources/CustomPackages and the iPhone1,1_2.2_5G77.bundle / iPhone1,2_2.2_5G77.bundle into Contents/Resources/FirmwareBundles.
 
 Build your own IPSW, restore in iTunes. :)
 
+=Downloads=
+
 [http://code.google.com/p/chronicdev/downloads/detail?name=iPhone1%2C1_2.2_5G77.bundle.zip&can=2&q= 2G Bundle]
 
-[http://code.google.com/p/chronicdev/downloads/detail?name=3G-2.2-Pwnage.zip&can=2&q= 3G Bundle + Cydia]
+[http://code.google.com/p/chronicdev/downloads/detail?name=3G-2.2-Pwnage.zip&can=2&q= 3G Bundle + Cydia for 2.2]
