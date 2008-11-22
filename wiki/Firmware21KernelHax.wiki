@@ -1,5 +1,5 @@
 #summary Some kernel hacks for firmware 2.1
-#labels Featured,Patches,Reversing
+#labels Patches,Reversing
 
 = WARNING =
 
