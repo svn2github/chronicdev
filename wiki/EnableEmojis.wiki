@@ -1,0 +1,14 @@
+#summary How to enable Emojis
+#labels Featured,Information
+
+= Method 1 - Property List Edit =
+Edit /private/var/mobile/Library/Preferences/com.apple.Preferences.plist, and add to the end:
+{{{
+<key>KeyboardEmojiEverywhere</key>
+</true>
+}}}
+
+Or if you open it in Property List editor, just add a new value with the "{{{KeyboardEmojiEverywhere}}}" text, set it as a boolean, and check the checkbox.
+
+= Method 2 - "Patcher" application =
+westbaer has made a lightweight application to enable and disable "{{{KeyboardEmojiEverywhere}}}", without having to hack the plist manually. It is available here: http://westbaer.yourhak.com/EmojiEnabler.zip
