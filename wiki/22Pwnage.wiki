@@ -1,5 +1,4 @@
 #summary Pwnage for the iPhone 2G and 3G on 2.2 (BETA - wait for devteam release if you want things to be totally stable!)
-#labels Featured
 
 =Instructions=
 
