@@ -12,3 +12,5 @@ Or if you open it in Property List editor, just add a new value with the "{{{Key
 
 = Method 2 - "Patcher" application =
 westbaer has made a lightweight application to enable and disable "{{{KeyboardEmojiEverywhere}}}", without having to hack the plist manually. It is available here: http://westbaer.yourhak.com/EmojiEnabler.zip (Source included, and will probably be mirrored in the SVN sometime soon)
+
+Thanks to [http://steventroughtonsmith.blogspot.com/ Steven Troughton-Smith] for finding it out.
