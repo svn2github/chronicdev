@@ -1,0 +1,113 @@
+#summary Some patches to remove bootloader restrictions
+#labels Featured,Reversing,Patches
+
+= Patches =
+
+||Offset||Old Bytes||New Bytes||ARM Code||Comment||
+||8BB||0B F0 62 FA||8A 47 00 00||bl jmp_to_loc -> bx r1||fixed diags to just jump to the given parameter, not disabling all the I/O stuff first||
+||CDF2||00 20||01 20||movs r0, #0 -> movs r0, #1||patch range check||
+
+= Explanation =
+
+== Range Check Patch ==
+
+=== Rough Disassm ===
+{{{
+ROM:2200CDD0                 ; =============== S U B R O U T I N E =======================================
+ROM:2200CDD0
+ROM:2200CDD0                 ; determine if the address the function is trying to use / manipulate is within
+ROM:2200CDD0                 ; permitted bounds.
+ROM:2200CDD0                 ;
+ROM:2200CDD0                 ; return(1); - check passed
+ROM:2200CDD0                 ; return(0); - check failed
+ROM:2200CDD0
+ROM:2200CDD0                 range_check                             ; CODE XREF: cmd_bootx+30p
+ROM:2200CDD0                                                         ; cmd_diags+1Cp
+ROM:2200CDD0 000 09 4B                       LDR     R3, =0x2201C5E0 ; Load from Memory
+ROM:2200CDD2 000 42 18                       ADDS    R2, R0, R1      ; r2 = arg1 + arg2
+ROM:2200CDD4 000 1B 68                       LDR     R3, [R3]        ; Load from Memory
+ROM:2200CDD6 000 D9 03                       LSLS    R1, R3, #0xF    ; if((int *)0x2201C5E0 << 0xF < 0) {
+ROM:2200CDD8 000 09 D4                       BMI     return1_good    ;     return(1);
+ROM:2200CDD8                                                         ; }
+ROM:2200CDD8                                                         ;
+ROM:2200CDDA 000 90 42                       CMP     R0, R2          ; if(arg1 >= r2) {
+ROM:2200CDDC 000 09 D2                       BCS     return0_bad     ;     return(0);
+ROM:2200CDDC                                                         ; }
+ROM:2200CDDE 000 07 4B                       LDR     R3, =0x2201C5E4 ; min addr allowed
+ROM:2200CDE0 000 1B 68                       LDR     R3, [R3]        ; Load from Memory
+ROM:2200CDE2 000 98 42                       CMP     R0, R3          ; if(arg1 < (int *)0x2201C5E4) {
+ROM:2200CDE4 000 05 D3                       BCC     return0_bad     ;     return(0); // bad!
+ROM:2200CDE4                                                         ; }
+ROM:2200CDE6 000 06 4B                       LDR     R3, =0x2201C5E8 ; max addr allowed
+ROM:2200CDE8 000 1B 68                       LDR     R3, [R3]        ; Load from Memory
+ROM:2200CDEA 000 9A 42                       CMP     R2, R3          ; if(r2 > (int *)0x2201C5E8
+ROM:2200CDEC 000 01 D8                       BHI     return0_bad     ;     return(0); // bad!
+ROM:2200CDEC                                                         ; }
+ROM:2200CDEE
+ROM:2200CDEE                 return1_good                            ; CODE XREF: range_check+8j
+ROM:2200CDEE 000 01 20                       MOVS    R0, #1          ; Rd = Op2
+ROM:2200CDF0 000 00 E0                       B       return          ; Branch
+ROM:2200CDF2                 ; ---------------------------------------------------------------------------
+ROM:2200CDF2
+ROM:2200CDF2                 return0_bad                             ; CODE XREF: range_check+Cj
+ROM:2200CDF2                                                         ; range_check+14j
+ROM:2200CDF2                                                         ; range_check+1Cj
+ROM:2200CDF2 000 00 20                       MOVS    R0, #0          ; 0 is bad. patch this to 01 20 (movs r0, #1) instead.
+ROM:2200CDF4
+ROM:2200CDF4                 return                                  ; CODE XREF: range_check+20j
+ROM:2200CDF4 000 70 47                       BX      LR              ; Branch to/from Thumb mode
+ROM:2200CDF4                 ; End of function range_check
+}}}
+
+=== Comment ===
+
+Basically, all I did was patch the return(0); to return(1);. that way, if one of the checks here fails, then it will still return 1, so the function that called the check will see that it returned 1, and that makes it think that the check passed successfully.
+
+== Diags fix ==
+
+=== Rough Disassm ===
+{{{
+ROM:22000884                 cmd_diags                               ; DATA XREF: ROM:22018C0Co
+ROM:22000884
+ROM:22000884                 var_8           = -8
+ROM:22000884
+ROM:22000884 000 90 B5                       PUSH    {R4,R7,LR}      ; Push registers
+ROM:22000886 00C 01 AF                       ADD     R7, SP, #0xC+var_8 ; Rd = Op1 + Op2
+ROM:22000888 00C 01 28                       CMP     R0, #1          ; if(argc > 1) {
+ROM:2200088A 00C 04 DC                       BGT     loc_22000896    ;     alternate_jmp
+ROM:2200088C 00C 05 21                       MOVS    R1, #5          ; Rd = Op2
+ROM:2200088E 00C 0D 48                       LDR     R0, =0x64696167 ; "diag"
+ROM:22000890 00C FF F7 02 FF                 BL      boot_flash      ; boot_flash("diag", 5);
+ROM:22000894 00C 12 E0                       B       loc_220008BC    ; return(-1); because boot_flash(); should not return.
+ROM:22000896                 ; ---------------------------------------------------------------------------
+ROM:22000896
+ROM:22000896                 alternate_jmp                            ; CODE XREF: cmd_diags+6j
+ROM:22000896 00C 0C 1C                       ADDS    R4, R1, #0      ; Rd = Op1 + Op2
+ROM:22000898 00C 88 69                       LDR     R0, [R1,#0x18]  ; Load from Memory
+ROM:2200089A 00C F0 21 09 04                 MOVLS   R1, 0xF00000
+ROM:2200089E 00C 14 34                       ADDS    R4, #0x14       ; Rd = Op1 + Op2
+ROM:220008A0 00C 0C F0 96 FA                 BL      range_check     ; rcheck(?, 0xF00000);
+ROM:220008A4 00C 00 28                       CMP     R0, #0          ; if(rcheck(?, 0xF00000) == 0) {
+ROM:220008A6 00C 09 D0                       BEQ     loc_220008BC    ;     return(-1);
+ROM:220008A8 00C 10 20                       MOVS    R0, #0x10       ; Rd = Op2
+ROM:220008AA 00C 0C F0 65 FA                 BL      permissions_check ; pcheck(0x10);
+ROM:220008AE 00C 00 28                       CMP     R0, #0          ; if(pcheck(0x10) == 0) {
+ROM:220008B0 00C 04 D0                       BEQ     loc_220008BC    ;     return(-1);
+ROM:220008B2 00C 61 68                       LDR     R1, [R4,#4]     ; Load from Memory
+ROM:220008B4 00C 05 20                       MOVS    R0, #5          ; Rd = Op2
+ROM:220008B6 00C 00 22                       MOVS    R2, #0          ; Rd = Op2
+ROM:220008B8 00C 0B F0 62 FA                 BL      jmp_to_loc      ; jmp_to_loc(5, argv[[1], 0);
+ROM:220008BC
+ROM:220008BC                 loc_220008BC                            ; CODE XREF: cmd_diags+10j
+ROM:220008BC                                                         ; cmd_diags+22j
+ROM:220008BC                                                         ; cmd_diags+2Cj
+ROM:220008BC 00C 01 20                       MOVS    R0, #1          ; r0 = 1
+ROM:220008BE 00C 40 42                       NEGS    R0, R0          ; r0 = -1 (because this point should not be reached unless there was an error of some kind)
+ROM:220008C0 00C 90 BD                       POP     {R4,R7,PC}      ; Pop registers
+ROM:220008C0                 ; End of function cmd_diags
+}}}
+
+=== Comment ===
+My patch will change the jmp_to_loc(); call, so that it basically just jumps straight to argv[1]. I do this because jmp_to_loc(); disables some gpio stuff among other things, and if you want to use diags to just run code, then you don't want this.
+
+this patch is not usable as of now because i have not found a stable patch for permissions, and at the time if you try diags it will throw back "Permission Denied".
