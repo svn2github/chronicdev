@@ -111,4 +111,4 @@ ROM:220008C0                 ; End of function cmd_diags
 === Comment ===
 My patch will change the jmp_to_loc(); call, so that it basically just jumps straight to argv[1]. I do this because jmp_to_loc(); disables some gpio stuff among other things, and if you want to use diags to just run code, then you don't want this.
 
-this patch is not usable as of now because i have not found a stable patch for permissions, and at the time if you try diags it will throw back "Permission Denied".
+there is a temp patch up right now to get past permission check, although i have not figured out a simple patch for all command permissions yet. for now you could maybe try doing 'mw 0x2201c5e0 0xffffffff' after doing my range check patch
