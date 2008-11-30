@@ -8,6 +8,12 @@
 ||8BB||0B F0 62 FA||8A 47 00 00||bl jmp_to_loc -> bx r1||fixed diags to just jump to the given parameter, not disabling all the I/O stuff first||
 ||CDF2||00 20||01 20||movs r0, #0 -> movs r0, #1||patch range check||
 
+== Permissions ==
+Certain commands in iBoot / iBSS / etc. were meant only to be used by Apple engineers, as they allow you do to neat but dangerous things. For example, with 'diags', along with my patch to fix it, you can write unsigned code to memory and use diags <location of code> to execute it. Or with the 'bdev' command, if you knew what you were doing, you could reflash / erase some parts of NOR. Note that if you mess with 'bdev' and you do not know what you are doing, then you could brick your device '''beyond DFU restore, if you accidently erase the SysCfg section'''.
+
+To patch the permissions, use my range check patch, then send the following command, it will patch the iBoot flags in memory, so nothing gets messed up:
+{{{ mw 0x2201c5e0 0xffffffff }}}
+
 = Explanation =
 
 == Range Check Patch ==
