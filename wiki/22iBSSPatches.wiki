@@ -4,6 +4,7 @@
 = Patches =
 
 ||Offset||Old Bytes||New Bytes||ARM Code||Comment||
+||8B0||04 D0||00 00||beq (return(0);) -> nop||should patch permissions check from diags (untested)
 ||8BB||0B F0 62 FA||8A 47 00 00||bl jmp_to_loc -> bx r1||fixed diags to just jump to the given parameter, not disabling all the I/O stuff first||
 ||CDF2||00 20||01 20||movs r0, #0 -> movs r0, #1||patch range check||
 
