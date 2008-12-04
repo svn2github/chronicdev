@@ -1,4 +1,81 @@
 #summary iPod Touch 2G - iBEC Notes
+#labels Featured
 
 =Random Notes=
 -Mapped to 0x0FF00000 instead of the usual 0x22000000
+
+-
+
+=Security Checks=
+
+==Range Check==
+{{{
+ROM:0FF0BD04                 ; =============== S U B R O U T I N E =======================================
+ROM:0FF0BD04
+ROM:0FF0BD04                 ; iboot range check
+ROM:0FF0BD04                 ;
+ROM:0FF0BD04                 ; logic:
+ROM:0FF0BD04                 ; if running on a special dev board, we are good to go. bypasses the range check.
+ROM:0FF0BD04                 ; if ibec addr is negative for some reason, then fail.
+ROM:0FF0BD04                 ; if addr to check is less than the minimum addr defined at 0x0ff186c4, then fail.
+ROM:0FF0BD04                 ; if addr to check is greater than the maximum addr defined in 0xff186c8, then fail.
+ROM:0FF0BD04                 ;
+ROM:0FF0BD04                 ; psuedocode:
+ROM:0FF0BD04                 ; int permissions_check(long addr_to_check, long ibec_addr) {
+ROM:0FF0BD04                 ;     if(flags at 0x0ff186c0 << 0xF < 0) {
+ROM:0FF0BD04                 ;         return(1);    // aka, success.
+ROM:0FF0BD04                 ;     }
+ROM:0FF0BD04                 ;     if(addr to check >= ibec addr + addr to check) {
+ROM:0FF0BD04                 ;         return(0);    // aka, fail.
+ROM:0FF0BD04                 ;     }
+ROM:0FF0BD04                 ;     if(addr to check < min allowed addr) {
+ROM:0FF0BD04                 ;         return(0);    // aka, fail.
+ROM:0FF0BD04                 ;     }
+ROM:0FF0BD04                 ;     if(addr to check > max allowed addr) {
+ROM:0FF0BD04                 ;         return(0);    // aka, fail.
+ROM:0FF0BD04                 ;     }
+ROM:0FF0BD04                 ;
+ROM:0FF0BD04                 ;     return(1);
+ROM:0FF0BD04                 ; }
+ROM:0FF0BD04
+ROM:0FF0BD04                 ; int __cdecl range_check(__int32 addr_to_check, __int32 ibec_addr)
+ROM:0FF0BD04                 range_check                             ; CODE XREF: cmd_bootx+30p
+ROM:0FF0BD04                                                         ; cmd_diags+1Cp
+ROM:0FF0BD04                                                         ; sub_FF00BE8+64p
+ROM:0FF0BD04                                                         ; sub_FF00CA8+56p ...
+ROM:0FF0BD04 000 09 4B                       LDR     R3, =0xFF186C0  ; iboot flags
+ROM:0FF0BD06 000 42 18                       ADDS    R2, R0, R1      ; r2 = addr to check + ibec addr
+ROM:0FF0BD08 000 1B 68                       LDR     R3, [R3]        ; flags located at 0x0ff186c0
+ROM:0FF0BD0A 000 D9 03                       LSLS    R1, R3, #0xF    ; Logical Shift Left
+ROM:0FF0BD0C 000 09 D4                       BMI     return_success  ; return(1);    // good
+ROM:0FF0BD0E 000 90 42                       CMP     R0, R2          ; Set cond. codes on Op1 - Op2
+ROM:0FF0BD10 000 09 D2                       BCS     return_fail     ; return(0);    // bad
+ROM:0FF0BD12 000 07 4B                       LDR     R3, =0xFF186C4  ; min addr
+ROM:0FF0BD14 000 1B 68                       LDR     R3, [R3]        ; Load from Memory
+ROM:0FF0BD16 000 98 42                       CMP     R0, R3          ; Set cond. codes on Op1 - Op2
+ROM:0FF0BD18 000 05 D3                       BCC     return_fail     ; return(0);    // bad
+ROM:0FF0BD1A 000 06 4B                       LDR     R3, =0xFF186C8  ; max addr
+ROM:0FF0BD1C 000 1B 68                       LDR     R3, [R3]        ; Load from Memory
+ROM:0FF0BD1E 000 9A 42                       CMP     R2, R3          ; Set cond. codes on Op1 - Op2
+ROM:0FF0BD20 000 01 D8                       BHI     return_fail     ; return(0);    // bad
+ROM:0FF0BD22
+ROM:0FF0BD22                 return_success                          ; CODE XREF: range_check+8j
+ROM:0FF0BD22 000 01 20                       MOVS    R0, #1          ; return(1);    // good
+ROM:0FF0BD24 000 00 E0                       B       return          ; Branch
+ROM:0FF0BD26                 ; ---------------------------------------------------------------------------
+ROM:0FF0BD26
+ROM:0FF0BD26                 return_fail                             ; CODE XREF: range_check+Cj
+ROM:0FF0BD26                                                         ; range_check+14j
+ROM:0FF0BD26                                                         ; range_check+1Cj
+ROM:0FF0BD26 000 00 20                       MOVS    R0, #0          ; return(0);    // bad
+ROM:0FF0BD28
+ROM:0FF0BD28                 return                                  ; CODE XREF: range_check+20j
+ROM:0FF0BD28 000 70 47                       BX      LR              ; Branch to/from Thumb mode
+ROM:0FF0BD28                 ; End of function range_check
+ROM:0FF0BD28
+ROM:0FF0BD28                 ; ---------------------------------------------------------------------------
+ROM:0FF0BD2A 00 00                           DCW 0
+ROM:0FF0BD2C C0 86 F1 0F     dword_FF0BD2C   DCD 0xFF186C0           ; DATA XREF: range_checkr
+ROM:0FF0BD30 C4 86 F1 0F     dword_FF0BD30   DCD 0xFF186C4           ; DATA XREF: range_check+Er
+ROM:0FF0BD34 C8 86 F1 0F     dword_FF0BD34   DCD 0xFF186C8           ; DATA XREF: range_check+16r
+}}}
