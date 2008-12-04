@@ -1,4 +1,4 @@
 #summary iPod Touch 2G - iBEC Notes
 
 =Random Notes=
--Mapped to 0xFF00000 instead of the usual 0x22000000
+-Mapped to 0x0FF00000 instead of the usual 0x22000000
