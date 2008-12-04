@@ -16,16 +16,16 @@ ROM:0FF0BD04                 ; iboot range check
 ROM:0FF0BD04                 ;
 ROM:0FF0BD04                 ; logic:
 ROM:0FF0BD04                 ; if running on a special dev board, we are good to go. bypasses the range check.
-ROM:0FF0BD04                 ; if ibec addr is negative for some reason, then fail.
+ROM:0FF0BD04                 ; if unkown addr is negative for some reason, then fail.
 ROM:0FF0BD04                 ; if addr to check is less than the minimum addr defined at 0x0ff186c4, then fail.
 ROM:0FF0BD04                 ; if addr to check is greater than the maximum addr defined in 0xff186c8, then fail.
 ROM:0FF0BD04                 ;
 ROM:0FF0BD04                 ; psuedocode:
-ROM:0FF0BD04                 ; int permissions_check(long addr_to_check, long ibec_addr) {
+ROM:0FF0BD04                 ; int permissions_check(long addr_to_check, long unk_addr) {
 ROM:0FF0BD04                 ;     if(flags at 0x0ff186c0 << 0xF < 0) {
 ROM:0FF0BD04                 ;         return(1);    // aka, success.
 ROM:0FF0BD04                 ;     }
-ROM:0FF0BD04                 ;     if(addr to check >= ibec addr + addr to check) {
+ROM:0FF0BD04                 ;     if(addr to check >= unk addr + addr to check) {
 ROM:0FF0BD04                 ;         return(0);    // aka, fail.
 ROM:0FF0BD04                 ;     }
 ROM:0FF0BD04                 ;     if(addr to check < min allowed addr) {
@@ -38,13 +38,13 @@ ROM:0FF0BD04                 ;
 ROM:0FF0BD04                 ;     return(1);    // aka, success, since the other checks above passed
 ROM:0FF0BD04                 ; }
 ROM:0FF0BD04
-ROM:0FF0BD04                 ; int __cdecl range_check(__int32 addr_to_check, __int32 ibec_addr)
+ROM:0FF0BD04                 ; int __cdecl range_check(__int32 addr_to_check, __int32 unk_addr)
 ROM:0FF0BD04                 range_check                             ; CODE XREF: cmd_bootx+30p
 ROM:0FF0BD04                                                         ; cmd_diags+1Cp
 ROM:0FF0BD04                                                         ; sub_FF00BE8+64p
 ROM:0FF0BD04                                                         ; sub_FF00CA8+56p ...
 ROM:0FF0BD04 000 09 4B                       LDR     R3, =0xFF186C0  ; iboot flags
-ROM:0FF0BD06 000 42 18                       ADDS    R2, R0, R1      ; r2 = addr to check + ibec addr
+ROM:0FF0BD06 000 42 18                       ADDS    R2, R0, R1      ; r2 = addr to check + unknown addr
 ROM:0FF0BD08 000 1B 68                       LDR     R3, [R3]        ; flags located at 0x0ff186c0
 ROM:0FF0BD0A 000 D9 03                       LSLS    R1, R3, #0xF    ; Logical Shift Left
 ROM:0FF0BD0C 000 09 D4                       BMI     return_success  ; return(1);    // good
