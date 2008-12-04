@@ -35,7 +35,7 @@ ROM:0FF0BD04                 ;     if(addr to check > max allowed addr) {
 ROM:0FF0BD04                 ;         return(0);    // aka, fail.
 ROM:0FF0BD04                 ;     }
 ROM:0FF0BD04                 ;
-ROM:0FF0BD04                 ;     return(1);
+ROM:0FF0BD04                 ;     return(1);    // aka, success, since the other checks above passed
 ROM:0FF0BD04                 ; }
 ROM:0FF0BD04
 ROM:0FF0BD04                 ; int __cdecl range_check(__int32 addr_to_check, __int32 ibec_addr)
