@@ -1,0 +1,14 @@
+#summary You can ignore this
+
+= Open =
+{{{
+sudo hdiutil convert orignal.dmg -format UDRW -o mount.dmg    ## make writable
+sudo hdiutil attach -owners on mount.dmg                      ## mount dmg
+}}}
+
+= Close =
+{{{
+sudo hdiutil detach mount.dmg                                 ## unmount dmg
+sudo hdiutil convert mount.dmg -format UDZO -o final.dmg      ## convert back
+sudo asr imagescan --source final.dmg                         ## check for errors
+}}}
