@@ -9,6 +9,8 @@
 =Security Checks=
 
 ==Range Check==
+*UPDATE - I cannot stress this enough. This is merely documentation.*
+
 {{{
 ROM:0FF0BD04                 ; =============== S U B R O U T I N E =======================================
 ROM:0FF0BD04
