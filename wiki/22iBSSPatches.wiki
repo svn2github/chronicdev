@@ -1,5 +1,5 @@
 #summary Some patches to remove bootloader restrictions
-#labels Featured,Reversing,Patches
+#labels Reversing,Patches
 
 = Patches =
 
