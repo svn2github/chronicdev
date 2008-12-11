@@ -1,0 +1,148 @@
+#summary Information about the iBoot flags
+#labels Featured
+
+=Reversing=
+Reversings of various routines that relate to the iBoot flags in an effort to find out what does what.
+
+==Setup Range==
+{{{
+ROM:0FF0BD38                 ; =============== S U B R O U T I N E =======================================
+ROM:0FF0BD38
+ROM:0FF0BD38                 ; logic:
+ROM:0FF0BD38                 ; if running on a special engineering / debug device, return.
+ROM:0FF0BD38                 ; if 'option' is not set to 0, then set mimimum address to -1 and maximum address to 0. then return. wtf?
+ROM:0FF0BD38                 ; if new_min is higher or equal to the current minimum address, don't set it.
+ROM:0FF0BD38                 ; if new_max is lower or equal to the current maximum address, don't set it.
+ROM:0FF0BD38
+ROM:0FF0BD38                 ; void __cdecl Set_Up_Allowed_Range(__int32 new_min, __int32 new_max, int option)
+ROM:0FF0BD38                 Set_Up_Allowed_Range                    ; CODE XREF: sub_FF07682+B9Ep
+ROM:0FF0BD38                                                         ; sub_FF0BD7C+6Ep
+ROM:0FF0BD38                 new_min = R0                            ; new minimum allowed address to be set
+ROM:0FF0BD38                 new_max = R1                            ; this one is weird. it should be new maximum address minus the new minimum
+ROM:0FF0BD38 000 10 B5                       PUSH    {R4,LR}         ; Push registers
+ROM:0FF0BD3A 008 0D 4B                       LDR     R3, =iBoot_flags ; Load from Memory
+ROM:0FF0BD3C 008 41 18                       ADDS    new_max, new_min, new_max ; new_max + new_min = real new maximum (wtf?)
+ROM:0FF0BD3E 008 1B 68                       LDR     R3, [R3]        ; Load from Memory
+ROM:0FF0BD40 008 DC 03                       LSLS    R4, R3, #0xF    ; Logical Shift Left
+ROM:0FF0BD42 008 13 D4                       BMI     return          ; if bit 16 is set, return.
+ROM:0FF0BD42                                                         ;
+ROM:0FF0BD42                                                         ; by the looks of it, bit 16 is set when the device is a special
+ROM:0FF0BD42                                                         ; engineering / debug device
+ROM:0FF0BD44 008 00 2A                       CMP     R2, #0          ; Set cond. codes on Op1 - Op2
+ROM:0FF0BD46 008 07 D0                       BEQ     set_minimum     ; if the "option" arg is 0, jump here.
+ROM:0FF0BD48
+ROM:0FF0BD48                 bad                                     ; Load from Memory
+ROM:0FF0BD48 008 0A 4A                       LDR     R2, =Minimum_Allowed_Addr
+ROM:0FF0BD4A 008 01 23                       MOVS    R3, #1          ; Rd = Op2
+ROM:0FF0BD4C 008 5B 42                       NEGS    R3, R3          ; Negate
+ROM:0FF0BD4E 008 13 60                       STR     R3, [R2]        ; set minimum address to -1
+ROM:0FF0BD50 008 09 4B                       LDR     R3, =Maximum_Allowed_Addr ; Load from Memory
+ROM:0FF0BD52 008 00 22                       MOVS    R2, #0          ; Rd = Op2
+ROM:0FF0BD54 008 1A 60                       STR     R2, [R3]        ; set maximum address to 0
+ROM:0FF0BD56 008 09 E0                       B       return          ; Branch
+ROM:0FF0BD58                 ; ---------------------------------------------------------------------------
+ROM:0FF0BD58
+ROM:0FF0BD58                 set_minimum                             ; CODE XREF: Set_Up_Allowed_Range+Ej
+ROM:0FF0BD58 008 06 4A                       LDR     R2, =Minimum_Allowed_Addr ; Load from Memory
+ROM:0FF0BD5A 008 13 68                       LDR     R3, [R2]        ; Load from Memory
+ROM:0FF0BD5C 008 98 42                       CMP     new_min, R3     ; Set cond. codes on Op1 - Op2
+ROM:0FF0BD5E 008 00 D2                       BCS     set_maximum     ; if new_min is higher or the same as the current
+ROM:0FF0BD5E                                                         ; minimum address, don't change anything.
+ROM:0FF0BD60 008 10 60                       STR     new_min, [R2]   ; set the minimum address to new_min
+ROM:0FF0BD62
+ROM:0FF0BD62                 set_maximum                             ; CODE XREF: Set_Up_Allowed_Range+26j
+ROM:0FF0BD62 008 05 4A                       LDR     R2, =Maximum_Allowed_Addr ; Load from Memory
+ROM:0FF0BD64 008 13 68                       LDR     R3, [R2]        ; Load from Memory
+ROM:0FF0BD66 008 99 42                       CMP     new_max, R3     ; Set cond. codes on Op1 - Op2
+ROM:0FF0BD68 008 00 D9                       BLS     return          ; if new_max is less than or the same as the current
+ROM:0FF0BD68                                                         ; maximum address, don't change anything.
+ROM:0FF0BD6A 008 11 60                       STR     new_max, [R2]   ; set maximum address to new_max
+ROM:0FF0BD6C
+ROM:0FF0BD6C                 return                                  ; CODE XREF: Set_Up_Allowed_Range+Aj
+ROM:0FF0BD6C                                                         ; Set_Up_Allowed_Range+1Ej
+ROM:0FF0BD6C                                                         ; Set_Up_Allowed_Range+30j
+ROM:0FF0BD6C 008 10 BD                       POP     {R4,PC}         ; Pop registers
+ROM:0FF0BD6C                 ; End of function Set_Up_Allowed_Range
+ROM:0FF0BD6C
+ROM:0FF0BD6C                 ; ---------------------------------------------------------------------------
+ROM:0FF0BD6E 00 00                           DCW 0
+ROM:0FF0BD70 C0 86 F1 0F     off_FF0BD70     DCD iBoot_flags         ; DATA XREF: Set_Up_Allowed_Range+2r
+ROM:0FF0BD74 C4 86 F1 0F     off_FF0BD74     DCD Minimum_Allowed_Addr
+ROM:0FF0BD74                                                         ; DATA XREF: Set_Up_Allowed_Range:badr
+ROM:0FF0BD74                                                         ; Set_Up_Allowed_Range:set_minimumr
+ROM:0FF0BD78 C8 86 F1 0F     off_FF0BD78     DCD Maximum_Allowed_Addr
+ROM:0FF0BD78                                                         ; DATA XREF: Set_Up_Allowed_Range+18r
+ROM:0FF0BD78                                                         ; Set_Up_Allowed_Range:set_maximumr
+}}}
+
+==Range Check==
+{{{
+ROM:0FF0BD04                 ; =============== S U B R O U T I N E =======================================
+ROM:0FF0BD04
+ROM:0FF0BD04                 ; iboot range check
+ROM:0FF0BD04                 ;
+ROM:0FF0BD04                 ; logic:
+ROM:0FF0BD04                 ; if running on a special dev board, we are good to go. bypasses the range check.
+ROM:0FF0BD04                 ; if unkown addr is negative for some reason, then fail.
+ROM:0FF0BD04                 ; if addr to check is less than the minimum addr defined at 0x0ff186c4, then fail.
+ROM:0FF0BD04                 ; if addr to check is greater than the maximum addr defined in 0xff186c8, then fail.
+ROM:0FF0BD04                 ;
+ROM:0FF0BD04                 ; psuedocode:
+ROM:0FF0BD04                 ; int permissions_check(long addr_to_check, long unk_addr) {
+ROM:0FF0BD04                 ;     if(flags at 0x0ff186c0 << 0xF < 0) { // is bit 16 set?
+ROM:0FF0BD04                 ;         return(1);    // aka, success.
+ROM:0FF0BD04                 ;     }
+ROM:0FF0BD04                 ;     if(addr to check >= unk addr + addr to check) {
+ROM:0FF0BD04                 ;         return(0);    // aka, fail.
+ROM:0FF0BD04                 ;     }
+ROM:0FF0BD04                 ;     if(addr to check < min allowed addr) {
+ROM:0FF0BD04                 ;         return(0);    // aka, fail.
+ROM:0FF0BD04                 ;     }
+ROM:0FF0BD04                 ;     if(addr to check > max allowed addr) {
+ROM:0FF0BD04                 ;         return(0);    // aka, fail.
+ROM:0FF0BD04                 ;     }
+ROM:0FF0BD04                 ;
+ROM:0FF0BD04                 ;     return(1);    // aka, success, since the other checks above passed
+ROM:0FF0BD04                 ; }
+ROM:0FF0BD04
+ROM:0FF0BD04                 ; int __cdecl range_check(__int32 addr_to_check, __int32 unk_addr)
+ROM:0FF0BD04                 range_check                             ; CODE XREF: cmd_bootx+30p
+ROM:0FF0BD04                                                         ; cmd_diags+1Cp
+ROM:0FF0BD04                                                         ; sub_FF00BE8+64p
+ROM:0FF0BD04                                                         ; sub_FF00CA8+56p ...
+ROM:0FF0BD04 000 09 4B                       LDR     R3, =0xFF186C0  ; iboot flags
+ROM:0FF0BD06 000 42 18                       ADDS    R2, R0, R1      ; r2 = addr to check + unknown addr
+ROM:0FF0BD08 000 1B 68                       LDR     R3, [R3]        ; flags located at 0x0ff186c0
+ROM:0FF0BD0A 000 D9 03                       LSLS    R1, R3, #0xF    ; Logical Shift Left
+ROM:0FF0BD0C 000 09 D4                       BMI     return_success  ; return(1);    // good
+ROM:0FF0BD0E 000 90 42                       CMP     R0, R2          ; Set cond. codes on Op1 - Op2
+ROM:0FF0BD10 000 09 D2                       BCS     return_fail     ; return(0);    // bad
+ROM:0FF0BD12 000 07 4B                       LDR     R3, =0xFF186C4  ; min addr
+ROM:0FF0BD14 000 1B 68                       LDR     R3, [R3]        ; Load from Memory
+ROM:0FF0BD16 000 98 42                       CMP     R0, R3          ; Set cond. codes on Op1 - Op2
+ROM:0FF0BD18 000 05 D3                       BCC     return_fail     ; return(0);    // bad
+ROM:0FF0BD1A 000 06 4B                       LDR     R3, =0xFF186C8  ; max addr
+ROM:0FF0BD1C 000 1B 68                       LDR     R3, [R3]        ; Load from Memory
+ROM:0FF0BD1E 000 9A 42                       CMP     R2, R3          ; Set cond. codes on Op1 - Op2
+ROM:0FF0BD20 000 01 D8                       BHI     return_fail     ; return(0);    // bad
+ROM:0FF0BD22
+ROM:0FF0BD22                 return_success                          ; CODE XREF: range_check+8j
+ROM:0FF0BD22 000 01 20                       MOVS    R0, #1          ; return(1);    // good
+ROM:0FF0BD24 000 00 E0                       B       return          ; Branch
+ROM:0FF0BD26                 ; ---------------------------------------------------------------------------
+ROM:0FF0BD26
+ROM:0FF0BD26                 return_fail                             ; CODE XREF: range_check+Cj
+ROM:0FF0BD26                                                         ; range_check+14j
+ROM:0FF0BD26                                                         ; range_check+1Cj
+ROM:0FF0BD26 000 00 20                       MOVS    R0, #0          ; return(0);    // bad
+ROM:0FF0BD28
+ROM:0FF0BD28                 return                                  ; CODE XREF: range_check+20j
+ROM:0FF0BD28 000 70 47                       BX      LR              ; Branch to/from Thumb mode
+ROM:0FF0BD28                 ; End of function range_check
+ROM:0FF0BD28
+ROM:0FF0BD28                 ; ---------------------------------------------------------------------------
+ROM:0FF0BD2A 00 00                           DCW 0
+ROM:0FF0BD2C C0 86 F1 0F     dword_FF0BD2C   DCD 0xFF186C0           ; DATA XREF: range_checkr
+ROM:0FF0BD30 C4 86 F1 0F     dword_FF0BD30   DCD 0xFF186C4           ; DATA XREF: range_check+Er
+ROM:0FF0BD34 C8 86 F1 0F     dword_FF0BD34   DCD 0xFF186C8           ; DATA XREF: range_check+16r
+}}}
