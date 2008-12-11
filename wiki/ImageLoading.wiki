@@ -1,0 +1,66 @@
+#summary Notes on how iBoot will load images
+#labels Featured
+
+=Memz Struct=
+When using the 'bootx' command or whatever, before jumping to the image loading routine, this routine will set up a struct with some information and pass it on to the image loading routine.
+
+==Struct==
+NOTE: not sure if this is 100% accurate. I suck at ARM > C decompiliation still :P
+{{{
+typedef struct {
+    long file_size;
+    long file_size;
+    (nothing?)        // I thought this was extra room for file size at first, but I don't think that makes sense...
+    char Memz;        // str = "Memz"
+    long loadaddr;    // location of file in memory
+    int option;       // something passed to the Setup_Struct_Memz(); routine, not yet documented.
+} MemzStruct;
+}}}
+
+==Reversings==
+{{{
+ROM:0FF0E7D8                 ; =============== S U B R O U T I N E =======================================
+ROM:0FF0E7D8
+ROM:0FF0E7D8                 ; 0:  r0->Var - file size
+ROM:0FF0E7D8                 ; 4:  r0->Var - file size
+ROM:0FF0E7D8                 ; 8:  r0->(null)
+ROM:0FF0E7D8                 ; C:  r0->String - "Memz"
+ROM:0FF0E7D8                 ; 10: r0->Var - load address
+ROM:0FF0E7D8                 ; 14: r0->Var - unknown option flag
+ROM:0FF0E7D8
+ROM:0FF0E7D8                 ; int __cdecl Setup_Struct_Memz(__int32 loadaddr, __int32 filesize, int option)
+ROM:0FF0E7D8                 Setup_Struct_Memz                       ; CODE XREF: cmd_setpicture+76p
+ROM:0FF0E7D8                                                         ; cmd_go+52p
+ROM:0FF0E7D8                                                         ; cmd_ramdisk+76p
+ROM:0FF0E7D8                                                         ; cmd_devicetree+76p ...
+ROM:0FF0E7D8
+ROM:0FF0E7D8                 var_8           = -8
+ROM:0FF0E7D8
+ROM:0FF0E7D8                 size = R4                               ; size of file
+ROM:0FF0E7D8                 Memz = R3                               ; the static string "Memz"
+ROM:0FF0E7D8                 option = R5                             ; option specficying something unknown at the time
+ROM:0FF0E7D8                 loadaddr = R6                           ; load address of the file
+ROM:0FF0E7D8 000 F0 B5                       PUSH    {size-R7,LR}    ; Push registers
+ROM:0FF0E7DA 014 06 1C                       ADDS    loadaddr, R0, #0 ; Rd = Op1 + Op2
+ROM:0FF0E7DC 014 0C 1C                       ADDS    size, R1, #0    ; Rd = Op1 + Op2
+ROM:0FF0E7DE 014 03 AF                       ADD     R7, SP, #0x14+var_8 ; Rd = Op1 + Op2
+ROM:0FF0E7E0 014 18 20                       MOVS    R0, #0x18       ; Rd = Op2
+ROM:0FF0E7E2 014 00 21                       MOVS    R1, #0          ; Rd = Op2
+ROM:0FF0E7E4 014 15 1C                       ADDS    option, R2, #0  ; Rd = Op1 + Op2
+ROM:0FF0E7E6 014 F8 F7 09 F8                 BL      malloc          ; malloc(0x18);
+ROM:0FF0E7EA 014 00 28                       CMP     R0, #0          ; Set cond. codes on Op1 - Op2
+ROM:0FF0E7EC 014 05 D0                       BEQ     return          ; Branch
+ROM:0FF0E7EE 014 03 4B                       LDR     Memz, =0x4D656D7A ; Memz
+ROM:0FF0E7F0 014 04 60                       STR     size, [R0]      ; Store to Memory
+ROM:0FF0E7F2 014 44 60                       STR     size, [R0,#4]   ; Store to Memory
+ROM:0FF0E7F4 014 C3 60                       STR     Memz, [R0,#0xC] ; Store to Memory
+ROM:0FF0E7F6 014 05 61                       STR     option, [R0,#0x10] ; Store to Memory
+ROM:0FF0E7F8 014 46 61                       STR     loadaddr, [R0,#0x14] ; Store to Memory
+ROM:0FF0E7FA
+ROM:0FF0E7FA                 return                                  ; CODE XREF: Setup_Struct_Memz+14j
+ROM:0FF0E7FA 014 F0 BD                       POP     {size-R7,PC}    ; Pop registers
+ROM:0FF0E7FA                 ; End of function Setup_Struct_Memz
+ROM:0FF0E7FA
+ROM:0FF0E7FA                 ; ---------------------------------------------------------------------------
+ROM:0FF0E7FC 7A 6D 65 4D     dword_FF0E7FC   DCD 0x4D656D7A          ; DATA XREF: Setup_Struct_Memz+16r
+}}}
