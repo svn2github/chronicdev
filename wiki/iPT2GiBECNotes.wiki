@@ -24,7 +24,7 @@ ROM:0FF0BD04                 ; if addr to check is greater than the maximum addr
 ROM:0FF0BD04                 ;
 ROM:0FF0BD04                 ; psuedocode:
 ROM:0FF0BD04                 ; int permissions_check(long addr_to_check, long unk_addr) {
-ROM:0FF0BD04                 ;     if(flags at 0x0ff186c0 << 0xF < 0) {
+ROM:0FF0BD04                 ;     if(flags at 0x0ff186c0 << 0xF < 0) { // is bit 16 set?
 ROM:0FF0BD04                 ;         return(1);    // aka, success.
 ROM:0FF0BD04                 ;     }
 ROM:0FF0BD04                 ;     if(addr to check >= unk addr + addr to check) {
