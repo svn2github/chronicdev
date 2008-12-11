@@ -1,5 +1,5 @@
 #summary How to enable Emojis
-#labels Featured,Information
+#labels Information
 
 = Method 1 - Property List Edit =
 Edit /private/var/mobile/Library/Preferences/com.apple.Preferences.plist, and add to the end:
