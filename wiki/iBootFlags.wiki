@@ -1,6 +1,15 @@
 #summary Information about the iBoot flags
 #labels Featured,Reversing,Information
 
+=Guesses=
+'''Siagnostic''' - bit 4 sey
+
+'''Debug''' - bit 5 set
+
+'''Software enginerr''' - bit 8 set
+
+'''Hardware engineer''' - bit 17 set
+
 =Notes=
 ==Initial==
 Initially, boot flags are set to 0x2C0000, or:
@@ -46,7 +55,7 @@ Initially, boot flags are set to 0x2C0000, or:
 ||bdev||Check if bit 8 is set to allow usage of this command.||
 ||pki||Check if bit 8 is set to allow usage of this command.||
 ||image||Check if bit 8 is set to allow usage of this command.||
-||iic||Check of bit 17 is set to allow usage of this command.||
+||iic||Check if bit 17 is set to allow usage of this command.||
 ||chunk||Check if bit 8 is set to allow usage of this command.||
 
 ==Undocumented Routine==
