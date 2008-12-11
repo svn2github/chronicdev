@@ -146,3 +146,40 @@ ROM:0FF0BD2C C0 86 F1 0F     dword_FF0BD2C   DCD 0xFF186C0           ; DATA XREF
 ROM:0FF0BD30 C4 86 F1 0F     dword_FF0BD30   DCD 0xFF186C4           ; DATA XREF: range_check+Er
 ROM:0FF0BD34 C8 86 F1 0F     dword_FF0BD34   DCD 0xFF186C8           ; DATA XREF: range_check+16r
 }}}
+
+==Permissions / Generic Flag Check==
+{{{
+ROM:0FF0BCAC                 ; will check the given flag in the iboot flags
+ROM:0FF0BCAC                 ;
+ROM:0FF0BCAC                 ; logic:
+ROM:0FF0BCAC                 ; if the iboot_flags do not contain the flag supplied to the routine, return 0                                      // bad
+ROM:0FF0BCAC                 ; if the flags supplied to this routine does has bit 4 set, then set bit 5 in the iboot flags as well. return 1.    // good
+ROM:0FF0BCAC
+ROM:0FF0BCAC                 ; int __cdecl flag_check(int flag)
+ROM:0FF0BCAC                 flag_check                              ; CODE XREF: cmd_diags+26p
+ROM:0FF0BCAC                                                         ; cmd_powernvram+Ep
+ROM:0FF0BCAC                                                         ; cmd_powernvram+7Ep
+ROM:0FF0BCAC                                                         ; cmd_charge+Cp ...
+ROM:0FF0BCAC 000 10 B5                       PUSH    {R4,LR}         ; Push registers
+ROM:0FF0BCAE 008 08 49                       LDR     R1, =iBoot_flags ; Load from Memory
+ROM:0FF0BCB0 008 00 24                       MOVS    R4, #0          ; Rd = Op2
+ROM:0FF0BCB2 008 0A 68                       LDR     R2, [R1]        ; Load from Memory
+ROM:0FF0BCB4 008 13 1C                       ADDS    R3, R2, #0      ; Rd = Op1 + Op2
+ROM:0FF0BCB6 008 03 40                       ANDS    R3, R0          ; Rd = Op1 & Op2
+ROM:0FF0BCB8 008 98 42                       CMP     R0, R3          ; check iboot flags against the supplied flags
+ROM:0FF0BCBA 008 07 D1                       BNE     return          ; return(0);
+ROM:0FF0BCBC 008 01 24                       MOVS    R4, #1          ; Rd = Op2
+ROM:0FF0BCBE 008 C3 06                       LSLS    R3, R0, #0x1B   ; check if the supplied flags has bit 4 set
+ROM:0FF0BCC0 008 04 D5                       BPL     return          ; return(1);
+ROM:0FF0BCC2 008 04 4B                       LDR     R3, =0xDFF3FFFF ; Load from Memory
+ROM:0FF0BCC4 008 13 40                       ANDS    R3, R2          ; Rd = Op1 & Op2
+ROM:0FF0BCC6 008 20 22                       MOVS    R2, #0x20       ; Rd = Op2
+ROM:0FF0BCC8 008 13 43                       ORRS    R3, R2          ; Rd = Op1 | Op2
+ROM:0FF0BCCA 008 0B 60                       STR     R3, [R1]        ; set bit 5 of the iboot flags
+ROM:0FF0BCCC
+ROM:0FF0BCCC                 return                                  ; CODE XREF: flag_check+Ej
+ROM:0FF0BCCC                                                         ; flag_check+14j
+ROM:0FF0BCCC 008 20 1C                       ADDS    R0, R4, #0      ; Rd = Op1 + Op2
+ROM:0FF0BCCE 008 10 BD                       POP     {R4,PC}         ; Pop registers
+ROM:0FF0BCCE                 ; End of function flag_check
+}}}
