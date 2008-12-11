@@ -41,19 +41,12 @@ Initially, boot flags are set to 0x2C0000, or:
 ==Commands==
 ||Command||Bits||
 ||powernvram||Check if bit 8 is set to even allow the command to be used without a Permission Denied error, and check if bit is set 17 to allow usage of the 'set' subcommand||
-
-||diags||Check if bit 4 is set to allow usage of ***diags <address>*** to execute code.||
-
+||diags||Check if bit 4 is set to allow usage of ***diags [address]*** to execute code.||
 ||charge||Check if bits 8 ***and*** 17 are set to allow usage of this command.||
-
 ||bdev||Check if bit 8 is set to allow usage of this command.||
-
 ||pki||Check if bit 8 is set to allow usage of this command.||
-
 ||image||Check if bit 8 is set to allow usage of this command.||
-
 ||iic||Check of bit 17 is set to allow usage of this command.||
-
 ||chunk||Check if bit 8 is set to allow usage of this command.||
 
 ==Undocumented Routine==
@@ -61,17 +54,11 @@ This stuff is from an interesting (and long) routine that I am not quite sure wh
 
 ||Thing||Bits||
 ||System-Trusted||Check if bit 29 is set.||
-
 ||Secure-Boot||Check if bit 28 is set.||
-
 ||uid-aes-key||Check if bit 19 is set.||
-
 ||gid-aes-key||Check if bit 18 is set.||
-
 ||production-cert||Check if bit 21 is set.||
-
 ||development-cert||Check if bit 20 is set.||
-
 ||debug-enabled||Check if bit 5 is set.||
 
 ==Range Check==
