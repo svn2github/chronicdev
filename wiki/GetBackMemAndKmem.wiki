@@ -1,5 +1,5 @@
 #summary Get back access to /dev/kmem and /dev/mem on your iPhone or iPod Touch!
-#labels Reversing,Featured,Patches
+#labels Reversing,Patches
 
 =Introduction=
 
