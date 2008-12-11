@@ -1,5 +1,5 @@
 #summary Notes on how iBoot will load images
-#labels Featured
+#labels Featured,Information,Reversing
 
 =Memz Struct=
 When using the 'bootx' command or whatever, before jumping to the image loading routine, this routine will set up a struct with some information and pass it on to the image loading routine.
