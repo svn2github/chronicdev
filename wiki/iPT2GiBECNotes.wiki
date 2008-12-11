@@ -10,10 +10,15 @@
 
 ==Range Check==
 
-===Set Minimum + Maximum Address Setup===
+===Set Minimum + Maximum Address===
 {{{
 ROM:0FF0BD38                 ; =============== S U B R O U T I N E =======================================
 ROM:0FF0BD38
+ROM:0FF0BD38                 ; logic:
+ROM:0FF0BD38                 ; if running on a special engineering / debug device, return.
+ROM:0FF0BD38                 ; if 'option' is not set to 0, then set mimimum address to -1 and maximum address to 0. then return. wtf?
+ROM:0FF0BD38                 ; if new_min is higher or equal to the current minimum address, don't set it.
+ROM:0FF0BD38                 ; if new_max is lower or equal to the current maximum address, don't set it.
 ROM:0FF0BD38
 ROM:0FF0BD38                 ; void __cdecl Set_Up_Allowed_Range(__int32 new_min, __int32 new_max, int option)
 ROM:0FF0BD38                 Set_Up_Allowed_Range                    ; CODE XREF: sub_FF07682+B9Ep
