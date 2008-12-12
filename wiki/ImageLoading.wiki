@@ -1,10 +1,14 @@
 #summary Notes on how iBoot will load images
 #labels Featured,Information,Reversing
 
-=Memz Struct=
+=Command: bootx==
+
+todo - stuff here
+
+==Set up Memz Struct==
 When using the 'bootx' command or whatever, before jumping to the image loading routine, this routine will set up a struct with some information and pass it on to the image loading routine.
 
-==Struct==
+===Struct===
 NOTE: not sure if this is 100% accurate. I suck at ARM > C decompiliation still :P
 {{{
 typedef struct {
@@ -17,7 +21,7 @@ typedef struct {
 } MemzStruct;
 }}}
 
-==Reversings==
+===Reversings===
 {{{
 ROM:0FF0E7D8                 ; =============== S U B R O U T I N E =======================================
 ROM:0FF0E7D8
