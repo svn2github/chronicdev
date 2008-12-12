@@ -4,7 +4,8 @@
 =Random Notes=
 -Mapped to 0x0FF00000 instead of the usual 0x22000000
 
-=Security Checks=
+-Boot args heavily restricted
 
-==Range + Permissions Check==
-See the [http://code.google.com/p/chronicdev/wiki/iBootFlags iBootFlags] page.
+=Security=
+[http://code.google.com/p/chronicdev/wiki/iBootFlags Information on iBoot permissions]
+[http://code.google.com/p/chronicdev/wiki/ImageLoading How iBoot Loads Images]
