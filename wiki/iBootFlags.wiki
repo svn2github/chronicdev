@@ -2,13 +2,13 @@
 #labels Featured,Reversing,Information
 
 =Guesses=
-'''Siagnostic''' - bit 4 sey
+***Diagnostic*** - bit 4 set
 
-'''Debug''' - bit 5 set
+***Debug*** - bit 5 set
 
-'''Software enginerr''' - bit 8 set
+***Software Engineer*** - bit 8 set
 
-'''Hardware engineer''' - bit 17 set
+***Hardware Engineer*** - bit 17 set
 
 =Notes=
 ==Initial==
