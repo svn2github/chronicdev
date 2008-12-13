@@ -40,9 +40,7 @@ typedef struct {
 }}}
 
 =Reversings=
-
 ==Parsing Routines==
-
 ===Generic Parse===
 {{{
 ROM:22003D6C        ; =============== S U B R O U T I N E =======================================
@@ -57,7 +55,7 @@ ROM:22003D6C
 ROM:22003D6C        buff = R10                              ; buffer provided
 ROM:22003D6C        filesize = R6                           ; size of the file
 ROM:22003D6C        option = R8                             ; either 0 or 1 (0 = header, 1 = footer)
-ROM:22003D6C        loadaddr = R5                           ; location of file. when used in []'s in this routine, it is parsing a part of the header
+ROM:22003D6C        loadaddr = R5                           ; location of file. when used in []s in this routine, it is parsing a part of the header
 ROM:22003D6C        hbuff = R4                              ; buffer for header or footer info
 ROM:22003D6C 000 F0+                PUSH    {hbuff-R7,LR}   ; Push registers
 ROM:22003D6E 014 56+                MOV     filesize, buff  ; Rd = Op2
