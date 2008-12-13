@@ -1,0 +1,206 @@
+#summary Notes on the bootrom (WTF / DFU 2.0)
+
+=Notes=
+==Random==
+-Mapped to 0x22000000 in memory
+
+-Sets the minimum_addr global flag to 0x18000000
+
+-Sets the maximum_addr global flag to 0x18024000
+
+==Memz Struct==
+
+
+=Reversings=
+
+==Memz Struct Setup==
+Seems to be the same as in iBoot / iBEC / etc.
+
+{{{
+ROM:22007408        ; =============== S U B R O U T I N E =======================================
+ROM:22007408
+ROM:22007408
+ROM:22007408        ; int __cdecl Setup_Memz_Struct_Bootrom(__int32 loadaddr, __int32 filesize, int option)
+ROM:22007408        Setup_Memz_Struct_Bootrom               ; CODE XREF: SecureROM_Start+BCp
+ROM:22007408
+ROM:22007408        var_8           = -8
+ROM:22007408
+ROM:22007408        loadaddr = R6
+ROM:22007408        option = R5
+ROM:22007408        filesize = R4
+ROM:22007408 000 F0+                PUSH    {filesize-R7,LR} ; Push registers
+ROM:2200740A 014 06+                ADDS    loadaddr, R0, #0 ; Rd = Op1 + Op2
+ROM:2200740C 014 0C+                ADDS    filesize, R1, #0 ; Rd = Op1 + Op2
+ROM:2200740E 014 03+                ADD     R7, SP, #0x14+var_8 ; Rd = Op1 + Op2
+ROM:22007410 014 18+                MOVS    R0, #0x18       ; Rd = Op2
+ROM:22007412 014 00+                MOVS    R1, #0          ; Rd = Op2
+ROM:22007414 014 15+                ADDS    option, R2, #0  ; Rd = Op1 + Op2
+ROM:22007416 014 FC+                BL      malloc          ; malloc(0x18);     // 24 bytes (hex -> decimal)
+ROM:2200741A 014 00+                CMP     R0, #0          ; Set cond. codes on Op1 - Op2
+ROM:2200741C 014 05+                BEQ     return          ; Branch
+ROM:2200741E 014 03+                LDR     R3, =0x4D656D7A ; Memz
+ROM:22007420 014 04+                STR     filesize, [R0]  ; Store to Memory
+ROM:22007422 014 44+                STR     filesize, [R0,#4] ; Store to Memory
+ROM:22007424 014 C3+                STR     R3, [R0,#0xC]   ; Store to Memory
+ROM:22007426 014 05+                STR     option, [R0,#0x10] ; Store to Memory
+ROM:22007428 014 46+                STR     loadaddr, [R0,#0x14] ; Store to Memory
+ROM:2200742A
+ROM:2200742A        return                                  ; CODE XREF: Setup_Memz_Struct_Bootrom+14j
+ROM:2200742A 014 F0+                POP     {filesize-R7,PC} ; Pop registers
+ROM:2200742A 014 BD ; End of function Setup_Memz_Struct_Bootrom
+ROM:2200742A 014
+ROM:2200742A        ; ---------------------------------------------------------------------------
+ROM:2200742C 7A+    Memz_2          DCD 0x4D656D7A          ; DATA XREF: Setup_Memz_Struct_Bootrom+16r
+ROM:22007430
+}}}
+
+==Setup Restrictions==
+{{{
+ROM:22006228        Setup_Restrictions                      ; CODE XREF: SecureROM_Start+64p
+ROM:22006228                                                ; sub_22005C40+18p
+ROM:22006228
+ROM:22006228        var_8           = -8
+ROM:22006228
+ROM:22006228 000 B0+                PUSH    {R4,R5,R7,LR}   ; Push registers
+ROM:2200622A 010 1B+                LDR     R4, =SecureROM_Flags ; SecureROM Flags
+ROM:2200622C 010 B0+                MOVLS   R3, 0x2C0000
+ROM:22006230 010 02+                ADD     R7, SP, #0x10+var_8 ; Rd = Op1 + Op2
+ROM:22006232 010 23+                STR     R3, [R4]        ; Store to Memory
+ROM:22006234 010 05+                ADDS    R5, R0, #0      ; Rd = Op1 + Op2
+ROM:22006236 010 FE+                BL      sub_22004B2A    ; Branch with Link
+ROM:2200623A 010 00+                CMP     R0, #0          ; Set cond. codes on Op1 - Op2
+ROM:2200623C 010 03+                BEQ     loc_22006246    ; Branch
+ROM:2200623E 010 C0+                MOVS    R2, #0xC0       ; Rd = Op2
+ROM:22006240 010 23+                LDR     R3, [R4]        ; Load from Memory
+ROM:22006242 010 92+                LSLS    R2, R2, #0x16   ; Logical Shift Left
+ROM:22006244 010 01+                B       loc_2200624A    ; Branch
+ROM:22006246        ; ---------------------------------------------------------------------------
+ROM:22006246
+ROM:22006246        loc_22006246                            ; CODE XREF: Setup_Restrictions+14j
+ROM:22006246 010 22+                LDR     R2, [R4]        ; Load from Memory
+ROM:22006248 010 10+                MOVS    R3, #0x10       ; Rd = Op2
+ROM:2200624A
+ROM:2200624A        loc_2200624A                            ; CODE XREF: Setup_Restrictions+1Cj
+ROM:2200624A 010 13+                ORRS    R3, R2          ; Rd = Op1 | Op2
+ROM:2200624C 010 23+                STR     R3, [R4]        ; Store to Memory
+ROM:2200624E 010 FE+                BL      sub_22004B20    ; Branch with Link
+ROM:22006252 010 00+                CMP     R0, #0          ; Set cond. codes on Op1 - Op2
+ROM:22006254 010 04+                BNE     loc_22006260    ; min addr
+ROM:22006256 010 10+                LDR     R2, =SecureROM_Flags ; SecureROM Flags
+ROM:22006258 010 10+                LDR     R1, =0x100020   ; Load from Memory
+ROM:2200625A 010 13+                LDR     R3, [R2]        ; Load from Memory
+ROM:2200625C 010 0B+                ORRS    R3, R1          ; Rd = Op1 | Op2
+ROM:2200625E 010 13+                STR     R3, [R2]        ; Store to Memory
+ROM:22006260
+ROM:22006260        loc_22006260                            ; CODE XREF: Setup_Restrictions+2Cj
+ROM:22006260 010 0F+                LDR     R2, =min_addr   ; min addr
+ROM:22006262 010 01+                MOVS    R3, #1          ; Rd = Op2
+ROM:22006264 010 5B+                NEGS    R3, R3          ; Negate
+ROM:22006266 010 13+                STR     R3, [R2]        ; Store to Memory
+ROM:22006268 010 0E+                LDR     R3, =max_addr   ; max addr
+ROM:2200626A 010 00+                MOVS    R2, #0          ; Rd = Op2
+ROM:2200626C 010 1A+                STR     R2, [R3]        ; Store to Memory
+ROM:2200626E 010 00+                CMP     R5, #0          ; Set cond. codes on Op1 - Op2
+ROM:22006270 010 08+                BEQ     loc_22006284    ; Branch
+ROM:22006272 010 C0+                MOVS    R0, #0xC0       ; Rd = Op2
+ROM:22006274 010 90+                MOVS    R1, #0x90       ; Rd = Op2
+ROM:22006276 010 40+                LSLS    R0, R0, #0x15   ; Logical Shift Left
+ROM:22006278 010 89+                LSLS    R1, R1, #0xA    ; Logical Shift Left
+ROM:2200627A 010 02+                BLX     sub_22008498    ; Branch with Link and Exchange (immediate address)
+ROM:2200627E 010 0A+                LDR     R3, =unk_22020DAC ; Load from Memory
+ROM:22006280 010 01+                MOVS    R2, #1          ; Rd = Op2
+ROM:22006282 010 1A+                STR     R2, [R3]        ; Store to Memory
+ROM:22006284
+ROM:22006284        loc_22006284                            ; CODE XREF: Setup_Restrictions+48j
+ROM:22006284 010 C0+                MOVS    R0, #0xC0       ; Rd = Op2
+ROM:22006286 010 90+                MOVS    R1, #0x90       ; Rd = Op2
+ROM:22006288 010 40+                LSLS    R0, R0, #0x15   ; 0x18000000
+ROM:2200628A 010 89+                LSLS    R1, R1, #0xA    ; 0x24000
+ROM:2200628C 010 00+                MOVS    R2, #0          ; option
+ROM:2200628E 010 FF+                BL      Setup_Allowed_Range ; set allowed range:
+ROM:2200628E 010 F7+                                        ;     min - 0x18000000
+ROM:2200628E 010 A9+                                        ;     max - 0x18024000
+ROM:22006292 010 00+                MOVS    R0, #0          ; Rd = Op2
+ROM:22006294 010 B0+                POP     {R4,R5,R7,PC}   ; Pop registers
+ROM:22006294 010 BD ; End of function Setup_Restrictions
+}}}
+
+==Flag / Range Check==
+Also looks to be the same as iBoot one.
+{{{
+ROM:220061B0        ; int __cdecl Range_Check(__int32 loadaddr, __int32 filesize)
+ROM:220061B0        Range_Check
+ROM:220061B0 000 09+                LDR     R3, =SecureROM_Flags ; Load from Memory
+ROM:220061B2 000 42+                ADDS    R2, R0, R1      ; Rd = Op1 + Op2
+ROM:220061B4 000 1B+                LDR     R3, [R3]        ; Load from Memory
+ROM:220061B6 000 D9+                LSLS    R1, R3, #0xF    ; Logical Shift Left
+ROM:220061B8 000 09+                BMI     loc_220061CE    ; Branch
+ROM:220061BA 000 90+                CMP     R0, R2          ; Set cond. codes on Op1 - Op2
+ROM:220061BC 000 09+                BCS     loc_220061D2    ; Branch
+ROM:220061BE 000 07+                LDR     R3, =min_addr   ; Load from Memory
+ROM:220061C0 000 1B+                LDR     R3, [R3]        ; Load from Memory
+ROM:220061C2 000 98+                CMP     R0, R3          ; Set cond. codes on Op1 - Op2
+ROM:220061C4 000 05+                BCC     loc_220061D2    ; Branch
+ROM:220061C6 000 06+                LDR     R3, =max_addr   ; Load from Memory
+ROM:220061C8 000 1B+                LDR     R3, [R3]        ; Load from Memory
+ROM:220061CA 000 9A+                CMP     R2, R3          ; Set cond. codes on Op1 - Op2
+ROM:220061CC 000 01+                BHI     loc_220061D2    ; Branch
+ROM:220061CE
+ROM:220061CE        loc_220061CE                            ; CODE XREF: Range_Check+8j
+ROM:220061CE 000 01+                MOVS    R0, #1          ; Rd = Op2
+ROM:220061D0 000 00+                B       locret_220061D4 ; Branch
+ROM:220061D2        ; ---------------------------------------------------------------------------
+ROM:220061D2
+ROM:220061D2        loc_220061D2                            ; CODE XREF: Range_Check+Cj
+ROM:220061D2                                                ; Range_Check+14j
+ROM:220061D2                                                ; Range_Check+1Cj
+ROM:220061D2 000 00+                MOVS    R0, #0          ; Rd = Op2
+ROM:220061D4
+ROM:220061D4        locret_220061D4                         ; CODE XREF: Range_Check+20j
+ROM:220061D4 000 70+                BX      LR              ; Branch to/from Thumb mode
+ROM:220061D4 000 47 ; End of function Range_Check
+ROM:220061D4 000
+ROM:220061D4        ; ---------------------------------------------------------------------------
+ROM:220061D6 00+                    DCW 0
+ROM:220061D8 A0+    off_220061D8    DCD SecureROM_Flags     ; DATA XREF: Range_Checkr
+ROM:220061DC A4+    off_220061DC    DCD min_addr            ; DATA XREF: Range_Check+Er
+ROM:220061E0 A8+    off_220061E0    DCD max_addr            ; DATA XREF: Range_Check+16r
+ROM:220061E4
+}}}
+
+{{{
+ROM:22006158        ; =============== S U B R O U T I N E =======================================
+ROM:22006158
+ROM:22006158
+ROM:22006158        ; int __cdecl flag_check(int flag)
+ROM:22006158        flag_check                              ; CODE XREF: sub_22004D54+34p
+ROM:22006158                                                ; sub_22004D54+48p
+ROM:22006158 000 10+                PUSH    {R4,LR}         ; Push registers
+ROM:2200615A 008 08+                LDR     R1, =SecureROM_Flags ; Load from Memory
+ROM:2200615C 008 00+                MOVS    R4, #0          ; Rd = Op2
+ROM:2200615E 008 0A+                LDR     R2, [R1]        ; Load from Memory
+ROM:22006160 008 13+                ADDS    R3, R2, #0      ; Rd = Op1 + Op2
+ROM:22006162 008 03+                ANDS    R3, R0          ; Rd = Op1 & Op2
+ROM:22006164 008 98+                CMP     R0, R3          ; Set cond. codes on Op1 - Op2
+ROM:22006166 008 07+                BNE     loc_22006178    ; Branch
+ROM:22006168 008 01+                MOVS    R4, #1          ; Rd = Op2
+ROM:2200616A 008 C3+                LSLS    R3, R0, #0x1B   ; Logical Shift Left
+ROM:2200616C 008 04+                BPL     loc_22006178    ; Branch
+ROM:2200616E 008 04+                LDR     R3, =0xDFF3FFFF ; Load from Memory
+ROM:22006170 008 13+                ANDS    R3, R2          ; Rd = Op1 & Op2
+ROM:22006172 008 20+                MOVS    R2, #0x20       ; Rd = Op2
+ROM:22006174 008 13+                ORRS    R3, R2          ; Rd = Op1 | Op2
+ROM:22006176 008 0B+                STR     R3, [R1]        ; Store to Memory
+ROM:22006178
+ROM:22006178        loc_22006178                            ; CODE XREF: flag_check+Ej
+ROM:22006178                                                ; flag_check+14j
+ROM:22006178 008 20+                ADDS    R0, R4, #0      ; Rd = Op1 + Op2
+ROM:2200617A 008 10+                POP     {R4,PC}         ; Pop registers
+ROM:2200617A 008 BD ; End of function flag_check
+ROM:2200617A 008
+ROM:2200617A        ; ---------------------------------------------------------------------------
+ROM:2200617C A0+    off_2200617C    DCD SecureROM_Flags     ; DATA XREF: flag_check+2r
+ROM:22006180 FF+    dword_22006180  DCD 0xDFF3FFFF          ; DATA XREF: flag_check+16r
+ROM:22006184
+
+}}}
