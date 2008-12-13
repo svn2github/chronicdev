@@ -1,0 +1,75 @@
+#summary How boot-args are now restricted
+#labels Information
+
+=Summary=
+Instead of making you read all the technical stuff if you are looking for a simple answer, this is basically how it works: iBoot in 2.* will simply ignore whatever you set in the boot-args field and set what it wants into the buffer that it uses depending on certain conditions. You could, hypothetically, patch it, but it would be annoying. If I decide to try patching it then I will probably forget to edit this message, so just look on this page.
+
+Now, for the interesting stuff :)
+
+=Boot-Args Logic Between Versions=
+Because of the ramdisk exploit in 1.1.4, Apple decided that do prevent anything like that from happening again they needed to changed how boot-args were handled in 2.*. Here are the differences.
+
+==1.1.4 iBoot==
+This will parse both the boot args set forth by the environmental variable "boot-args", and it's boot args buffer, which is used for args that will not be permanently saved to NVRAM and only used for that boot, such as if you were booting a ramdisk. Anywho, these will all be parsed and taken action upon if any are set.
+
+==2.* iBoot==
+This will totally ignore whatever is set in the 'boot-args' variable. Consider it to be deprecated. It will simply fill in its boot args buffer with what it sees fit according to some variables.
+
+Interestingly enough, the code is still there to parse -v, -s, and such. It will just never see it because that portion of the code parses the boot args temporary buffer. In 1.1.4, the stuff in the 'boot-args' variable was added to the buffer, then the parsing did it's thing. Now, since 'boot-args' is never even looked at by iBoot, stuff like -v and -s will never be in the buffer.
+
+===Boot Arg Possibilities===
+
+====Ramdisk====
+It will check a space in memory and see if it is equal to zero. This space is set to 0xC000000 if the 'ramdisk' iBoot command was used before hand, as that is the place in memory that the decrypted ramdisk lies, otherwise it stays at its default, zero. If it is not zero, then this will be added to the temporary boot args buffer:
+{{{
+rd=md0 nand-enable-reformat=1 -progress
+}}}
+
+====Tethered====
+Don't know what this is actually for, don't really care either as it doesn't sound interesting. This checks if the environmental variable "is-tethered" is set to 1. If so, then this will be added to the temporary boot args buffer:
+{{{
+force-usb-power=1
+}}}
+
+====Nothing====
+If the above two don't apply, no boot args will be used. Again, anything in the "boot-args" variable will be ignored.
+
+=Reversings=
+Just snippets here, as huge blocks of cose are not really needed.
+
+==Force USB Power==
+{{{
+ROM:0FF0794C                 Check_for_FUSBP                         ; CODE XREF: load_kernel+33Ej
+ROM:0FF0794C 098 82 49                       LDR     R1, =aForceUsbPower1
+ROM:0FF0794E 098 20 1C                       ADDS    R0, R4, #0
+ROM:0FF07950 098 00 22                       MOVS    R2, #0
+ROM:0FF07952 098 FF F7 DF FD                 BL      parse_boot_arg
+ROM:0FF07956 098 00 28                       CMP     R0, #0
+ROM:0FF07958 098 02 D0                       BEQ     loc_FF07960
+ROM:0FF0795A 098 80 4B                       LDR     R3, =force_usb_power
+ROM:0FF0795C 098 01 22                       MOVS    R2, #1
+ROM:0FF0795E 098 1A 60                       STR     R2, [R3]        ; if "force-usb+power=1" was in the boot args buffer,
+ROM:0FF0795E                                                         ; then set the force_usb_power global variable to 1
+ROM:0FF07960
+}}}
+
+==Ramdisk / Setting of FUSBP==
+{{{
+ROM:0FF07866 098 01 D1                       BNE     if_booting_ramdisk
+ROM:0FF07868 098 1F 4C                       LDR     R4, =dword_FF12BE4
+ROM:0FF0786A 098 00 E0                       B       loc_FF0786E
+ROM:0FF0786C                 ; ---------------------------------------------------------------------------
+ROM:0FF0786C
+ROM:0FF0786C                 if_booting_ramdisk                      ; CODE XREF: load_kernel+25Ej
+ROM:0FF0786C 098 1F 4C                       LDR     R4, =aRdMd0NandEnableReform
+ROM:0FF0786E
+ROM:0FF0786E                 loc_FF0786E                             ; CODE XREF: load_kernel+262j
+ROM:0FF0786E 098 20 48                       LDR     R0, =aIsTethered ; var
+ROM:0FF07870 098 00 21                       MOVS    R1, #0          ; value
+ROM:0FF07872 098 06 F0 D3 FC                 BL      get_env_int
+ROM:0FF07876 098 01 28                       CMP     R0, #1
+ROM:0FF07878 098 40 D1                       BNE     loc_FF078FC
+ROM:0FF0787A 098 1E 48                       LDR     R0, =boot_args
+ROM:0FF0787C 098 1E 4A                       LDR     R2, =aSForceUsbPower1
+ROM:0FF0787E 098 3F E0                       B       loc_FF07900
+}}}
