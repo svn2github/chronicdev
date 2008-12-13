@@ -6,6 +6,8 @@
 
 -Boot args heavily restricted
 
+-[http://code.google.com/p/chronicdev/wiki/Bootrom Notes on bootrom]
+
 =Security=
 [http://code.google.com/p/chronicdev/wiki/iBootFlags Information on iBoot permissions]
 
