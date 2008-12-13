@@ -19,17 +19,160 @@ typedef struct {
     long filesize;
     long filesize;
     (nothing?)
-    char Memz;         // static string = "Memz"
-    int option;        // static value = 0
+    uint32_t Type;     // static string = "Memz"
+    int    option;     // static value = 0
     long loadaddr;     // static value = 0x1800000
 } BootromMemzStruct;
 }}}
 
+==Header Parsing Routine==
+Img3 Header Format:
+{{{
+typedef struct {
+    uchar[4] encType;     // (h)      string: "Img3"
+    long       size1;     // (h+0x4)  cannot be higher than size6
+    long       size2;     // (h+0x8)  filesize - 20 
+    long       size3;     // (h+0xC)  cannot be lower than size2 (unpacked image size)
+    long       size4;     // (h+0x10) 
+    long       size5;     // (h+0x14) 
+    long       size6;     // (h+0x18) 
+} Img3Header;
+}}}
+
 =Reversings=
+
+==Parsing Routines==
+
+===Generic Parse===
+{{{
+ROM:22003D6C        ; =============== S U B R O U T I N E =======================================
+ROM:22003D6C
+ROM:22003D6C
+ROM:22003D6C        ; int __cdecl GenericParse(__int32 buff, __int32 loadaddr, __int32 filesize, int option)
+ROM:22003D6C        GenericParse                            ; CODE XREF: ParseFooter+110p
+ROM:22003D6C                                                ; Do_Load_Image+70p
+ROM:22003D6C
+ROM:22003D6C        var_8           = -8
+ROM:22003D6C
+ROM:22003D6C        buff = R10                              ; buffer provided
+ROM:22003D6C        filesize = R6                           ; size of the file
+ROM:22003D6C        option = R8                             ; either 0 or 1 (0 = header, 1 = footer)
+ROM:22003D6C        loadaddr = R5                           ; location of file. when used in []'s in this routine, it is parsing a part of the header
+ROM:22003D6C        hbuff = R4                              ; buffer for header or footer info
+ROM:22003D6C 000 F0+                PUSH    {hbuff-R7,LR}   ; Push registers
+ROM:22003D6E 014 56+                MOV     filesize, buff  ; Rd = Op2
+ROM:22003D70 014 45+                MOV     loadaddr, option ; Rd = Op2
+ROM:22003D72 014 60+                PUSH    {loadaddr,filesize} ; Push registers
+ROM:22003D74 01C 05+                ADD     R7, SP, #0x1C+var_8 ; Rd = Op1 + Op2
+ROM:22003D76 01C 82+                MOV     buff, R0        ; Rd = Op2
+ROM:22003D78 01C 0D+                ADDS    loadaddr, R1, #0 ; Rd = Op1 + Op2
+ROM:22003D7A 01C 16+                ADDS    filesize, R2, #0 ; Rd = Op1 + Op2
+ROM:22003D7C 01C 98+                MOV     option, R3      ; Rd = Op2
+ROM:22003D7E 01C 13+                CMP     R2, #0x13       ; if the filesize is less than or equal to 0x13
+ROM:22003D80 01C 42+                BLS     return_0x16     ;     return(0x16):
+ROM:22003D82 01C 0A+                LDR     R2, [R1]        ; Load from Memory
+ROM:22003D84 01C 23+                LDR     R3, =0x496D6733 ; Img3
+ROM:22003D86 01C 9A+                CMP     R2, R3          ; if the beginning of the header is not "Img3"
+ROM:22003D88 01C 3E+                BNE     return_0x16     ;     return(0x16);
+ROM:22003D8A 01C 32+                ADDS    R2, filesize, #0 ; Rd = Op1 + Op2
+ROM:22003D8C 01C 8B+                LDR     R3, [R1,#8]     ; Load from Memory
+ROM:22003D8E 01C 14+                SUBS    R2, #0x14       ; Rd = Op1 - Op2
+ROM:22003D90 01C 93+                CMP     R3, R2          ; if [loadaddr+8] is a bigger number than (filesize - 20)
+ROM:22003D92 01C 39+                BHI     return_0x16     ;     return(0x16);
+ROM:22003D94 01C CA+                LDR     R2, [R1,#0xC]   ; Load from Memory
+ROM:22003D96 01C 93+                CMP     R3, R2          ; if [loadaddr+12] is a lower number than [loadaddr+8]
+ROM:22003D98 01C 36+                BCC     return_0x16     ;     return(0x16);
+ROM:22003D9A 01C 1A+                ADDS    R2, R3, #0      ; Rd = Op1 + Op2
+ROM:22003D9C 01C 4B+                LDR     R3, [R1,#4]     ; Load from Memory
+ROM:22003D9E 01C 14+                ADDS    R2, #0x14       ; Rd = Op1 + Op2
+ROM:22003DA0 01C 9A+                CMP     R2, R3          ; if [loadaddr+4] is higher number than the one at [loadaddr+28]
+ROM:22003DA2 01C 31+                BHI     return_0x16     ;     return(0x16);
+ROM:22003DA4 01C 18+                MOVS    R0, #0x18       ; Rd = Op2
+ROM:22003DA6 01C 00+                MOVS    R1, #0          ; Rd = Op2
+ROM:22003DA8 01C FF+                BL      malloc          ; malloc(0x18);
+ROM:22003DAC 01C 04+                SUBS    hbuff, R0, #0   ; Rd = Op1 - Op2
+ROM:22003DAE 01C 19+                BEQ     return_0xC      ; Branch
+ROM:22003DB0 01C 00+                MOVS    R3, #0          ; Rd = Op2
+ROM:22003DB2 01C 01+                MOVS    R2, #1          ; Rd = Op2
+ROM:22003DB4 01C 62+                STR     R2, [hbuff,#4]  ; Store to Memory
+ROM:22003DB6 01C 63+                STR     R3, [hbuff,#0x14] ; Store to Memory
+ROM:22003DB8 01C EB+                LDR     R3, [loadaddr,#0xC] ; Load from Memory
+ROM:22003DBA 01C 00+                CMP     R3, #0          ; Set cond. codes on Op1 - Op2
+ROM:22003DBC 01C 03+                BEQ     loc_22003DC6    ; Branch
+ROM:22003DBE 01C 80+                MOVLS   R3, 0x20000
+ROM:22003DC2 01C 13+                ORRS    R3, R2          ; Rd = Op1 | Op2
+ROM:22003DC4 01C 63+                STR     R3, [hbuff,#4]  ; 0x200001
+ROM:22003DC6
+ROM:22003DC6        loc_22003DC6                            ; CODE XREF: GenericParse+50j
+ROM:22003DC6 01C 43+                MOV     R3, option      ; Rd = Op2
+ROM:22003DC8 01C 00+                CMP     R3, #0          ; Set cond. codes on Op1 - Op2
+ROM:22003DCA 01C 17+                BEQ     isHeader        ; Branch
+ROM:22003DCC 01C A8+                LDR     R0, [loadaddr,#8] ; Load from Memory
+ROM:22003DCE 01C 00+                MOVS    R1, #0          ; Rd = Op2
+ROM:22003DD0 01C 14+                ADDS    R0, #0x14       ; Rd = Op1 + Op2
+ROM:22003DD2 01C A0+                STR     R0, [hbuff,#8]  ; Store to Memory
+ROM:22003DD4 01C FF+                BL      malloc          ; malloc(0x14);
+ROM:22003DD8 01C 20+                STR     R0, [hbuff]     ; Store to Memory
+ROM:22003DDA 01C 00+                CMP     R0, #0          ; Set cond. codes on Op1 - Op2
+ROM:22003DDC 01C 04+                BNE     loc_22003DE8    ; Branch
+ROM:22003DDE 01C 20+                ADDS    R0, hbuff, #0   ; Rd = Op1 + Op2
+ROM:22003DE0 01C FF+                BL      sub_22003B88    ; Branch with Link
+ROM:22003DE4
+ROM:22003DE4        return_0xC                              ; CODE XREF: GenericParse+42j
+ROM:22003DE4 01C 0C+                MOVS    R0, #0xC        ; Rd = Op2
+ROM:22003DE6 01C 10+                B       return          ; Branch
+ROM:22003DE8        ; ---------------------------------------------------------------------------
+ROM:22003DE8
+ROM:22003DE8        loc_22003DE8                            ; CODE XREF: GenericParse+70j
+ROM:22003DE8 01C A2+                LDR     R2, [hbuff,#8]  ; Load from Memory
+ROM:22003DEA 01C 29+                ADDS    R1, loadaddr, #0 ; Rd = Op1 + Op2
+ROM:22003DEC 01C 04+                BLX     sub_220085AC    ; Branch with Link and Exchange (immediate address)
+ROM:22003DF0 01C 63+                LDR     R3, [hbuff,#4]  ; Load from Memory
+ROM:22003DF2 01C 80+                MOVLS   R2, 0x40000
+ROM:22003DF6 01C 13+                ORRS    R3, R2          ; Rd = Op1 | Op2
+ROM:22003DF8 01C 63+                STR     R3, [hbuff,#4]  ; Store to Memory
+ROM:22003DFA 01C 01+                B       loc_22003E00    ; Branch
+ROM:22003DFC        ; ---------------------------------------------------------------------------
+ROM:22003DFC
+ROM:22003DFC        isHeader                                ; CODE XREF: GenericParse+5Ej
+ROM:22003DFC 01C 25+                STR     loadaddr, [hbuff] ; Store to Memory
+ROM:22003DFE 01C A6+                STR     filesize, [hbuff,#8] ; Store to Memory
+ROM:22003E00
+ROM:22003E00        loc_22003E00                            ; CODE XREF: GenericParse+8Ej
+ROM:22003E00 01C 53+                MOV     R3, buff        ; Rd = Op2
+ROM:22003E02 01C 00+                MOVS    R0, #0          ; Rd = Op2
+ROM:22003E04 01C 1C+                STR     hbuff, [R3]     ; Store to Memory
+ROM:22003E06 01C 00+                B       return          ; return(0);
+ROM:22003E08        ; ---------------------------------------------------------------------------
+ROM:22003E08
+ROM:22003E08        return_0x16                             ; CODE XREF: GenericParse+14j
+ROM:22003E08                                                ; GenericParse+1Cj
+ROM:22003E08                                                ; GenericParse+26j
+ROM:22003E08                                                ; GenericParse+2Cj ...
+ROM:22003E08 01C 16+                MOVS    R0, #0x16       ; Rd = Op2
+ROM:22003E0A
+ROM:22003E0A        return                                  ; CODE XREF: GenericParse+7Aj
+ROM:22003E0A                                                ; GenericParse+9Aj
+ROM:22003E0A 01C 0C+                POP     {R2,R3}         ; Pop registers
+ROM:22003E0C 014 90+                MOV     option, R2      ; Rd = Op2
+ROM:22003E0E 014 9A+                MOV     buff, R3        ; Rd = Op2
+ROM:22003E10 014 F0+                POP     {hbuff-R7,PC}   ; Pop registers
+ROM:22003E10 014 BD ; End of function GenericParse
+ROM:22003E10 014
+ROM:22003E10        ; ---------------------------------------------------------------------------
+ROM:22003E12 00                     DCB    0
+ROM:22003E13 00                     DCB    0
+ROM:22003E14 33+    Img3_1          DCD 0x496D6733          ; DATA XREF: GenericParse+18r
+ROM:22003E18
+}}}
+
+===Parse Footer===
+{{{
+working on now :)
+}}}
 
 ==Memz Struct Setup==
 Seems to be the same as in iBoot / iBEC / etc.
-
 {{{
 ROM:22007408        ; =============== S U B R O U T I N E =======================================
 ROM:22007408
@@ -139,7 +282,7 @@ ROM:22006294 010 B0+                POP     {R4,R5,R7,PC}   ; Pop registers
 ROM:22006294 010 BD ; End of function Setup_Restrictions
 }}}
 
-==Flag / Range Check==
+==Range Check==
 Also looks to be the same as iBoot one.
 {{{
 ROM:220061B0        ; int __cdecl Range_Check(__int32 loadaddr, __int32 filesize)
@@ -182,6 +325,7 @@ ROM:220061E0 A8+    off_220061E0    DCD max_addr            ; DATA XREF: Range_C
 ROM:220061E4
 }}}
 
+==Flag Check==
 {{{
 ROM:22006158        ; =============== S U B R O U T I N E =======================================
 ROM:22006158
