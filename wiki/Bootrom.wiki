@@ -1,4 +1,5 @@
 #summary Notes on the bootrom (WTF / DFU 2.0)
+#labels Featured
 
 =Notes=
 ==Random==
@@ -9,7 +10,18 @@
 -Sets the maximum_addr global flag to 0x18024000
 
 ==Memz Struct==
+Although its the same, it only appears to be called once and with static values (except for the filesize)
 
+{{{
+typedef struct {
+    long filesize;
+    long filesize;
+    (nothing?)
+    char Memz;         // static string = "Memz"
+    int option;        // static value = 0
+    long loadaddr;     // static value = 0x1800000
+} BootromMemzStruct;
+}}}
 
 =Reversings=
 
