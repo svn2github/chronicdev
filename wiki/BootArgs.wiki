@@ -2,17 +2,17 @@
 #labels Information
 
 =Summary=
-Instead of making you read all the technical stuff if you are looking for a simple answer, this is basically how it works: iBoot in 2.* will simply ignore whatever you set in the boot-args field and set what it wants into the buffer that it uses depending on certain conditions. You could, hypothetically, patch it, but it would be annoying. If I decide to try patching it then I will probably forget to edit this message, so just look on this page.
+Instead of making you read all the technical stuff if you are looking for a simple answer, this is basically how it works: iBoot in 2.x will simply ignore whatever you set in the boot-args field and set what it wants into the buffer that it uses depending on certain conditions. You could, hypothetically, patch it, but it would be annoying. If I decide to try patching it then I will probably forget to edit this message, so just look on this page.
 
 Now, for the interesting stuff :)
 
 =Boot-Args Logic Between Versions=
-Because of the ramdisk exploit in 1.1.4, Apple decided that do prevent anything like that from happening again they needed to changed how boot-args were handled in 2.*. Here are the differences.
+Because of the ramdisk exploit in 1.1.4, Apple decided that do prevent anything like that from happening again they needed to changed how boot-args were handled in 2.x. Here are the differences.
 
 ==1.1.4 iBoot==
 This will parse both the boot args set forth by the environmental variable "boot-args", and it's boot args buffer, which is used for args that will not be permanently saved to NVRAM and only used for that boot, such as if you were booting a ramdisk. Anywho, these will all be parsed and taken action upon if any are set.
 
-==2.* iBoot==
+==2.x iBoot==
 This will totally ignore whatever is set in the 'boot-args' variable. Consider it to be deprecated. It will simply fill in its boot args buffer with what it sees fit according to some variables.
 
 Interestingly enough, the code is still there to parse -v, -s, and such. It will just never see it because that portion of the code parses the boot args temporary buffer. In 1.1.4, the stuff in the 'boot-args' variable was added to the buffer, then the parsing did it's thing. Now, since 'boot-args' is never even looked at by iBoot, stuff like -v and -s will never be in the buffer.
