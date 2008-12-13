@@ -25,15 +25,15 @@ typedef struct {
 } BootromMemzStruct;
 }}}
 
-==Header Parsing Routine==
-Img3 Header Format:
+==Parsing==
+Img3 Format:
 {{{
 typedef struct {
     uchar[4] encType;     // (h)      string: "Img3"
     long       size1;     // (h+0x4)  cannot be higher than size6
     long       size2;     // (h+0x8)  filesize - 20 
-    long       size3;     // (h+0xC)  cannot be lower than size2 (unpacked image size)
-    long       size4;     // (h+0x10) 
+    long       size3;     // (h+0xC)  cannot be lower than size2 
+    long       size4;     // (h+0x10) (unpacked image size)
     long       size5;     // (h+0x14) 
     long       size6;     // (h+0x18) 
 } Img3Header;
@@ -41,6 +41,11 @@ typedef struct {
 
 =Reversings=
 ==Parsing Routines==
+===Parse Footer===
+{{{
+/* coming soon */
+}}}
+
 ===Generic Parse===
 {{{
 ROM:22003D6C        ; =============== S U B R O U T I N E =======================================
@@ -162,11 +167,6 @@ ROM:22003E12 00                     DCB    0
 ROM:22003E13 00                     DCB    0
 ROM:22003E14 33+    Img3_1          DCD 0x496D6733          ; DATA XREF: GenericParse+18r
 ROM:22003E18
-}}}
-
-===Parse Footer===
-{{{
-working on now :)
 }}}
 
 ==Memz Struct Setup==
