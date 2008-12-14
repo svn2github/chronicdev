@@ -11,6 +11,9 @@
 
 -Many things such as file transfering, range check, flag check, and more are almost verbatim taken from iBoot / iBEC / etc.
 
+==What it does==
+The purpose of the bootrom is just to start off by initializing some stuff, and then it will do one of two things. If it is in DFU mode, it will accept a (signed) firmware file, such as iBSS. It sets the range to 0x18000000 and then sends the file there, then starts executing it. If the file has been modified or patched, then it will not execute the file. If it is not in DFU mode, then it will start LLB, the Low Level Bootloader. If the LLB fails the signature check, then it will not start the LLB and it will just fallback to DFU mode, at which it would need to be passed a (signed) firmware file, and from there, restored to a firmware with a properly signed LLB.
+
 ==Memz Struct==
 Although its the same, it only appears to be called once and with static values (except for the filesize)
 
