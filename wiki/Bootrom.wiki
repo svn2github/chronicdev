@@ -16,12 +16,12 @@ Although its the same, it only appears to be called once and with static values 
 
 {{{
 typedef struct {
-    long filesize;
-    long filesize;
-    (nothing?)
-    uint32_t Type;     // static string = "Memz"
-    int    option;     // static value = 0
-    long loadaddr;     // static value = 0x1800000
+    long filesize;     // (s)
+    long filesize;     // (s+0x4)
+    (nothing?)         // (s+0x8)
+    uint32_t Type;     // (s+0xC)  static string = "Memz"
+    int    option;     // (s+0x10) static value = 0x18000001
+    long loadaddr;     // (s+0x10) static value = 0x1800000
 } BootromMemzStruct;
 }}}
 
