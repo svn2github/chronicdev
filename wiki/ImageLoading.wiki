@@ -1,5 +1,5 @@
 #summary Notes on how iBoot will load images
-#labels Featured,Information,Reversing
+#labels Information,Reversing
 
 =Command: bootx==
 
