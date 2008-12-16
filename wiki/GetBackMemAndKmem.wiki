@@ -153,3 +153,5 @@ Chronic / Patches
 wEsTbAeR-- / Testing
 
 scotty2 / Making me realize how much more simple it is than I thought, although I was a total n00b when he was trying to tell me this stuff and I never realized it until now :P
+
+core / Investigating this in the 1.0.2 / 1.1.1 days, I would have never even known that the kernel could do /dev/kmem or /dev/mem on iPhone if core didn't mess around with this at first :)
