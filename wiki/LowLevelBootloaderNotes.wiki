@@ -1,0 +1,10 @@
+#summary Notes on the Low Level Bootloader
+#labels Information
+
+=Purpose=
+It starts off by initializing some stuff, blanking 0x18000000 through 0x1940000, setting the minimum address flag to 0x18000000 and maximum to 0x1940000, and then calling the boot_flash(); routine. This routine is for locating an image in the NOR and booting from it. LLB sets it to look for the iBoot image, known by its 'ibot' tag, and then will do standard procedures to load it (parse / sigcheck / decrypt / etc). If, for some reason, this process fails, then it will be a "DFU Emulator" type thing. That is, it is not really DFU, in the sense of being the bootrom, but it pretends to be it by using the name "Apple Mobile Device (DFU Mode)" and only accepts files plus commands to manipulate environmental variables. Perhaps Apple just got lazy and decided to use the same code for both plus the 'clearenv', 'getenv', and 'setenv' commands for LLB.
+
+=Notes=
+- Kind of a half way point between the bootrom and iBoot, in the sense of how it is literally used in the boot sequence and RCE-wise :P Unlike the bootrom, it has a few strings to at least semi-indicate what is going on, which was a relief in my opinion, but it does not have as much as iBoot.
+
+- Load address of the file is 0x22000000, if you want to join in on the fun and load it up in IDA Pro :)
