@@ -74,5 +74,3 @@ ROM:0FF0787E 098 3F E0                       B       loc_FF07900
 
 =Credits=
 Thanks to MuscleNerd for pointing this out
-
-TEST
