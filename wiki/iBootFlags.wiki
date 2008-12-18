@@ -1,5 +1,5 @@
 #summary Information about the iBoot flags
-#labels Featured,Reversing,Information
+#labels Reversing,Information
 
 =Guesses=
 ***Diagnostic*** - bit 4 set
