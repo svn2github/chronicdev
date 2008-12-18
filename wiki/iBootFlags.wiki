@@ -47,11 +47,15 @@ Initially, boot flags are set to 0x2C0000, or:
 ||30||No||
 ||31||No||
 
+*Check 1*: If either bit 0 or bit 5 of the device's CHPID is set, then bit 28 and 29 of the iBoot flags are set.
+
+*Check 2*: If bit 5 of the device's CHPID is set, bits 15 and 20 of the iBoot flags are set.
+
 ==Commands==
-||***Command***||***Bits***||
+||*Command*||*Bits*||
 ||powernvram||Check if bit 8 is set to allow usage of this command, and check if bit is set 17 to allow usage of the 'set' subcommand||
-||diags||Check if bit 4 is set to allow usage of ***diags [address]*** to execute code.||
-||charge||Check if bits 8 ***and*** 17 are set to allow usage of this command.||
+||diags||Check if bit 4 is set to allow usage of *diags [address]* to execute code.||
+||charge||Check if bits 8 *and* 17 are set to allow usage of this command.||
 ||bdev||Check if bit 8 is set to allow usage of this command.||
 ||pki||Check if bit 8 is set to allow usage of this command.||
 ||image||Check if bit 8 is set to allow usage of this command.||
