@@ -1,0 +1,42 @@
+#summary Notes on the boot sequence
+#labels Information,Featured
+
+=Bootrom=
+
+==Restrictions==
+*Min Addr*: 0x18000000
+
+*Max Addr*: 0x18024000
+
+*File Size Limit*: 147,456 bytes
+
+==Purpose==
+Locate LLB (illb) in NOR and then read / parse / decrypt / etc / execute it. If this fails, it will default to DFU mode.
+
+=Low Level Bootloader (LLB)=
+
+==Restrictions==
+*Min Addr*: 0x18000000
+
+*Max Addr*: 0x19400000
+
+*File Size Limit*: 1,310,720 bytes
+
+==Purpose==
+Locate iBoot (ibot) in NOR and then read / parse / decrypt / etc / execute it. If this fails, it will default to a pseudo-DFU mode. That is, it will be LLB that is running, but it will report itself as "Apple Mobile Device (DFU Mode)" like the real DFU Mode does. Besides the obvious difference of, well, not really being DFU mode, it is very similar but just has a bigger file size limit and allows the "setenv', "clearenv", and "getenv" commands to be sent to it.
+
+=iBoot=
+
+==Restrictions==
+*See [http://code.google.com/p/chronicdev/wiki/iBootFlags this page] for some more info*
+
+*Min Addr*: 0x8000000
+
+*Max Addr*: 0xb000000
+
+*File Size Limit*: 50,331,648 bytes (needs a lot of room for ramdisks and such, but does not go past 0xb000000 obviously since kernel is mapped there as well as devicetree in 0xbf00000 and so on and so forth)
+
+==Purpose==
+Very big and very complicated bootloader. Too many purposes to name at this time.
+
+*TODO* - make summary / list of stuff iBoot does.
