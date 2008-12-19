@@ -22,13 +22,13 @@ The purpose of the bootrom is just to start off by initializing some stuff, and 
 Yeah, I probably messed up here a bit, just roughly noting some stuff I see in the RCE as these are referred to a lot during the parsing routines.
 
 {{{
-typedef struct {
+typedef struct Img3Header {
     uchar[4] encType;     // (h)      string: "Img3"
     long       size1;     // (h+0x4)  cannot be higher than size6
     long       size2;     // (h+0x8)  filesize - 20 
     long       size3;     // (h+0xC)  cannot be lower than size2 
-    long       size4;     // (h+0x10) (unpacked image size)
-    long       size5;     // (h+0x14) 
+    long         tag;     // (h+0x10) Image Tag (ibot / krnl / illb / etc.)
+    long        data;     // (h+0x14) string: "DATA"
     long       size6;     // (h+0x18) 
 } Img3Header;
 }}}
@@ -37,7 +37,7 @@ typedef struct {
 This is set up when a file is sent to memory and it is preparing to boot / execute it.
 
 {{{
-typedef struct {
+typedef struct BootromMemzStruct {
     long filesize;     // (s)
     long filesize;     // (s+0x4)
     (nothing?)         // (s+0x8)
