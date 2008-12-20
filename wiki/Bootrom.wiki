@@ -23,13 +23,14 @@ Yeah, I probably messed up here a bit, just roughly noting some stuff I see in t
 
 {{{
 typedef struct Img3Header {
-    uchar[4] encType;     // (h)      string: "Img3"
-    long       size1;     // (h+0x4)  cannot be higher than size6
-    long       size2;     // (h+0x8)  filesize - 20 
-    long       size3;     // (h+0xC)  cannot be lower than size2 
-    long         tag;     // (h+0x10) Image Tag (ibot / krnl / illb / etc.)
+    long     encType;     // (h)      string: "Img3"
+    long    szPacked;     // (h+0x4)  file size (packed)
+    long    codeStrt;     // (h+0x8)  file size (without header)
+    long  footerStrt;     // (h+0xC)  location in file where the footer starts. if you are looking at a packed file then do the number at this loc + 0x14 (20 bytes)
+    long         tag;     // (h+0x10) Image Tag, such as "ibot" or "illb", whose main purpose is to allow it to be located in NOR easily.
     long        data;     // (h+0x14) string: "DATA"
-    long       size6;     // (h+0x18) 
+    long     srevLoc;     // (h+0x18) location in file where "SREV" tag starts. if you are looking at a packed file then do the number at this loc + 0x14 (20 bytes)
+    long        unk;     // (h+0x1C) don't know what this is pointing at.
 } Img3Header;
 }}}
 
