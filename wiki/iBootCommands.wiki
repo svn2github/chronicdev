@@ -1,0 +1,281 @@
+#summary Notes on the iBoot commands
+#labels Information
+
+=Command Permissions=
+You can find out how the permissions for different commands work on the [http://code.google.com/p/chronicdev/wiki/iBootFlags iBoot Flags] page.
+
+=Commands=
+==boot-command NVRAM var==
+The 'boot-command' NVRAM variable can be set to either 'fsboot', 'diags', or 'tsys', all described below.
+
+==Booting Commands==
+===fsboot===
+'fsboot' is the default booting command on a retail device. It will check the 'boot-path' NVRAM variable, and boot that kernel, into the partition specified in the 'boot-partition' variable, on the 'boot-device' device. Defaults:
+
+*boot-path* = /System/Library/Caches/com.apple.kernelcaches/kernelcache.s5l8900 (iPhone / iPod Touch / iPhone 3G), or it will be kernelcache.s5l8720x on the iPod Touch 2G.
+
+*boot-partition* = Partition 0
+
+*boot-device* = nand0
+
+===bootx===
+Default loadaddr (0x9000000) is used if you simply use 'bootx', or you can do 'bootx <address>' and it will load a kernel from that address in memory. After loading it, it will jump to where it loaded the kernel.
+
+===tsys===
+This command will look for the image with the tag 'syst' (tsys) in the NOR, then attempt to validate and jump to it. If it cannot find the image in NOR, it will fail.
+
+===diags===
+This command will look for the image with the tag 'gaid' (diag) in the NOR, then attempt to validate and jump to it. If it cannot find the image in NOR, it will fail. If provided an address in argv[1], it will range check the address, then check if you have sufficient permissions (you don't). If you do, it will jump to that address (after disabling a bunch of GPIO stuff) with no signature checks put in place for the code there, but on a retail device, you will not pass the permissions check and it will silently fail.
+
+===go===
+This command will simply validate / prepare / jump to the image specified in argv[1]. If no arg is provided, it will jump to the image at 0x9000000.
+
+==Memory Manipulation Commands==
+Note that these commands are range checked, so they cannot do anything useful such as patch iBoot / iBEC / iBSS / etc. in memory or anything like that.
+
+===Memory Write===
+*Syntax*: <mws / mwb / mwh /mw > <address> <stuff to write>
+
+====mws====
+Memory Write (String)
+
+====mwb====
+Memory Write Byte (8bit, like 0xFF)
+
+====mwh====
+Memory Write Halfword (16bit, like 0xFFFF)
+
+====mw====
+Memory Write (32bit, like 0xDEADBEEF)
+
+===Memory Read / Memory Display===
+These commands can be used to read and to hexdump (respectively) places in memory with the syntax "<command> <address> <amount>". They can be used like mdb / mdh / md / etc. like the above commands, so I will not go into them as they are trivial.
+
+==Preparation Commands==
+
+===ramdisk===
+*Syntax*: ramdisk [<address>] [<size>]
+
+Decrypts the ramdisk at <address> (or loadaddr, if not specified) of size <size> (or filesize, if not specified), and puts the decrypted output at 0xc000000. 
+
+===devicetree===
+Same syntax and purpose of the 'ramdisk' command, the only different is that it will put the decrypted devicetree in 0xbf00000
+
+==Display Manipulation Commands==
+===bgcolor===
+*Syntax*: bgcolor <red> <green> <blue> (each with the value of 0 through 255)
+
+This will change the background color to whatever you set it to be with this command.
+
+===setpicture===
+*Syntax*: setpicture <loadaddr> [<size>]
+
+This will validate the image at <loadaddr> and then display it on the screen if it passes the check.
+
+==Engineering Commands==
+These are not usable on retail devices.
+
+===bdev===
+*(Can only be used if bit 8 of the iBoot flags are set)*
+
+This command is for manipulating block devices. It can be very dangerous if you do not know how to use it.
+
+*Fun Fact*: In theory, with 'bdev write' and the 'nor0' block device, you could pwn straight from iBoot. Of course, there is no real use for that, as you must be running an unsigned iBoot in the first place for permissions to be patched.
+
+=Reversings=
+==diags==
+{{{
+ROM:18000A6C                 ; =============== S U B R O U T I N E =======================================
+ROM:18000A6C
+ROM:18000A6C
+ROM:18000A6C                 cmd_diags
+ROM:18000A6C
+ROM:18000A6C                 var_8           = -8
+ROM:18000A6C
+ROM:18000A6C 000 90 B5                       PUSH    {R4,R7,LR}
+ROM:18000A6E 00C 01 AF                       ADD     R7, SP, #0xC+var_8
+ROM:18000A70 00C 01 28                       CMP     R0, #1          ; if(argc > 1)
+ROM:18000A72 00C 04 DC                       BGT     run_code_at_addr
+ROM:18000A74 00C 05 21                       MOVS    R1, #5
+ROM:18000A76 00C 0D 48                       LDR     R0, =0x64696167 ; "gaid" (diag)
+ROM:18000A78 00C FF F7 2E FE                 BL      boot_flash      ; attempt to locate / validate / execute an image
+ROM:18000A78 00C                                                     ; in NOR with the 'gaid' (diag) tag.
+ROM:18000A7C 00C 12 E0                       B       return_fail     ; this returns -1 because if this point is reached,
+ROM:18000A7C                                                         ; then that means some type of error occured.
+ROM:18000A7E                 ; ---------------------------------------------------------------------------
+ROM:18000A7E
+ROM:18000A7E                 run_code_at_addr                        ; CODE XREF: cmd_diags+6j
+ROM:18000A7E 00C 0C 1C                       ADDS    R4, R1, #0
+ROM:18000A80 00C 88 69                       LDR     R0, [R1,#0x18]
+ROM:18000A82 00C F0 21 09 04                 MOVLS   R1, 0xF00000
+ROM:18000A86 00C 14 34                       ADDS    R4, #0x14
+ROM:18000A88 00C 16 F0 D2 F9                 BL      Range_Check     ; check if addr specified in argv[1] is within the
+ROM:18000A88 00C                                                     ; allowed range, which is 0x8000000 - 0xb000000 on
+ROM:18000A88                                                         ; retail devices
+ROM:18000A8C 00C 00 28                       CMP     R0, #0
+ROM:18000A8E 00C 09 D0                       BEQ     return_fail     ; fail if the range check returned 0
+ROM:18000A90 00C 10 20                       MOVS    R0, #0x10       ; hex_representation_of_bits
+ROM:18000A92 00C 16 F0 A1 F9                 BL      Flag_Check      ; check bit 4 of the iBoot flags
+ROM:18000A96 00C 00 28                       CMP     R0, #0
+ROM:18000A98 00C 04 D0                       BEQ     return_fail     ; fail if the flag check returned 0
+ROM:18000A9A 00C 61 68                       LDR     R1, [R4,#4]     ; argv[1] (address to jump to)
+ROM:18000A9C 00C 05 20                       MOVS    R0, #5
+ROM:18000A9E 00C 00 22                       MOVS    R2, #0
+ROM:18000AA0 00C 15 F0 0E F9                 BL      Jump_To_Loc
+ROM:18000AA4
+ROM:18000AA4                 return_fail                             ; CODE XREF: cmd_diags+10j
+ROM:18000AA4                                                         ; cmd_diags+22j
+ROM:18000AA4                                                         ; cmd_diags+2Cj
+ROM:18000AA4 00C 01 20                       MOVS    R0, #1          ; this returns -1 because if this point is reached,
+ROM:18000AA4                                                         ; then that means some type of error occured.
+ROM:18000AA6 00C 40 42                       NEGS    R0, R0
+ROM:18000AA8 00C 90 BD                       POP     {R4,R7,PC}
+ROM:18000AA8                 ; End of function cmd_diags
+ROM:18000AA8
+ROM:18000AA8                 ; ---------------------------------------------------------------------------
+ROM:18000AAA 00 00                           DCW 0
+ROM:18000AAC 67 61 69 64     gaid            DCD 0x64696167          ; DATA XREF: cmd_diags+Ar
+ROM:18000AB0 00 00 00 00                     DCD 0
+ROM:18000AB4 00 00 00 00                     DCD 0
+ROM:18000AB8 00 00 00 00                     DCD 0
+ROM:18000ABC 00 00 00 00                     DCD 0
+}}}
+
+==tsys==
+{{{
+ROM:18000A54                 ; =============== S U B R O U T I N E =======================================
+ROM:18000A54
+ROM:18000A54
+ROM:18000A54                 cmd_tsys
+ROM:18000A54
+ROM:18000A54                 var_8           = -8
+ROM:18000A54
+ROM:18000A54 000 80 B5                       PUSH    {R7,LR}
+ROM:18000A56 008 00 AF                       ADD     R7, SP, #8+var_8
+ROM:18000A58 008 03 48                       LDR     R0, =0x74737973 ; syst (tsys)
+ROM:18000A5A 008 06 21                       MOVS    R1, #6
+ROM:18000A5C 008 FF F7 3C FE                 BL      boot_flash      ; attempt to locate / validate / execute an image
+ROM:18000A5C 008                                                     ; in NOR with the 'syst' (tsys) tag.
+ROM:18000A60 008 01 20                       MOVS    R0, #1
+ROM:18000A62 008 40 42                       NEGS    R0, R0
+ROM:18000A64 008 80 BD                       POP     {R7,PC}
+ROM:18000A64                 ; End of function cmd_tsys
+ROM:18000A64
+ROM:18000A64                 ; ---------------------------------------------------------------------------
+ROM:18000A66 00 00                           DCW 0
+ROM:18000A68 73 79 73 74     syst            DCD 0x74737973          ; DATA XREF: cmd_tsys+4r
+}}}
+
+==go==
+{{{
+ROM:1800130C                 cmd_go                                  ; DATA XREF: ROM:18027570o
+ROM:1800130C
+ROM:1800130C                 var_18          = -0x18
+ROM:1800130C                 Loadaddr        = -0x14
+ROM:1800130C                 var_8           = -8
+ROM:1800130C
+ROM:1800130C 000 B0 B5                       PUSH    {R4,R5,R7,LR}
+ROM:1800130E 010 02 AF                       ADD     R7, SP, #0x10+var_8
+ROM:18001310 010 82 B0                       SUB     SP, SP, #8
+ROM:18001312 018 05 1C                       ADDS    R5, R0, #0
+ROM:18001314 018 0C 1C                       ADDS    R4, R1, #0
+ROM:18001316 018 01 28                       CMP     R0, #1
+ROM:18001318 018 0A DD                       BLE     loc_18001330
+ROM:1800131A 018 21 48                       LDR     R0, =aHelp
+ROM:1800131C 018 49 6A                       LDR     R1, [R1,#0x24]
+ROM:1800131E 018 1C F0 0F FD                 BL      strcmp
+ROM:18001322 018 00 28                       CMP     R0, #0
+ROM:18001324 018 04 D1                       BNE     loc_18001330
+ROM:18001326 018 21 69                       LDR     R1, [R4,#0x10]
+ROM:18001328 018 1E 48                       LDR     R0, =aSAddress
+ROM:1800132A 018 1C F0 E9 FC                 BL      printf
+ROM:1800132E 018 33 E0                       B       loc_18001398
+ROM:18001330                 ; ---------------------------------------------------------------------------
+ROM:18001330
+ROM:18001330                 loc_18001330                            ; CODE XREF: cmd_go+Cj
+ROM:18001330                                                         ; cmd_go+18j
+ROM:18001330 018 90 21                       MOVS    R1, #0x90
+ROM:18001332 018 1D 48                       LDR     R0, =aLoadaddr
+ROM:18001334 018 09 05                       LSLS    R1, R1, #0x14
+ROM:18001336 018 19 F0 63 F8                 BL      Get_Env_Int
+ROM:1800133A 018 01 90                       STR     R0, [SP,#0x18+Loadaddr]
+ROM:1800133C 018 01 2D                       CMP     R5, #1
+ROM:1800133E 018 01 DD                       BLE     loc_18001344
+ROM:18001340 018 A1 69                       LDR     R1, [R4,#0x18]
+ROM:18001342 018 01 91                       STR     R1, [SP,#0x18+Loadaddr]
+ROM:18001344
+ROM:18001344                 loc_18001344                            ; CODE XREF: cmd_go+32j
+ROM:18001344 018 F0 24 24 04                 MOVLS   R4, 0xF00000
+ROM:18001348 018 01 98                       LDR     R0, [SP,#0x18+Loadaddr]
+ROM:1800134A 018 21 1C                       ADDS    R1, R4, #0
+ROM:1800134C 018 15 F0 70 FD                 BL      Range_Check
+ROM:18001350 018 00 28                       CMP     R0, #0
+ROM:18001352 018 01 D1                       BNE     loc_18001358
+ROM:18001354 018 15 48                       LDR     R0, =aPermissionDenied
+ROM:18001356 018 13 E0                       B       loc_18001380
+ROM:18001358                 ; ---------------------------------------------------------------------------
+ROM:18001358
+ROM:18001358                 loc_18001358                            ; CODE XREF: cmd_go+46j
+ROM:18001358 018 01 98                       LDR     R0, [SP,#0x18+Loadaddr] ; Loadaddr
+ROM:1800135A 018 21 1C                       ADDS    R1, R4, #0      ; FIle_Size
+ROM:1800135C 018 01 22                       MOVS    R2, #1          ; Option
+ROM:1800135E 018 19 F0 DF FD                 BL      Setup_Memz_Struct
+ROM:18001362 018 00 28                       CMP     R0, #0
+ROM:18001364 018 01 D1                       BNE     loc_1800136A
+ROM:18001366 018 12 48                       LDR     R0, =aMemoryImageCorrupt
+ROM:18001368 018 0A E0                       B       loc_18001380
+ROM:1800136A                 ; ---------------------------------------------------------------------------
+ROM:1800136A
+ROM:1800136A                 loc_1800136A                            ; CODE XREF: cmd_go+58j
+ROM:1800136A 018 B0 23 1B 05                 MOVLS   R3, 0xB000000
+ROM:1800136E 018 01 A9                       ADD     R1, SP, #0x18+Loadaddr
+ROM:18001370 018 6A 46                       MOV     R2, SP
+ROM:18001372 018 01 93                       STR     R3, [SP,#0x18+Loadaddr]
+ROM:18001374 018 00 94                       STR     R4, [SP,#0x18+var_18]
+ROM:18001376 018 19 F0 93 FD                 BL      Load_Image
+ROM:1800137A 018 00 28                       CMP     R0, #0
+ROM:1800137C 018 03 DA                       BGE     loc_18001386
+ROM:1800137E 018 0D 48                       LDR     R0, =aMemoryImageNotValid
+ROM:18001380
+ROM:18001380                 loc_18001380                            ; CODE XREF: cmd_go+4Aj
+ROM:18001380                                                         ; cmd_go+5Cj
+ROM:18001380 018 1C F0 BE FC                 BL      printf
+ROM:18001384 018 08 E0                       B       loc_18001398
+ROM:18001386                 ; ---------------------------------------------------------------------------
+ROM:18001386
+ROM:18001386                 loc_18001386                            ; CODE XREF: cmd_go+70j
+ROM:18001386 018 01 99                       LDR     R1, [SP,#0x18+Loadaddr]
+ROM:18001388 018 0B 48                       LDR     R0, =aJumpingIntoImageAt0x
+ROM:1800138A 018 1C F0 B9 FC                 BL      printf
+ROM:1800138E 018 01 99                       LDR     R1, [SP,#0x18+Loadaddr]
+ROM:18001390 018 00 20                       MOVS    R0, #0
+ROM:18001392 018 00 22                       MOVS    R2, #0
+ROM:18001394 018 14 F0 94 FC                 BL      Jump_To_Loc
+ROM:18001398
+ROM:18001398                 loc_18001398                            ; CODE XREF: cmd_go+22j
+ROM:18001398                                                         ; cmd_go+78j
+ROM:18001398 018 02 B0                       ADD     SP, SP, #8
+ROM:1800139A 010 01 20                       MOVS    R0, #1
+ROM:1800139C 010 40 42                       NEGS    R0, R0
+ROM:1800139E 010 B0 BD                       POP     {R4,R5,R7,PC}
+ROM:1800139E                 ; End of function cmd_go
+ROM:1800139E
+ROM:1800139E                 ; ---------------------------------------------------------------------------
+ROM:180013A0 A0 06 02 18     off_180013A0    DCD aHelp               ; DATA XREF: cmd_go+Er
+ROM:180013A0                                                         ; "help"
+ROM:180013A4 B0 0D 02 18     off_180013A4    DCD aSAddress           ; DATA XREF: cmd_go+1Cr
+ROM:180013A4                                                         ; "%s [<address>]\n"
+ROM:180013A8 58 08 02 18     off_180013A8    DCD aLoadaddr           ; DATA XREF: cmd_go+26r
+ROM:180013A8                                                         ; "loadaddr"
+ROM:180013AC C0 06 02 18     off_180013AC    DCD aPermissionDenied   ; DATA XREF: cmd_go+48r
+ROM:180013AC                                                         ; "Permission Denied\n"
+ROM:180013B0 20 0C 02 18     off_180013B0    DCD aMemoryImageCorrupt ; DATA XREF: cmd_go+5Ar
+ROM:180013B0                                                         ; "Memory image corrupt\n"
+ROM:180013B4 C0 0D 02 18     off_180013B4    DCD aMemoryImageNotValid
+ROM:180013B4                                                         ; DATA XREF: cmd_go+72r
+ROM:180013B4                                                         ; "Memory image not valid\n"
+ROM:180013B8 D8 0D 02 18     off_180013B8    DCD aJumpingIntoImageAt0x
+ROM:180013B8                                                         ; DATA XREF: cmd_go+7Cr
+ROM:180013B8                                                         ; "jumping into image at 0x%x\n"
+}}}
+
