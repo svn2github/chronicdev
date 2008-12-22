@@ -1,3 +1,6 @@
+#summary Notes on how iBoot and friends parse firmware images
+#labels Featured,Information,Reversing
+
 =Notes=
 ==Img3 Header Format==
 {{{
