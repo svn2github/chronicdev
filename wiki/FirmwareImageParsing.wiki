@@ -12,7 +12,7 @@ typedef struct Img3Header {
     long         tag;     // (h+0x10) Image Tag, such as "ibot" or "illb", whose main purpose is to allow it to be located in NOR easily.
     long        data;     // (h+0x14) string: "DATA"
     long     srevLoc;     // (h+0x18) location in file where "SREV" tag starts. if you are looking at a packed file then do the number at this loc + 0x14 (20 bytes)
-    long        unk;     // (h+0x1C) don't know what this is pointing at.
+    long         unk;     // (h+0x1C) don't know what this is pointing at.
 } Img3Header;
 }}}
 
