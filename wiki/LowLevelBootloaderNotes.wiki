@@ -8,3 +8,95 @@ It starts off by initializing some stuff, blanking 0x18000000 through 0x19400000
 - Kind of a half way point between the bootrom and iBoot, in the sense of how it is literally used in the boot sequence and RCE-wise :P Unlike the bootrom, it has a few strings to at least semi-indicate what is going on, which was a relief in my opinion, but it does not have as much as iBoot.
 
 - Load address of the file is 0x22000000, if you want to join in on the fun and load it up in IDA Pro :)
+
+=Reversings=
+==do_boot();==
+Purpose is to locate the image in NOR with the tag 'ibot' (which would be iBoot) and then validate / decrypt / prep / etc. / jump to it.
+{{{
+LLB:220007D0                 ; =============== S U B R O U T I N E =======================================
+LLB:220007D0
+LLB:220007D0
+LLB:220007D0                 do_boot                                 ; CODE XREF: LLB_Start+A2p
+LLB:220007D0
+LLB:220007D0                 var_8           = -8
+LLB:220007D0
+LLB:220007D0 000 80 B5                       PUSH    {R7,LR}
+LLB:220007D2 008 02 21                       MOVS    R1, #2
+LLB:220007D4 008 00 AF                       ADD     R7, SP, #8+var_8
+LLB:220007D6 008 06 48                       LDR     R0, =0x69626F74 ; ibot
+LLB:220007D8 008 FF F7 7A FF                 BL      boot_flash      ; find and boot from 'ibot' image in NOR
+LLB:220007DC 008 05 48                       LDR     R0, =aDo_bootFailedT
+LLB:220007DE 008 0A F0 1F FE                 BL      printf
+LLB:220007E2 008 00 20                       MOVS    R0, #0
+LLB:220007E4 008 07 F0 30 FB                 BL      Setup_Restrictions
+LLB:220007E8 008 01 20                       MOVS    R0, #1          ; if this point is reached, then something failed.
+LLB:220007EA 008 40 42                       NEGS    R0, R0
+LLB:220007EC 008 80 BD                       POP     {R7,PC}
+LLB:220007EC                 ; End of function do_boot
+LLB:220007EC
+LLB:220007EC                 ; ---------------------------------------------------------------------------
+LLB:220007EE 00 00                           DCW 0
+LLB:220007F0 74 6F 62 69     magic_ibot      DCD 0x69626F74          ; DATA XREF: do_boot+6r
+LLB:220007F4 B0 CD 00 22     off_220007F4    DCD aDo_bootFailedT     ; DATA XREF: do_boot+Cr
+LLB:220007F4                                                         ; "do_boot: failed to find anything to loa"...
+}}}
+
+==boot_flash();==
+This routine is used in iBoot and friends to boot from an image in NOR flash, hence the name "boot_flash"
+
+{{{
+LLB:220006D0                 ; =============== S U B R O U T I N E =======================================
+LLB:220006D0
+LLB:220006D0                 ; boot from an image in NOR flash
+LLB:220006D0
+LLB:220006D0                 ; int __cdecl boot_flash(__int32 image_identifier_magic)
+LLB:220006D0                 boot_flash                              ; CODE XREF: do_boot+8p
+LLB:220006D0
+LLB:220006D0                 var_14          = -0x14
+LLB:220006D0                 var_10          = -0x10
+LLB:220006D0                 var_8           = -8
+LLB:220006D0
+LLB:220006D0                 tag_magic = R4                          ; 'magic' bytes for the tag
+LLB:220006D0 000 90 B5                       PUSH    {tag_magic,R7,LR}
+LLB:220006D2 00C 01 AF                       ADD     R7, SP, #0xC+var_8
+LLB:220006D4 00C 82 B0                       SUB     SP, SP, #8
+LLB:220006D6 014 0C 1C                       ADDS    tag_magic, R1, #0
+LLB:220006D8 014 09 F0 BD F9                 BL      Find_NOR_Image_Wrapper
+LLB:220006DC 014 00 28                       CMP     R0, #0
+LLB:220006DE 014 03 D1                       BNE     loc_220006E8
+LLB:220006E0 014 0C 48                       LDR     R0, =aBoot_flashCoul
+LLB:220006E2 014 0A F0 9D FE                 BL      printf
+LLB:220006E6 014 10 E0                       B       fail_0x16
+LLB:220006E8                 ; ---------------------------------------------------------------------------
+LLB:220006E8
+LLB:220006E8                 loc_220006E8                            ; CODE XREF: boot_flash+Ej
+LLB:220006E8 014 C0 23 5B 05                 MOVLS   R3, 0x18000000
+LLB:220006EC 014 01 93                       STR     R3, [SP,#0x14+var_10]
+LLB:220006EE 014 A0 23 5B 03                 MOVLS   R3, 0x140000
+LLB:220006F2 014 01 A9                       ADD     R1, SP, #0x14+var_10
+LLB:220006F4 014 6A 46                       MOV     R2, SP
+LLB:220006F6 014 00 93                       STR     R3, [SP,#0x14+var_14]
+LLB:220006F8 014 09 F0 72 F9                 BL      Load_Image      ; parse / validate / decrypt image,
+LLB:220006F8 014                                                     ; decrypted output goes to 0x18000000
+LLB:220006FC 014 00 28                       CMP     R0, #0
+LLB:220006FE 014 04 DB                       BLT     fail_0x16
+LLB:22000700 014 01 99                       LDR     R1, [SP,#0x14+var_10]
+LLB:22000702 014 20 1C                       ADDS    R0, tag_magic, #0
+LLB:22000704 014 00 22                       MOVS    R2, #0
+LLB:22000706 014 06 F0 CB FE                 BL      Jump_To_Addr    ; shut down some gpio stuff,
+LLB:22000706 014                                                     ; jump to 0x18000000
+LLB:2200070A
+LLB:2200070A                 fail_0x16                               ; CODE XREF: boot_flash+16j
+LLB:2200070A                                                         ; boot_flash+2Ej
+LLB:2200070A 014 02 B0                       ADD     SP, SP, #8
+LLB:2200070C 00C 01 20                       MOVS    R0, #1
+LLB:2200070E 00C 40 42                       NEGS    R0, R0
+LLB:22000710 00C 90 BD                       POP     {tag_magic,R7,PC}
+LLB:22000710                 ; End of function boot_flash
+LLB:22000710
+LLB:22000710                 ; ---------------------------------------------------------------------------
+LLB:22000712 00                              DCB    0
+LLB:22000713 00                              DCB    0
+LLB:22000714 8C CD 00 22     off_22000714    DCD aBoot_flashCoul     ; DATA XREF: boot_flash+10r
+LLB:22000714                                                         ; "boot_flash: could not find image\n"
+}}}

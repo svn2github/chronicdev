@@ -1,0 +1,97 @@
+#summary Information about the firmware tags
+#labels Reversing,Information
+
+=Introduction=
+With the new IMG3 format came even more precautions built into it. Here is a summary of the tags that you will find at the end of each IMG3 file, after the DATA section and before the footer cert.
+
+=Tags=
+==PROD==
+This is hardcoded in. As in, it does not check the anything in the CHIPID's hardware range, but it will check against a number coded into iBoot. In what I am looking at, it is checking it against the number "1".
+
+If bit 5 of the CHIPID is not set, it will skip the checking of the PROD tag.
+
+==CHIP==
+This is also hardcoded in. On an iPhone, iPhone3G, or iPod Touch 1G, it will check for "0x8900". If it is an iPod Touch 2G, it will check for "0x8720".
+
+==KBAG==
+This is described [http://code.google.com/p/chronicdev/wiki/KBAGFirmwareTag here]
+
+==SHSH==
+According to The iPhone Wiki, it is an encrypted SHA-1 hash of the file. I myself have not confirmed this, but I have seen the code that tells me what was on The iPhone Wiki is probably correct, as it is something that is encrypted. If you are in the mood to experiment, on your jailbroken device, use one of the currently available methods out there to do the following. I have no idea what the result will be, but this is what iBoot does when handling it:
+
+1. Encrypt "335B1FDB1C5F6C6066AA341961069C58" with the device's UID key using the AES engine (just provide it 0 for the IV and 0 for the key)
+
+2. Use 0 as the IV and the output of 1 as the key to decrypt the SHSH section of the firmware file.
+
+=Reversings=
+==SHSH Tag Decryption==
+{{{
+bootrom:22004590                 ; =============== S U B R O U T I N E =======================================
+bootrom:22004590
+bootrom:22004590                 ; section of footer is decrypted, output is placed
+bootrom:22004590                 ; in the previously encrypted section.
+bootrom:22004590
+bootrom:22004590                 ; int __cdecl Decrypt_Footer_Section(__int32 footer_addr, __int32 bytes_to_cert)
+bootrom:22004590                 Decrypt_Footer_Section                  ; CODE XREF: ParseFooter+B8p
+bootrom:22004590
+bootrom:22004590                 AES_Type        = -0x3C
+bootrom:22004590                 Key             = -0x38
+bootrom:22004590                 IV              = -0x34
+bootrom:22004590                 UID_Encrypted_Salt= -0x30
+bootrom:22004590                 Interesting_Salt= -0x20
+bootrom:22004590                 var_8           = -8
+bootrom:22004590
+bootrom:22004590 000 B0 B5                       PUSH    {R4,R5,R7,LR}
+bootrom:22004592 010 02 AF                       ADD     R7, SP, #0x10+var_8
+bootrom:22004594 010 8B B0                       SUB     SP, SP, #0x2C   ; AES_Type
+bootrom:22004596 03C 10 22                       MOVS    R2, #0x10       ; size
+bootrom:22004598 03C 04 1C                       ADDS    R4, R0, #0
+bootrom:2200459A 03C 0D 1C                       ADDS    R5, R1, #0
+bootrom:2200459C 03C 07 A8                       ADD     R0, SP, #0x3C+Interesting_Salt ; dst
+bootrom:2200459E 03C 13 49                       LDR     R1, =Interesting_Salt ; salt = 335B1FDB1C5F6C6066AA341961069C58
+bootrom:220045A0 03C 04 F0 04 E8                 BLX     memcpy
+bootrom:220045A4 03C 80 23 5B 00                 MOVLS   R3, 0x100
+bootrom:220045A8 03C 00 93                       STR     R3, [SP,#0x3C+AES_Type] ; UID key
+bootrom:220045AA 03C 00 23                       MOVS    R3, #0
+bootrom:220045AC 03C 01 93                       STR     R3, [SP,#0x3C+Key] ; key is 0, as we are using UID key in aes hardware
+bootrom:220045AE 03C 02 93                       STR     R3, [SP,#0x3C+IV] ; IV is 0, as we are using UID key in aes hardware
+bootrom:220045B0 03C 10 20                       MOVS    R0, #0x10       ; Crypt Option = Encrypt
+bootrom:220045B2 03C 07 A9                       ADD     R1, SP, #0x3C+Interesting_Salt ; Input_Buffer
+bootrom:220045B4 03C 03 AA                       ADD     R2, SP, #0x3C+UID_Encrypted_Salt ; Output_Buffer
+bootrom:220045B6 03C 10 23                       MOVS    R3, #0x10       ; size1
+bootrom:220045B8 03C 02 F0 02 F8                 BL      Do_Crypt
+bootrom:220045BC 03C 00 28                       CMP     R0, #0
+bootrom:220045BE 03C 02 D0                       BEQ     loc_220045C6
+bootrom:220045C0 03C 01 24                       MOVS    R4, #1
+bootrom:220045C2 03C 64 42                       NEGS    R4, R4
+bootrom:220045C4 03C 0F E0                       B       return          ; fail
+bootrom:220045C6                 ; ---------------------------------------------------------------------------
+bootrom:220045C6
+bootrom:220045C6                 loc_220045C6                            ; CODE XREF: Decrypt_Footer_Section+2Ej
+bootrom:220045C6 03C 03 AB                       ADD     R3, SP, #0x3C+UID_Encrypted_Salt
+bootrom:220045C8 03C 21 1C                       ADDS    R1, R4, #0      ; Input_Buffer
+bootrom:220045CA 03C 22 1C                       ADDS    R2, R4, #0      ; Output_Buffer
+bootrom:220045CC 03C 00 90                       STR     R0, [SP,#0x3C+AES_Type] ; Custom (using Key / IV pair)
+bootrom:220045CE 03C 01 93                       STR     R3, [SP,#0x3C+Key] ; key is encrypted salt from above
+bootrom:220045D0 03C 02 90                       STR     R0, [SP,#0x3C+IV] ; IV is 0
+bootrom:220045D2 03C 2B 1C                       ADDS    R3, R5, #0      ; size = 0x80
+bootrom:220045D4 03C 11 20                       MOVS    R0, #0x11       ; Crypt Option = Decrypt
+bootrom:220045D6 03C 01 F0 F3 FF                 BL      Do_Crypt
+bootrom:220045DA 03C 00 21                       MOVS    R1, #0
+bootrom:220045DC 03C 10 22                       MOVS    R2, #0x10
+bootrom:220045DE 03C 04 1C                       ADDS    R4, R0, #0
+bootrom:220045E0 03C 03 A8                       ADD     R0, SP, #0x3C+UID_Encrypted_Salt
+bootrom:220045E2 03C 03 F0 4E EF                 BLX     memset          ; we are done with the encrypted interesting buffer,
+bootrom:220045E2 03C                                                     ; wipe it (fill with 0s)
+bootrom:220045E6
+bootrom:220045E6                 return                                  ; CODE XREF: Decrypt_Footer_Section+34j
+bootrom:220045E6 03C 0B B0                       ADD     SP, SP, #0x2C
+bootrom:220045E8 010 20 1C                       ADDS    R0, R4, #0
+bootrom:220045EA 010 B0 BD                       POP     {R4,R5,R7,PC}
+bootrom:220045EA                 ; End of function Decrypt_Footer_Section
+bootrom:220045EA
+bootrom:220045EA                 ; ---------------------------------------------------------------------------
+bootrom:220045EC                 ; void *off_220045EC
+bootrom:220045EC 78 A5 00 22     off_220045EC    DCD Interesting_Salt    ; DATA XREF: Decrypt_Footer_Section+Er
+bootrom:220045F0
+}}}

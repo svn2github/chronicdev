@@ -75,7 +75,11 @@ And then, the function will return the beforementioned buffer that it just fille
 
 4. Certificate Loc = (loadaddr+0x14)+([footer->BytesToCert]+[Img3Header->SizeNoHeader])
 
-5. 
+5. /* tbc */
+
+=Tag Parsing=
+==KBAG Parsing==
+see [http://code.google.com/p/chronicdev/wiki/KBAGFirmwareTag here]
 
 =Reversings=
 ==Parsing Routines==

@@ -1,0 +1,166 @@
+#summary Information about the "KBAG" section of firmware files
+#labels Reversing,Information
+
+=Explanation=
+In Apple's new IMG3 security scheme, they have used something called a KBAG. At the bottom of a firmware file, you will see something that will, on the ASCII side of your hex editor, see "GABK", which is "KBAG" flipped. Look on the hex side and you will the KBAG according to this format:
+
+==KBAG Format==
+{{{
+typedef struct Unparsed_KBAG {
+     char[4]           magic;          // string with bits flipped = "DKBAG" (magic = 0x4741424B)
+     int            fullSize;          // size of KBAG from beyond that point to the end of it
+     int                unk1;          // 8 less than fullSize. not sure what it is exactly.
+     int  IV_Key_Crypt_state;          // 1 if the key and IV in the KBAG are encrypted with the GID key, 0 if not.
+     int            AES_Type;          // 0x80 = aes128 / 0xc0 = aes192 / 0x100 = aes256
+     char[16]         Enc_IV;          // IV for the firmware file, encrypted with the gid key
+     char[16]        Enc_Key;          // Key for the firmware file, encrypted with the gid key.
+}
+}}}
+
+=How it works=
+Basically, it just boils down to using the iPhone / iPod group id key to decrypt Enc_IV and Enc_Key, then using that key and IV to decrypt the DATA section of the file (the code itself).
+
+As an interesting side note, because of the circumstances with the IMG3 format, the Kernel never needs to even touch the gid key anymore, as it's job it to just flash the image to the NOR as is, with container and all.
+
+=Reversings=
+==Extracting the KBAG / DATA==
+{{{
+bootrom:2200441E                 loc_2200441E                            ; CODE XREF: Do_Load_Image+184j
+bootrom:2200441E 080 00 23                       MOVS    R3, #0
+bootrom:22004420 080 17 93                       STR     R3, [SP,#0x80+var_24]
+bootrom:22004422 080 00 93                       STR     R3, [SP,#0x80+var_80]
+bootrom:22004424 080 14 98                       LDR     R0, [SP,#0x80+hbuff] ; hbuff
+bootrom:22004426 080 55 49                       LDR     R1, =0x44415441 ; DATA
+bootrom:22004428 080 15 AA                       ADD     R2, SP, #0x80+UnpackedEncryptedFile ; pointer1
+bootrom:2200442A 080 17 AB                       ADD     R3, SP, #0x80+var_24 ; pointer2
+bootrom:2200442C 080 FF F7 F2 FD                 BL      Store_Data_To_Buffer ; search for magic string "ATAD", parse, copy parsed section
+bootrom:2200442C 080                                                     ;      to provided buffer.
+bootrom:22004430 080 04 1E                       SUBS    R4, R0, #0
+bootrom:22004432 080 78 D1                       BNE     near_end_prob_fail
+bootrom:22004434 080 00 23                       MOVS    R3, #0
+bootrom:22004436 080 9B 46                       MOV     R11, R3
+bootrom:22004438
+bootrom:22004438                 loc_22004438                            ; CODE XREF: Do_Load_Image+298j
+bootrom:22004438 080 38 23                       MOVS    R3, #0x38
+bootrom:2200443A 080 59 46                       MOV     R1, R11
+bootrom:2200443C 080 12 93                       STR     R3, [SP,#0x80+pointer2]
+bootrom:2200443E 080 00 91                       STR     R1, [SP,#0x80+var_80]
+bootrom:22004440 080 14 98                       LDR     R0, [SP,#0x80+hbuff] ; hbuff
+bootrom:22004442 080 4F 49                       LDR     R1, =0x4B424147 ; KBAG
+bootrom:22004444 080 16 AA                       ADD     R2, SP, #0x80+KBAG ; pointer1
+bootrom:22004446 080 12 AB                       ADD     R3, SP, #0x80+pointer2 ; pointer2
+bootrom:22004448 080 FF F7 E4 FD                 BL      Store_Data_To_Buffer ; find magic string "GABK", parse, store parased KBAG to
+bootrom:22004448 080                                                     ;      'pointer1' buffer. parsed KBAG is just the KBAG minus
+bootrom:22004448                                                         ;      the Unparsed_KBAG->magic, minus Unparsed_KBag->fullSize,
+bootrom:22004448                                                         ;      and minus Unparsed_KBAG->unk.
+}}}
+
+==Utilizing the KBAG==
+{{{
+bootrom:2200446A 080 16 99                       LDR     R1, [SP,#0x80+KBAG]
+bootrom:2200446C 080 4A 68                       LDR     R2, [R1,#Parsed_KBAG.AES_Type] ; aes128, aes192, and aes256 are supported
+bootrom:2200446E 080 C0 2A                       CMP     R2, #0xC0       ; check if KBAG is using an aes-192
+bootrom:2200446E                                                         ; bit cypher
+bootrom:22004470 080 07 D0                       BEQ     KBAG_is_aes192
+bootrom:22004472 080 80 20 40 00                 MOVLS   R0, 0x100
+bootrom:22004476 080 82 42                       CMP     R2, R0          ; check if KBAG is using an aes-256
+bootrom:22004476                                                         ; bit cypher
+bootrom:22004478 080 06 D0                       BEQ     KBAG_is_aes256
+bootrom:2200447A 080 80 2A                       CMP     R2, #0x80       ; check if KBAG is using an aes-128
+bootrom:2200447A                                                         ; bit cypher
+bootrom:2200447C 080 07 D0                       BEQ     KBAG_is_aes128
+bootrom:2200447E
+bootrom:2200447E                 return_0x16                             ; CODE XREF: Do_Load_Image+56j
+bootrom:2200447E                                                         ; Do_Load_Image+1DEj
+bootrom:2200447E 080 16 24                       MOVS    R4, #0x16
+bootrom:22004480 080 51 E0                       B       near_end_prob_fail
+bootrom:22004482                 ; ---------------------------------------------------------------------------
+bootrom:22004482
+bootrom:22004482                 KBAG_is_aes192                          ; CODE XREF: Do_Load_Image+1F0j
+bootrom:22004482 080 80 24 64 05                 MOVLS   R4, 0x10000000
+bootrom:22004486 080 03 E0                       B       loc_22004490
+bootrom:22004488                 ; ---------------------------------------------------------------------------
+bootrom:22004488
+bootrom:22004488                 KBAG_is_aes256                          ; CODE XREF: Do_Load_Image+1F8j
+bootrom:22004488 080 80 24 A4 05                 MOVLS   R4, 0x20000000
+bootrom:2200448C 080 00 E0                       B       loc_22004490
+bootrom:2200448E                 ; ---------------------------------------------------------------------------
+bootrom:2200448E
+bootrom:2200448E                 KBAG_is_aes128                          ; CODE XREF: Do_Load_Image+1FCj
+bootrom:2200448E 080 00 24                       MOVS    R4, #0
+bootrom:22004490
+bootrom:22004490                 loc_22004490                            ; CODE XREF: Do_Load_Image+206j
+bootrom:22004490                                                         ; Do_Load_Image+20Cj
+bootrom:22004490 080 D5 08                       LSRS    R5, R2, #3
+bootrom:22004492 080 08 31                       ADDS    R1, #8          ; Parsed_KBAG.Enc_IV
+bootrom:22004494 080 10 22                       MOVS    R2, #0x10       ; size
+bootrom:22004496 080 06 A8                       ADD     R0, SP, #0x80+KBAG_IV_Pointer ; dst
+bootrom:22004498 080 04 F0 88 E8                 BLX     memcpy
+bootrom:2200449C 080 16 99                       LDR     R1, [SP,#0x80+KBAG]
+bootrom:2200449E 080 0A A8                       ADD     R0, SP, #0x80+KBAG_Key_Pointer ; dst
+bootrom:220044A0 080 18 31                       ADDS    R1, #0x18       ; Parsed_KBAG.Enc_Key
+bootrom:220044A2 080 2A 1C                       ADDS    R2, R5, #0      ; size
+bootrom:220044A4 080 04 F0 82 E8                 BLX     memcpy
+bootrom:220044A8 080 16 98                       LDR     R0, [SP,#0x80+KBAG]
+bootrom:220044AA 080 03 68                       LDR     R3, [R0]
+bootrom:220044AC 080 00 2B                       CMP     R3, #0          ; check if KBAG starts with 0, indicating that the IV
+bootrom:220044AC                                                         ; and key it contains are not encrypted and do not need
+bootrom:220044AC                                                         ; to be decrypted with the GID key
+bootrom:220044AE 080 14 D0                       BEQ     loc_220044DA
+bootrom:220044B0 080 00 23                       MOVS    R3, #0
+bootrom:220044B2 080 13 93                       STR     R3, [SP,#0x80+var_34]
+bootrom:220044B4 080 13 A9                       ADD     R1, SP, #0x80+var_34
+bootrom:220044B6 080 00 68                       LDR     R0, [R0]
+bootrom:220044B8 080 00 F0 8B FB                 BL      sub_22004BD2
+bootrom:220044BC 080 00 28                       CMP     R0, #0
+bootrom:220044BE 080 29 D1                       BNE     loc_22004514
+bootrom:220044C0 080 13 9A                       LDR     R2, [SP,#0x80+var_34]
+bootrom:220044C2 080 2B 1C                       ADDS    R3, R5, #0
+bootrom:220044C4 080 06 A9                       ADD     R1, SP, #0x80+KBAG_IV_Pointer ; Input_Buffer
+bootrom:220044C6 080 00 92                       STR     R2, [SP,#0x80+var_80] ; AES Type: "GID key" mode. we are decrypting the IV and
+bootrom:220044C6                                                         ;       key with the GID key.
+bootrom:220044C8 080 01 90                       STR     R0, [SP,#0x80+var_7C] ; no key (we must use gid key to decrypt these!)
+bootrom:220044CA 080 02 90                       STR     R0, [SP,#0x80+var_78] ; no IV (we must use gid key to decrypt these!)
+bootrom:220044CC 080 10 33                       ADDS    R3, #0x10       ; size1
+bootrom:220044CE 080 11 20                       MOVS    R0, #0x11       ; Crypt Option = Decrypt
+bootrom:220044D0 080 0A 1C                       ADDS    R2, R1, #0      ; Output_Buffer
+bootrom:220044D2 080 02 F0 75 F8                 BL      Do_Crypt        ; decrypt IV and Key from KBAG both at once,
+bootrom:220044D2 080                                                     ; output buffer is that of where the encrypted
+bootrom:220044D2                                                         ; IV and key were, so the above memcpy()'d pointers
+bootrom:220044D2                                                         ; are now pointing to the decrypted IV and key
+bootrom:220044D6 080 00 28                       CMP     R0, #0
+bootrom:220044D8 080 24 D1                       BNE     loc_22004524
+bootrom:220044DA
+bootrom:220044DA                 loc_220044DA                            ; CODE XREF: Do_Load_Image+22Ej
+bootrom:220044DA 080 15 9A                       LDR     R2, [SP,#0x80+UnpackedEncryptedFile] ; same as input buffer, so that it will be overwritten with
+bootrom:220044DA                                                         ;                      the decrypted DATA section, and a new buffer does not need
+bootrom:220044DA                                                         ;                      to be created for it
+bootrom:220044DC 080 0A A9                       ADD     R1, SP, #0x80+KBAG_Key_Pointer ; is now decrypted key
+bootrom:220044DE 080 01 91                       STR     R1, [SP,#0x80+var_7C]
+bootrom:220044E0 080 06 A9                       ADD     R1, SP, #0x80+KBAG_IV_Pointer ; is now decrypted IV
+bootrom:220044E2 080 02 91                       STR     R1, [SP,#0x80+var_78]
+bootrom:220044E4 080 17 9B                       LDR     R3, [SP,#0x80+var_24] ; size of DATA section
+bootrom:220044E6 080 11 1C                       ADDS    R1, R2, #0      ; Input_Buffer
+bootrom:220044E8 080 11 20                       MOVS    R0, #0x11       ; Crypt Option = Decrypt
+bootrom:220044EA 080 00 94                       STR     R4, [SP,#0x80+var_80] ; AES Type = "Custom" mode, meaning we are providing a IV
+bootrom:220044EA                                                         ;       and key to decrypt with versus using the UID or GID key.
+bootrom:220044EA                                                         ;       we are using AES-128.
+bootrom:220044EC 080 02 F0 68 F8                 BL      Do_Crypt
+bootrom:220044F0 080 00 21                       MOVS    R1, #0
+bootrom:220044F2 080 30 22                       MOVS    R2, #0x30
+bootrom:220044F4 080 04 1C                       ADDS    R4, R0, #0
+bootrom:220044F6 080 06 A8                       ADD     R0, SP, #0x80+KBAG_IV_Pointer
+bootrom:220044F8 080 03 F0 C2 EF                 BLX     memset          ; wipe KBAG buffer, as we are done with it,
+bootrom:220044F8 080                                                     ; we have already decrypted the DATA section
+bootrom:220044F8                                                         ; of the firmware
+bootrom:220044FC 080 00 2C                       CMP     R4, #0
+bootrom:220044FE 080 11 D1                       BNE     loc_22004524
+bootrom:22004500
+bootrom:22004500                 loc_22004500                            ; CODE XREF: Do_Load_Image+1D4j
+bootrom:22004500 080 15 99                       LDR     R1, [SP,#0x80+UnpackedEncryptedFile] ; src
+bootrom:22004502 080 17 9A                       LDR     R2, [SP,#0x80+var_24] ; size
+bootrom:22004504 080 30 1C                       ADDS    R0, file_ptr, #0
+bootrom:22004506 080 04 F0 52 E8                 BLX     memcpy          ; copy just the decrypted DATA section to the loadaddr,
+bootrom:22004506 080                                                     ; overwriting the packed / encrypted firmware, as we are
+bootrom:22004506                                                         ; done parsing that stuff
+}}}
