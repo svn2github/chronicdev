@@ -4,9 +4,10 @@
 =Explanation=
 In Apple's new IMG3 security scheme, they have used something called a KBAG. At the bottom of a firmware file, you will see something that will, on the ASCII side of your hex editor, see "GABK", which is "KBAG" flipped. Look on the hex side and you will the KBAG according to this format:
 
-==KBAG Format==
+=KBAG Format=
+==KBAG128==
 {{{
-typedef struct Unparsed_KBAG {
+typedef struct Unparsed_KBAG_128 {
      char[4]           magic;          // string with bits flipped = "DKBAG" (magic = 0x4741424B)
      int            fullSize;          // size of KBAG from beyond that point to the end of it
      int                unk1;          // 8 less than fullSize. not sure what it is exactly.
@@ -14,7 +15,33 @@ typedef struct Unparsed_KBAG {
      int            AES_Type;          // 0x80 = aes128 / 0xc0 = aes192 / 0x100 = aes256
      char[16]         Enc_IV;          // IV for the firmware file, encrypted with the gid key
      char[16]        Enc_Key;          // Key for the firmware file, encrypted with the gid key.
-}
+} Unparsed_KBAG_AES128;
+}}}
+
+==KBAG192==
+{{{
+typedef struct Unparsed_KBAG_AES192 {
+     char[4]           magic;          // string with bits flipped = "DKBAG" (magic = 0x4741424B)
+     int            fullSize;          // size of KBAG from beyond that point to the end of it
+     int                unk1;          // 8 less than fullSize. not sure what it is exactly.
+     int  IV_Key_Crypt_state;          // 1 if the key and IV in the KBAG are encrypted with the GID key, 0 if not.
+     int            AES_Type;          // 0x80 = aes128 / 0xc0 = aes192 / 0x100 = aes256
+     char[16]         Enc_IV;          // IV for the firmware file, encrypted with the gid key
+     char[24]        Enc_Key;          // Key for the firmware file, encrypted with the gid key.
+} Unparsed_KBAG_AES192;
+}}}
+
+==KBAG256==
+{{{
+typedef struct Unparsed_KBAG_256 {
+     char[4]           magic;          // string with bits flipped = "DKBAG" (magic = 0x4741424B)
+     int            fullSize;          // size of KBAG from beyond that point to the end of it
+     int                unk1;          // 8 less than fullSize. not sure what it is exactly.
+     int  IV_Key_Crypt_state;          // 1 if the key and IV in the KBAG are encrypted with the GID key, 0 if not.
+     int            AES_Type;          // 0x80 = aes-128, 0xc0 = aes-192, 0x100 = aes256
+     char[16]         Enc_IV;          // IV for the firmware file, encrypted with the gid key
+     char[32]        Enc_Key;          // Key for the firmware file, encrypted with the gid key.
+} Unparsed_KBAG_AES256;
 }}}
 
 =How it works=
