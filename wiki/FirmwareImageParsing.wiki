@@ -34,10 +34,15 @@ typedef struct BootromMemzStruct {
     long filesize;     // (s+0x4)
     (nothing?)         // (s+0x8)
     uint32_t Type;     // (s+0xC)  static string = "Memz"
-    int    option;     // (s+0x10) static value = 0x18000001
+    int     flags;     // (s+0x10)
     long loadaddr;     // (s+0x10) static value = 0x1800000
 } BootromMemzStruct;
 }}}
+
+==Diagnostic Flag==
+If bit 4 of the iBoot / LLB / bootrom / etc. flags is set, then that designates it as a diagnostic device it seems. If it is set, an image will still load even if the signature checks and / or tag checks fail.
+
+Unfortunately, this is CHIPID (hardware) based, and cannot be just simply 'changed'. This section is only here to note the existance of it so that if anyone else comes across it then time is not wasted looking into it.
 
 ==Header Parsing==
 These are the basic steps the header parsing routine takes:
