@@ -1,5 +1,5 @@
 #summary It all started when you clicked that shiny "Use For Development" button in XCode.
-#labels Reversing,Information,Featured
+#labels Reversing,Informationd
 
 =Introduction=
 (Thanks to AriX for helping research this)
