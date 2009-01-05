@@ -1,0 +1,30 @@
+#summary Examining the "Pusher" software by RiP Dev
+
+==Introduction==
+Someone pointed out that a program called "Pusher" by RiP Dev apparently has a legit signed Installer included, as well as uses some kind of special enterprise SDK method for doing it's thing. Now, I know that to start the ramdisk it must utilize the Pwnage2 exploit, but I figured that I would look into this just to see what exactly it does, as it was always a mystery to me in the first place.
+
+==Decrypting their encrypted ramdisk==
+Their ramdisk that they upload is encrypted, but thanks to some 1337sauce from np101137 who helped me figure this out via gdb hax, this is how to decrypt the Pusher ramdisk.
+
+1. Plug in an iPhone / iPhone 3G
+
+2. Use gdb to start Pusher
+ gdb Pusher
+
+3. Insert the following breakpoint
+ (gdb) tb *0x0002e9c6
+
+4. Go!
+ (gdb) run
+
+5. Go along with it, put your device in DFU mode, etc etc. (It's OK, trust me)
+
+6. At the breakpoint, you will see the RiP Dev Logo on the screen of your device. But nothing has been uploaded yet, so all is OK :)
+
+7. In terminal:
+ cd /tmp/ipsw/018-4378-1.dmg ~/Desktop/pushpacked.dmg
+
+8. Get xpwntool, and do:
+ xpnwtool ~/Desktop/pushpacked.dmg ~/Desktop/PusherRamdisk.dmg
+
+And there you go! PusherRamdisk.dmg is the decrypted Pusher ramdisk!
