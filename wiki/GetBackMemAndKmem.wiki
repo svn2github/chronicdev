@@ -23,11 +23,6 @@ Patch your kernel with the following patches.
 
 *Tested on*: iPhone 2G and iPhone 3G
 
-=Pics or it didn't happen=
-Fellow Chronic Dev member wEsTbAeR-- was the brave soul that tested my patches, and was so excited that it works he took a pretty screenshot :)
-
-[http://www.grabup.com/uploads/3a8ae5e983bbc12a15bcbf8c11595d0a.png?direct]
-
 =How it works=
 After 1.0.2, Apple (hastily) blocked off the setting up of the /dev/kmem and /dev/mem nodes by setting the setup_kmem flag to 0, in turn, causing some checks made that would normally set it up, to not set it up, at devfs mounting. The first four patches neuter the checks, and then the last patch flips the setup_kmem flag to 1, just to be safe. This allows the device to do all the proper setup to get /dev/kmem and /dev/mem mounted properly. For example, here is essentially what the devnode mounting routine for them does:
 {{{
