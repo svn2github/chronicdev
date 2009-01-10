@@ -1,0 +1,12 @@
+#summary 2.2 kernel hacks
+
+=/dev/mem + /dev/kmem=
+*Offset 0x1E6670*: 00 00 00 00 > 01 00 00 00 (patch setup_kmem flag)
+
+*Offset 0x1EC60C*: 01 00 00 00 > 00 00 00 00 (secure_kernel patch)
+
+=tfp=
+*Offset 0x1EC5C0*: 02 00 00 00 > 0x 00 00 00 (patch tfp.policy from 2 to whatever you want (x))
+
+=read-write=
+*Offset 0x1EC5F4*: 02 00 00 80 > 00 00 00 C0 (make secure_kernel read-write)
