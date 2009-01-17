@@ -1,0 +1,11 @@
+#summary Glossary of various possible boot-args
+#labels Information
+
+=Note=
+This is just documenting them. In 2.x custom boot-args are not allowed, so a patch will be needed. I will try to find one when I have some time.
+
+=Boot Args=
+==AppleMRVL868x==
+*marvel-debug*: specify marvel-debug=1 to enable AppleMRVL868x diagnostic / verbose information to be logged at boot. If you are reversing this driver, this may be very useful to you, as it will output a LOT of information (obtainable via syslog or on main screen during boot with -v boot-arg)
+
+*marvell-retry-limit*: specify marvell-retry-limit=x where x is the retry limit (presumably for if an error occured)
