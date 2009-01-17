@@ -1,0 +1,46 @@
+#summary Information on the ARM7_Go exploit for the iPod Touch 2G
+#labels Exploit,Featured
+
+This exploit is present in 2.1.1 iPod Touch 2G devices, as well as the iBEC / iBSS if you choose to upload it via DFU. It allows the running of unsigned code on the iPod Touch 2G device's ARM7 processor (not the ARM11, mind you).
+
+*This exploit cannot be used on an iPhone, iPhone 3G, or iPod touch 1G, nor is there any reason for it to be as they have already been jailbroken.*
+
+=The Exploit=
+There is an ARM7 in the iPod Touch 2G in addition to the main processor, the ARM11. It is on the same address bus, so it has access to everything the ARM11 has access to, such as the AES engine, the PKE accelorator, and such. The actual exploit is that, in the iPod Touch 2G 2.1.1 firmware, they left behind two commands: arm7_stop and arm7_go. They were promptly removed in 2.2. The arm7_go command had no signature checking, permissions checking, or anything like that. The command gives the ARM7 the load address (default is 0x09000000) of an "image" you sent it, and it is supposed to execute it. Unfortunately, it does not like naked binaries, nor does it like IMG3 files. Hopefully on the release of [[RedSn0w]] it will provide some insight on how the ARM7 expects an image to before it is executed.
+
+=Payload=
+As mentioned above, the payload is not as simple as writing some ARM code and sending it, then using "arm7_go". This section will be updated once I get a chance to see how the dev team's redsn0w utilizes this exploit :)
+
+=Sample Payload=
+This is what I used to try to get it working (with no luck, as you can tell). It will patch out the signature / range / permissions check in memory of an iPod Touch 2G ibss firmware 2.1.1 that is running. I'll update this section on redsn0w release with information on how payloads must be wrapped.
+
+{{{
+@ ipod touch 2G ibss 2.1.1 patcher
+@ by chronic with some gas help from ius
+@
+@ assemble this with gas
+
+.section .text
+   .global _start
+   _start:
+      stmdb sp!, {r0-r6}
+      ldr r0, =rangePatch
+      ldr r1, =permsPatch
+      ldr r2, =sigchPatch
+      ldr r3, =sigchecLoc
+      ldr r4, =permschLoc
+      ldr r6, =rangechLoc
+      strh r1, [r4]
+      strh r0, [r6]
+      strh r2, [r3]
+      ldmia sp!, {r0-r6}
+      mov pc, lr
+
+.section .data
+   sigchecLoc: .word 0x2200F2FE
+   permschLoc: .word 0x2200C330
+   rangechLoc: .word 0x2200C3A6
+   rangePatch: .hword 0x0120
+   permsPatch: .hword 0x0124
+   sigchPatch: .hword 0x0020
+}}}
