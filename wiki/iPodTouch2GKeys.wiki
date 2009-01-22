@@ -9,6 +9,8 @@ To use the IV/key pairs, get xpwntool from the xpwn project on Github, and to us
 
 Note: Now that we've done this, it should be easy to extract the 2.2 keys as well via DFU on a touch with 2.2 installed. The reason we're currently getting keys from 2.1.1 is because that's where the exploit is in the first place.
 
+UPDATE: Several people have questions about the significance of this. Basically, now we have what we need to do the next steps to the jailbreak, which is patch the kernel and write a ramdisk. So, we're pretty close, but not there yet.
+
 Without further ado, here are the keys! Thanks to CPICH for writing the code to use the AES engine, AriX for decrypting the keys, and chronic, ius, and pod2g for figuring out how to write payloads for the exploit!
 
 =Firmware Keys=
@@ -49,4 +51,4 @@ Without further ado, here are the keys! Thanks to CPICH for writing the code to 
 ==2.1.1 Root Filesystem==
 *Name*: 018-4160-1.dmg
 
-*FileVault Key*: d1b957a0a5e56903adc523c5fa99f5d165c3963aea48274770b766b44ecdebab7b5a8f30
+*FileVault/vfdecrypt Key*: d1b957a0a5e56903adc523c5fa99f5d165c3963aea48274770b766b44ecdebab7b5a8f30
