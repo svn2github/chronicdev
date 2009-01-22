@@ -52,6 +52,13 @@ Without further ado, here are the keys! Thanks to CPICH for writing the code to 
 
 *Key*: 79c57a2adddda991bf0581e9d291f7e6
 
+==2.2 Restore Ramdisk==
+*Name*: 018-4085-128.dmg
+
+*IV*: 479c46f27f5b18ac5fa01885cf2b06f9
+
+*Key*: 778b488833cada940a10a7c44cac7413
+
 =Other Keys=
 ==2.1.1 Root Filesystem==
 *Name*: 018-4160-1.dmg
