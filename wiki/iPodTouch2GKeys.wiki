@@ -7,6 +7,8 @@ With the Arm7 Go exploit, we have recently figured out how to use the hardware A
 
 To use the IV/key pairs, get xpwntool from the xpwn project on Github, and to use the root filesystem key, get vfdecrypt.
 
+Note: Now that we've done this, it should be easy to extract the 2.2 keys as well via DFU on a touch with 2.2 installed. The reason we're currently getting keys from 2.1.1 is because that's where the exploit is in the first place.
+
 Without further ado, here are the keys! Thanks to CPICH for writing the code to use the AES engine, AriX for decrypting the keys, and chronic, ius, and pod2g for figuring out how to write payloads for the exploit!
 
 = Keys =
