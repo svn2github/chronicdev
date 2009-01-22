@@ -3,7 +3,7 @@
 
 =Information=
 
-With the Arm7 Go exploit, we have recently figured out how to use the hardware AES engine to get keys and IVs for files from the 2.1.1 firmware. This page will be updated as we decrypt more keys.
+With the [http://code.google.com/p/chronicdev/wiki/ARM7Go ARM7_Go] exploit, we have recently figured out how to use the hardware AES engine to get keys and IVs for files from the 2.1.1 firmware. This page will be updated as we decrypt more keys.
 
 To use the IV/key pairs, get xpwntool from the xpwn project on Github, and to use the root filesystem key, get vfdecrypt.
 
