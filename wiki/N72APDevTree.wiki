@@ -322,6 +322,43 @@ Major thanks to roxfan for the magical devtree parsing script!
 	int 00000005 = /dock
 	int 0000000E = /arm-io/i2c1/mikey
 	int 00000016 = /arm-io/i2c0/audio0
+<clock gates for clock id 1>
+        gate 0000000C = /arm-io/clcd
+        gate 00000011 = /arm-io/h264decoder
+        gate 00000018 = /arm-io/mbx
+        gate 0000001A = /arm-io/mpvd
+        gate 0000001C = /arm-io/prng
+        gate 0000001E = /arm-io/scaler
+        gate 0000002F = /arm-io/tv-out
+<clock gates for clock id 2>
+        gate 00000008 = /arm-io/aes
+        gate 00000009 = /arm-io/amc
+        gate 0000000D = /arm-io/dmac0
+        gate 0000000E = /arm-io/dmac1
+        gate 00000010 = /arm-io/flash-controller0
+        gate 0000001F = /arm-io/sdio
+        gate 00000020 = /arm-io/sha1
+        gate 00000033 = /arm-io/usb-otg
+<clock gates for clock id 3>
+        gate 00000000 = /arm-io/uart0
+        gate 00000012 = /arm-io/i2c0
+        gate 00000013 = /arm-io/i2c1
+        gate 00000014 = /arm-io/i2s0
+        gate 00000019 = /arm-io/mipi-dsim
+        gate 0000001B = /arm-io/pke
+        gate 00000022 = /arm-io/spi0
+        gate 00000023 = /arm-io/spi1
+        gate 00000026 = /arm-io/spi4
+        gate 00000027 = /arm-io/swi
+        gate 00000028 = /arm-io/timer
+        gate 00000029 = /arm-io/timer
+        gate 0000002A = /arm-io/timer
+        gate 0000002B = /arm-io/timer
+        gate 0000002C = /arm-io/timer
+        gate 0000002D = /arm-io/timer
+        gate 0000002E = /arm-io/timer
+        gate 00000030 = /arm-io/uart1
+        gate 00000034 = /arm-io/otgphyctrl
 <dma channels for /arm-io/dmac1>
 	dma 00000000 = /arm-io/spi4
 	dma 00000003 = /arm-io/spi4
