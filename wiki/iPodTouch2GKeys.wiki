@@ -59,6 +59,13 @@ Without further ado, here are the keys! Thanks to CPICH for writing the code to 
 
 *Key*: 778b488833cada940a10a7c44cac7413
 
+==2.2 iBoot==
+*Name*: iBoot.n72ap.RELEASE.img
+
+*IV*: c9a400fab94cb516953a6e30c7c17662
+
+*Key*: a64b02ed6808452f7283bbea5dba2411
+
 =Other Keys=
 ==2.1.1 Root Filesystem==
 *Name*: 018-4160-1.dmg
