@@ -386,7 +386,7 @@ Major thanks to roxfan for the magical devtree parsing script!
 ==Undocumented Hardware Addresses==
 ||*Name*||*Address*||*Comment*||
 ||chipid||0x3D100000||For some reason Apple left this out of the iPod Touch 2G DeviceTree||
-||arm7||0xB8600100||This has only been used in 2.1.1 iBoot / iBEC / iBSS / etc. (and utilized in the [http://code.google.com/p/chronicdev/wiki/ARM7_Go ARM7 Go Exploit] :)||
+||arm7||0xB8600100||This has only been used in 2.1.1 iBoot / iBEC / iBSS / etc. (and utilized in the [http://code.google.com/p/chronicdev/wiki/ARM7Go ARM7 Go Exploit] :)||
 
 ==NOR==
 Two things that don't show up when you issue "image list" are:
