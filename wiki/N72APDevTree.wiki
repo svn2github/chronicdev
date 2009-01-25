@@ -382,13 +382,13 @@ Major thanks to roxfan for the magical devtree parsing script!
 	dma 3DB00024 = /arm-io/uart1
 }}}
 
-==Hardware Notes==
-===Undocumented Hardware Addresses===
+=Hardware Notes=
+==Undocumented Hardware Addresses==
 ||*Name*||*Address*||*Comment*||
 ||chipid||0x3D100000||For some reason Apple left this out of the iPod Touch 2G DeviceTree||
-||arm7||0xB8600100||This has only been used in 2.1.1 iBoot / iBEC / iBSS / etc. (and utilized in the [http://code.google.com/p/chronicdev/w/ARM7_Go ARM7 Go Exploit] :)||
+||arm7||0xB8600100||This has only been used in 2.1.1 iBoot / iBEC / iBSS / etc. (and utilized in the [http://code.google.com/p/chronicdev/wiki/ARM7_Go ARM7 Go Exploit] :)||
 
-===NOR===
+==NOR==
 Two things that don't show up when you issue "image list" are:
 
 *SysCfg*: This starts at offset 0x4000 and is 0x107 bytes long. It contains vital data that can never be retrieved if you overwrite it. To back it up, issue this command with a permissions patched iBoot:
