@@ -1,0 +1,33 @@
+#summary Information about 0wnboot
+
+=Introduction=
+0wnboot is a payload for the [http://code.google.com/p/chronicdev/wiki/ARM7Go ARM7_Go] exploit that I wrote. It is 100% written in ARM and is under development at the moment. We have decided to release a "barebones" version that will just do the required patches for development, with a more stable and feature-ful version coming soon. This has just been released so that people do not use the leaked buggy version that has been floating around.
+
+=Warning=
+In case you didn't catch it, this is the 0wnboot payload, not a tethered jailblreak. If you do not know what you are doing, DO NOT MESS WITH IT. You could risk permanantly damaging your device, and we are not responsible for that if you do. It is intended for use by developers only at the time, so again, do not mess with it if you do not know what you are doing.
+
+=Features=
+==Checks==
+===No signature checks===
+Load any unsigned IMG3 files you want
+
+===No range checks===
+Read / Dump arbitrary pieces of memory
+
+===No permissions checks===
+Full access to all iBoot commands that you normally would get a "Permission Denied" error for. *These are dangerous if you do not know what you are doing.*
+
+===Patched iBoot Flags===
+Basically, makes the system think you are an Apple engineering device, so many restrictions will be lifted because of this. Note that this can be very risky if you do not know what you are doing.
+
+==Custom Commands==
+===0wnTest===
+Just a simple command that will make sure the 0wnboot patches worked. This was written to be more of a proof of concept when trying to "inject" commands into iBoot.
+
+===kbag===
+As you could probably guess, this command was written to allow you to easily decrypt KBAG's without needing to patch an arbitrary function to jump to 0x9000000, then mw'ing code there, etc etc etc. This just makes it much easier. At the moment it only has support for AES-128 kbags, since Apple has never used anything else, but if they do then it will be updated to support them.
+
+*NOTE*: This command has is still being worked on so has been commented out of the current 0wnboot builds that are available in the Downloads section.
+
+=Source=
+Source will be available when we are able to get a more stable build out, as this one is a bit dirty. *Datel, stay back, I am warning you.*

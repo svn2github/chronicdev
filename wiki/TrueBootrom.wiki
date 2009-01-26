@@ -1,0 +1,20 @@
+#summary Notes on the "True" iPod touch 2G bootrom
+#labels Featured,Reversing
+
+==Introduction==
+The other night, pod2g was able to dump the bootrom of his iPod touch 2G. It's hardware address is 0x20000000, so you can always dump it from there, and Apple cannot really do much about that. For fun, make an arm7_go payload that patches out iBoot range check, and do "mdb 0x20000200". You will see something like "SecureROM for s5l8720xsi, Copyright 2008, Apple Inc." :)
+
+==Initial Information==
+*iBoot Version*: iBoot-240.4 (from the early 2.0 betas, to give an example, 2.0 beta 4 was iBoot-311, so this was even before that)
+
+*Mapped To*: 0x0
+
+*Spare Memory*: 0x22000000 (seems to store some things here, even though it is mapped to 0x0...)
+
+*Allowed Range*: 0x22000000 and higher
+
+==Firmware Parsing Notes==
+===Main IMG3 Parsing Routine===
+It seems to only support AES-128 KBAGs, while current iBoots support AES-128, AES-192, and AES-256 KBAGs, so next time they upgrade their encryption method they will need include a so called "upgraded bootrom" or new WTF in IPSWs, so the bootrom will be there for all to see :)
+
+Besides the fact that only AES-128 KBAGs are supported, it seems that the rest of the main IMG3 parsing code is the same as now, although I have not looked at how headers / footers are parsed yet.
