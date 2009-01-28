@@ -68,6 +68,27 @@ EDIT: Also, thanks to BtbN for spending the time to find some 2.2.1 keys!
 
 *Key*: a64b02ed6808452f7283bbea5dba2411
 
+==2.2.1 iBoot==
+*Name*: iBoot.n72ap.RELEASE.img
+
+*IV*: f7b095d291501e74093416fc2453a910
+
+*Key*: ec5aabc0a54a268caf0e5dab337220ee
+
+==2.2.1 LLB==
+*Name*: LLB.n72ap.RELEASE.img3
+
+*IV*: 95e96fa643ef9ab45abe3134d4ac31ce
+
+*Key*: efc85f46109bdebfbf4656c05256c9d0
+
+==2.2.1 DeviceTree==
+*Name*: DeviceTree.n72ap.img3
+
+*IV*: 9b451a7d11ff3bb82cfa0edc0e2a0b86
+
+*Key*: bfc1b2d5b61d2162c43fa614eca8a744
+
 =Other Keys=
 ==2.1.1 Root Filesystem==
 *Name*: 018-4160-1.dmg
