@@ -1,4 +1,4 @@
-#summary Comparison of the output of 'ioreg' on an iPhone, iPhone 3G, and iPod Touch 1G
+#summary Comparison of the output of 'ioreg' on an iPhone, iPhone 3G, iPod Touch 1G, and iPod Touch 2G
 
 =iPhone=
 {{{
@@ -528,4 +528,222 @@
 =iPod Touch 1G=
 {{{
 
+}}}
+
+=iPod Touch 2G=
+{{{
++-o Root  <class IORegistryEntry, retain 6>
+  +-o N72AP  <class IOPlatformExpertDevice, registered, matched, active, busy 0, retain 19>
+    +-o AppleARMPE  <class AppleARMPE, !registered, !matched, active, busy 0, retain 14>
+    | +-o IOPMrootDomain  <class IOPMrootDomain, registered, matched, active, busy 0, retain 42>
+    | | +-o IORootParent  <class IORootParent, !registered, !matched, active, busy 0, retain 7>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | | +-o RootDomainUserClient  <class RootDomainUserClient, !registered, !matched, active, busy 0, retain 5>
+    | +-o options  <class IODTNVRAM, registered, matched, active, busy 0, retain 7>
+    | +-o cpu0@0  <class IOPlatformDevice, registered, matched, active, busy 0, retain 9>
+    | | +-o AppleARMCPU  <class AppleARMCPU, registered, matched, active, busy 0, retain 6>
+    | |   +-o IOCPUInterruptController  <class IOCPUInterruptController, registered, matched, active, busy 0, retain $
+    | +-o cpus  <class IOPlatformDevice, registered, matched, active, busy 0, retain 7>
+    | +-o pram@FFFC000  <class IOPlatformDevice, registered, matched, active, busy 0, retain 6>
+    | +-o vram@F400000  <class IOPlatformDevice, registered, matched, active, busy 0, retain 6>
+    | +-o arm-io  <class IOPlatformDevice, registered, matched, active, busy 0, retain 42>
+    | | +-o AppleS5L8720XIO  <class AppleS5L8720XIO, !registered, !matched, active, busy 0, retain 38>
+    | |   +-o vic@E00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o AppleARMPL192VIC  <class AppleARMPL192VIC, registered, matched, active, busy 0, retain 7>
+    | |   +-o edgeic@E02000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o AppleS5L8900XEdgeIC  <class AppleS5L8900XEdgeIC, !registered, !matched, active, busy 0, retain 5>
+    | |   +-o gpio@4F00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o AppleS5L8900XGPIOIC  <class AppleS5L8900XGPIOIC, registered, matched, active, busy 0, retain 24>
+    | |   +-o power@1700000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o AppleS5L8720XPowerController  <class AppleS5L8720XPowerController, registered, matched, active, busy $
+    | |   +-o clkrstgen@4500000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 9>
+    | |   | +-o AppleS5L8720XClockController  <class AppleS5L8720XClockController, registered, matched, active, busy $
+    | |   +-o dmac0@200000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o IODMAController001079C0  <class AppleARMPL080DMAC, registered, matched, active, busy 0, retain 8>
+    | |   +-o dmac1@700000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o IODMAController00107EC0  <class AppleARMPL080DMAC, registered, matched, active, busy 0, retain 6>
+    | |   +-o sha1@0  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o AppleS5L8900XSHA1  <class AppleS5L8900XSHA1, registered, matched, active, busy 0, retain 6>
+    | |   +-o usb-otg@400000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 11>
+    | |   | +-o AppleSynopsysOTG2  <class AppleSynopsysOTG2, registered, matched, active, busy 0, retain 18>
+    | |   |   +-o IOIpodUSBDevice  <class IOIpodUSBDevice, registered, matched, active, busy 0, retain 4>
+    | |   |   +-o IOUSBDeviceInterface@0  <class IOUSBDeviceInterface, registered, matched, active, busy 0, retain 9>
+    | |   |   | +-o IOUSBDeviceUserClientIniter  <class IOUSBDeviceUserClientIniter, !registered, !matched, active, b$
+    | |   |   | +-o IOUSBDeviceInterfaceUserClient  <class IOUSBDeviceInterfaceUserClient, !registered, !matched, act$
+    | |   |   +-o IOUSBDeviceInterface@1  <class IOUSBDeviceInterface, registered, matched, active, busy 0, retain 7>
+    | |   |   | +-o AppleUSBMike  <class AppleUSBMike, registered, matched, active, busy 0, retain 7>
+    | |   |   |   +-o IOAudio2DeviceUserClient  <class IOAudio2DeviceUserClient, !registered, !matched, active, busy $
+    | |   |   +-o IOUSBDeviceInterface@2  <class IOUSBDeviceInterface, registered, matched, active, busy 0, retain 7>
+    | |   |   | +-o AppleUSBMike  <class AppleUSBMike, registered, matched, active, busy 0, retain 7>
+    | |   |   |   +-o IOAudio2DeviceUserClient  <class IOAudio2DeviceUserClient, !registered, !matched, active, busy $
+    | |   |   +-o IOUSBDeviceInterface@3  <class IOUSBDeviceInterface, registered, matched, active, busy 0, retain 7>
+    | |   |   | +-o IOAccessoryPortUSB  <class IOAccessoryPortUSB, registered, matched, active, busy 0, retain 5>
+    | |   |   |   +-o IOAccessoryPortUserClient  <class IOAccessoryPortUserClient, !registered, !matched, active, bus$
+    | |   |   +-o IOUSBDeviceInterface@4  <class IOUSBDeviceInterface, registered, matched, active, busy 0, retain 7>
+    | |   |     +-o AppleUSBDeviceMux  <class AppleUSBDeviceMux, registered, matched, active, busy 0, retain 4>
+    | |   +-o amc@500000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleAMCDriver_r2  <class AppleAMCDriver_r2, registered, matched, active, busy 0, retain 7>
+    | |   |   +-o IOAudio2TransformerStream  <class IOAudio2TransformerStream, registered, matched, active, busy 0, r$
+    | |   |   +-o IOAudio2TransformerStream  <class IOAudio2TransformerStream, registered, matched, active, busy 0, r$
+    | |   +-o clcd@900000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleM2CLCD  <class AppleM2CLCD, registered, matched, active, busy 0, retain 11>
+    | |   |   +-o IOMobileFramebufferUserClient  <class IOMobileFramebufferUserClient, !registered, !matched, active,$
+    | |   |   +-o IOMobileFramebufferUserClient  <class IOMobileFramebufferUserClient, !registered, !matched, active,$
+    | |   |   +-o IOMobileFramebufferUserClient  <class IOMobileFramebufferUserClient, !registered, !matched, active,$
+    | |   |   +-o IOMobileFramebufferUserClient  <class IOMobileFramebufferUserClient, !registered, !matched, active,$
+    | |   +-o flash-controller0@A00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleS5L8720XFMSS  <class AppleS5L8720XFMSS, registered, matched, active, busy 0, retain 6>
+    | |   |   +-o disk@FF  <class IOFlashStorageDevice, registered, matched, active, busy 0, retain 7>
+    | |   |     +-o AppleNANDFTL  <class AppleNANDFTL, registered, matched, active, busy 0, retain 5>
+    | |   |       +-o IOFlashBlockDevice  <class IOFlashBlockDevice, registered, matched, active, busy 0, retain 6>
+    | |   |         +-o IOBlockStorageDriver  <class IOBlockStorageDriver, registered, matched, active, busy 0, retai$
+    | |   |           +-o unknown vendor unknown product Media  <class IOMedia, registered, matched, active, busy 0, $
+    | |   |             +-o IOMediaBSDClient  <class IOMediaBSDClient, registered, matched, active, busy 0, retain 5>
+    | |   |             +-o IOFDiskPartitionScheme  <class IOFDiskPartitionScheme, !registered, !matched, active, bus$
+    | |   |               +-o Untitled 1@1  <class IOMedia, registered, matched, active, busy 0, retain 8>
+    | |   |               | +-o IOMediaBSDClient  <class IOMediaBSDClient, registered, matched, active, busy 0, retai$
+    | |   |               +-o Untitled 2@2  <class IOMedia, registered, matched, active, busy 0, retain 8>
+    | |   |                 +-o IOMediaBSDClient  <class IOMediaBSDClient, registered, matched, active, busy 0, retai$
+    | |   +-o aes@C00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleS5L8900XAES  <class AppleS5L8900XAES, registered, matched, active, busy 0, retain 7>
+    | |   |   +-o IOAESAcceleratorUserClient  <class IOAESAcceleratorUserClient, !registered, !matched, active, busy $
+    | |   +-o sdio@D00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 9>
+    | |   | +-o AppleS5L8900XSDIO  <class AppleS5L8900XSDIO, !registered, !matched, active, busy 0, retain 7>
+    | |   |   +-o IOSDIOIoCardDevice  <class IOSDIOIoCardDevice, registered, matched, active, busy 0, retain 7>
+    | |   |     +-o AppleBCM4325  <class AppleBCM4325, registered, matched, active, busy 0, retain 7>
+    | |   |       +-o IO80211Interface  <class IO80211Interface, registered, matched, active, busy 0, retain 10>
+    | |   |         +-o IONetworkStack  <class IONetworkStack, registered, matched, active, busy 0, retain 7>
+    | |   |           +-o IONetworkStackUserClient  <class IONetworkStackUserClient, !registered, !matched, active, b$
+    | |   +-o h264decoder@F00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleM2H264MPDDriver  <class AppleM2H264MPDDriver, registered, matched, active, busy 0, retain 5>
+    | |   +-o scaler@1000000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleM2ScalerCSCDriver  <class AppleM2ScalerCSCDriver, registered, matched, active, busy 0, retain 5>
+    | |   +-o tv-out@1300000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleM2TVOut  <class AppleM2TVOut, registered, matched, active, busy 0, retain 7>
+    | |   |   +-o IOMobileFramebufferUserClient  <class IOMobileFramebufferUserClient, !registered, !matched, active,$
+    | |   +-o mbx@3000000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleMBXController  <class AppleMBXController, registered, matched, active, busy 0, retain 5>
+    | |   |   +-o AppleMBXDevice  <class AppleMBXDevice, registered, matched, active, busy 0, retain 11>
+    | |   |     +-o AppleMBXShared  <class AppleMBXShared, !registered, !matched, active, busy 0, retain 7>
+    | |   |     +-o AppleMBXUserClient  <class AppleMBXUserClient, registered, matched, active, busy 0, retain 6>
+    | |   |     +-o AppleMBXShared  <class AppleMBXShared, !registered, !matched, active, busy 0, retain 7>
+    | |   |     +-o AppleMBXUserClient  <class AppleMBXUserClient, registered, matched, active, busy 0, retain 6>
+    | |   +-o mpvd@1600000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleMPVDDriver  <class AppleMPVDDriver, registered, matched, active, busy 0, retain 5>
+    | |   +-o prng@4100000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 6>
+    | |   +-o spi0@4300000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 9>
+    | |   | +-o AppleS5L8900XSPIController  <class AppleS5L8900XSPIController, !registered, !matched, active, busy 0,$
+    | |   |   +-o nor-flash@0  <class AppleARMSPIDevice, registered, matched, active, busy 0, retain 9>
+    | |   +-o spi1@4E00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 9>
+    | |   | +-o AppleS5L8900XSPIController  <class AppleS5L8900XSPIController, !registered, !matched, active, busy 0,$
+    | |   |   +-o nor-flash@0  <class AppleARMSPIDevice, registered, matched, active, busy 0, retain 10>
+    | |   |     +-o AppleARMSPIFlashController  <class AppleARMSPIFlashController, registered, matched, active, busy $
+    | |   |       +-o diagnostic-data@6000  <class AppleARMNORFlashDevice, registered, matched, active, busy 0, retai$
+    | |   |       +-o nvram@FC000  <class AppleARMNORFlashDevice, registered, matched, active, busy 0, retain 7>
+    | |   |       | +-o AppleARMCHRPNVRAM  <class AppleARMCHRPNVRAM, !registered, !matched, active, busy 0, retain 4>
+    | |   |       +-o raw-device@8000  <class AppleARMNORFlashDevice, registered, matched, active, busy 0, retain 7>
+    | |   |         +-o AppleImage3NORAccess  <class AppleImage3NORAccess, registered, matched, active, busy 0, retai$
+    | |   |           +-o AppleImage3NORAccessUserClient  <class AppleImage3NORAccessUserClient, !registered, !matche$
+    | |   +-o spi4@6100000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 9>
+    | |   | +-o AppleS5L8900XSPIController  <class AppleS5L8900XSPIController, !registered, !matched, active, busy 0,$
+    | |   |   +-o multi-touch@0  <class AppleARMSPIDevice, registered, matched, active, busy 0, retain 11>
+    | |   |     +-o AppleMultitouchZ2SPI  <class AppleMultitouchZ2SPI, registered, matched, active, busy 0, retain 7>
+    | |   |       +-o AppleMultitouchSPIUserClient  <class AppleMultitouchSPIUserClient, !registered, !matched, activ$
+    | |   +-o otgphyctrl@4400000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o AppleS5L8720XUSBPhy  <class AppleS5L8720XUSBPhy, registered, matched, active, busy 0, retain 5>
+    | |   +-o i2c0@4600000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 12>
+    | |   | +-o AppleS5L8900XI2CController  <class AppleS5L8900XI2CController, !registered, !matched, active, busy 0,$
+    | |   |   +-o accelerometer@1D  <class AppleARMIICDevice, registered, matched, active, busy 0, retain 7>
+    | |   |   | +-o AppleLIS302DL  <class AppleLIS302DL, registered, matched, active, busy 0, retain 7>
+    | |   |   |   +-o IOHIDUserClientIniter  <class IOHIDUserClientIniter, !registered, !matched, active, busy 0, ret$
+    | |   |   |   +-o IOHIDEventServiceUserClient  <class IOHIDEventServiceUserClient, !registered, !matched, active,$
+    | |   |   +-o pmu@73  <class AppleARMIICDevice, registered, matched, active, busy 0, retain 8>
+    | |   |   | +-o AppleD1759PMU  <class AppleD1759PMU, registered, matched, active, busy 0, retain 25>
+    | |   |   |   +-o AppleD1759PMUPowerSource  <class AppleD1759PMUPowerSource, registered, matched, active, busy 0,$
+    | |   |   |   +-o AppleD1759PMUBacklight  <class AppleD1759PMUBacklight, registered, matched, active, busy 0, ret$
+    | |   |   |   +-o AppleD1759PMURTC  <class AppleD1759PMURTC, registered, matched, active, busy 0, retain 5>
+    | |   |   +-o audio0@4A  <class AppleARMIICDevice, registered, matched, active, busy 0, retain 9>
+    | |   |   | +-o AppleCS42L58Audio  <class AppleCS42L58Audio, registered, matched, active, busy 0, retain 6>
+    | |   |   |   +-o AppleEmbeddedAudioDevice  <class AppleEmbeddedAudioDevice, registered, matched, active, busy 0,$
+    | |   |   |     +-o IOAudio2DeviceUserClient  <class IOAudio2DeviceUserClient, !registered, !matched, active, bus$
+    | |   |   +-o spkr-amp@76  <class AppleARMIICDevice, registered, matched, active, busy 0, retain 8>
+    | |   |   | +-o AppleLM48821Amp  <class AppleLM48821Amp, registered, matched, active, busy 0, retain 4>
+    | |   |   +-o tethered@29  <class AppleARMIICDevice, registered, matched, active, busy 0, retain 7>
+    | |   |     +-o AppleTetheredDevice  <class AppleTetheredDevice, registered, matched, active, busy 0, retain 7>
+    | |   |       +-o AppleTetheredDeviceUserClient  <class AppleTetheredDeviceUserClient, !registered, !matched, act$
+    | |   |       +-o AppleTetheredDeviceUserClient  <class AppleTetheredDeviceUserClient, !registered, !matched, act$
+    | |   +-o i2c1@4900000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 9>
+    | |   | +-o AppleS5L8900XI2CController  <class AppleS5L8900XI2CController, !registered, !matched, active, busy 0,$
+    | |   |   +-o als@44  <class AppleARMIICDevice, registered, matched, active, busy 0, retain 7>
+    | |   |   | +-o AppleISL29003  <class AppleISL29003, registered, matched, active, busy 0, retain 7>
+    | |   |   |   +-o IOHIDUserClientIniter  <class IOHIDUserClientIniter, !registered, !matched, active, busy 0, ret$
+    | |   |   |   +-o IOHIDEventServiceUserClient  <class IOHIDEventServiceUserClient, !registered, !matched, active,$
+    | |   |   +-o mikey@39  <class AppleARMIICDevice, registered, matched, active, busy 0, retain 8>
+    | |   |     +-o AppleCD3272Mikey  <class AppleCD3272Mikey, registered, matched, active, busy 0, retain 7>
+    | |   |       +-o IOHIDUserClientIniter  <class IOHIDUserClientIniter, !registered, !matched, active, busy 0, ret$
+    | |   |       +-o IOHIDEventServiceUserClient  <class IOHIDEventServiceUserClient, !registered, !matched, active,$
+    | |   +-o timer@4700000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o AppleS5L8900XTimer  <class AppleS5L8900XTimer, !registered, !matched, active, busy 0, retain 4>
+    | |   +-o wdt@4800000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o AppleS5L8900XWatchDogTimer  <class AppleS5L8900XWatchDogTimer, registered, matched, active, busy 0, r$
+    | |   +-o i2s0@4A00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleS5L8900XI2SController  <class AppleS5L8900XI2SController, !registered, !matched, active, busy 0,$
+    | |   |   +-o audio0@0  <class AppleARMIISDevice, registered, matched, active, busy 0, retain 6>
+    | |   +-o uart0@4C00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 10>
+    | |   | +-o AppleS5L8900XSerial  <class AppleS5L8900XSerial, !registered, !matched, active, busy 0, retain 6>
+    | |   |   +-o iap  <class AppleSimpleUARTSync, registered, matched, active, busy 0, retain 11>
+    | |   |     +-o IOSerialBSDClient  <class IOSerialBSDClient, registered, matched, active, busy 0, retain 4>
+    | |   |     +-o AppleOnboardSerialBSDClient  <class AppleOnboardSerialBSDClient, !registered, !matched, active, b$
+    | |   |     +-o IOAccessoryPortSerial  <class IOAccessoryPortSerial, registered, matched, active, busy 0, retain $
+    | |   |       +-o IOAccessoryPortUserClient  <class IOAccessoryPortUserClient, !registered, !matched, active, bus$
+    | |   +-o uart1@5B00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 10>
+    | |   | +-o AppleS5L8900XSerial  <class AppleS5L8900XSerial, !registered, !matched, active, busy 0, retain 6>
+    | |   |   +-o bluetooth  <class AppleSimpleUARTSync, registered, matched, active, busy 0, retain 11>
+    | |   |     +-o IOSerialBSDClient  <class IOSerialBSDClient, registered, matched, active, busy 0, retain 4>
+    | |   |     +-o AppleOnboardSerialBSDClient  <class AppleOnboardSerialBSDClient, !registered, !matched, active, b$
+    | |   |     +-o BTReset  <class BTReset, !registered, !matched, active, busy 0, retain 4>
+    | |   +-o pke@5000000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |   | +-o AppleS5L8900XPKE  <class AppleS5L8900XPKE, registered, matched, active, busy 0, retain 5>
+    | |   +-o mipi-dsim@5800000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 8>
+    | |   | +-o AppleS5L8720XMIPIDSIController  <class AppleS5L8720XMIPIDSIController, !registered, !matched, active,$
+    | |   |   +-o lcd  <class AppleARMMIPIDSIDevice, registered, matched, active, busy 0, retain 9>
+    | |   |     +-o ApplePinotLCD  <class ApplePinotLCD, registered, matched, active, busy 0, retain 5>
+    | |   +-o swi@5E00000  <class AppleARMIODevice, registered, matched, active, busy 0, retain 7>
+    | |     +-o AppleS5L8720XSWI  <class AppleS5L8720XSWI, registered, matched, active, busy 0, retain 5>
+    | +-o buttons  <class IOPlatformDevice, registered, matched, active, busy 0, retain 13>
+    | | +-o AppleM68Buttons  <class AppleM68Buttons, registered, matched, active, busy 0, retain 7>
+    | |   +-o IOHIDUserClientIniter  <class IOHIDUserClientIniter, !registered, !matched, active, busy 0, retain 4>
+    | |   +-o IOHIDEventServiceUserClient  <class IOHIDEventServiceUserClient, !registered, !matched, active, busy 0,$
+    | +-o dock  <class IOPlatformDevice, registered, matched, active, busy 0, retain 11>
+    | | +-o IOAccessoryManager  <class IOAccessoryManager, registered, matched, active, busy 0, retain 8>
+    | +-o charger  <class IOPlatformDevice, registered, matched, active, busy 0, retain 8>
+    +-o IOResources  <class IOResources, registered, matched, active, busy 0, retain 16>
+      +-o com_apple_driver_FairPlayIOKit  <class com_apple_driver_FairPlayIOKit, registered, matched, active, busy 0,$
+      | +-o com_apple_driver_FairPlayIOKitUserClient  <class com_apple_driver_FairPlayIOKitUserClient, !registered, !$
+      | +-o com_apple_driver_FairPlayIOKitUserClient  <class com_apple_driver_FairPlayIOKitUserClient, !registered, !$
+      +-o com_apple_platform_AppleKernelStorage  <class com_apple_platform_AppleKernelStorage, !registered, !matched,$
+      +-o IOCoreSurfaceRoot  <class IOCoreSurfaceRoot, registered, matched, active, busy 0, retain 249>
+      | +-o IOCoreSurfaceRootUserClient  <class IOCoreSurfaceRootUserClient, !registered, !matched, active, busy 0, r$
+      | +-o IOCoreSurfaceRootUserClient  <class IOCoreSurfaceRootUserClient, !registered, !matched, active, busy 0, r$
+      | +-o IOCoreSurfaceRootUserClient  <class IOCoreSurfaceRootUserClient, !registered, !matched, active, busy 0, r$
+      +-o AppleSerialKDP  <class AppleSerialKDP, !registered, !matched, active, busy 0, retain 4>
+      +-o CHUDKernLib  <class CHUDKernLib, registered, matched, active, busy 0, retain 4>
+      +-o CHUDProf  <class CHUDProf, registered, matched, active, busy 0, retain 4>
+      +-o IOHDIXController  <class IOHDIXController, registered, matched, active, busy 0, retain 4>
+      +-o IONetworkStack  <class IONetworkStack, registered, matched, active, busy 0, retain 7>
+      | +-o IONetworkStackUserClient  <class IONetworkStackUserClient, !registered, !matched, active, busy 0, retain $
+      +-o AppleMobileFileIntegrity  <class AppleMobileFileIntegrity, registered, matched, active, busy 0, retain 4>
+      +-o AppleFairplayTextCrypter  <class AppleFairplayTextCrypter, !registered, !matched, active, busy 0, retain 6>
+      +-o AppleNullTextCrypter  <class AppleNullTextCrypter, !registered, !matched, active, busy 0, retain 5>
+iPwned-2G:/ root# 
 }}}
