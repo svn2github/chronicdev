@@ -13,6 +13,8 @@ UPDATE: Several people have questions about the significance of this. Basically,
 
 Without further ado, here are the keys! Thanks to CPICH for writing the code to use the AES engine, AriX for decrypting the keys, and chronic, ius, and pod2g for figuring out how to write payloads for the exploit!
 
+EDIT: Also, thanks to BtbN for spending the time to find some 2.2.1 keys!
+
 =Firmware Keys=
 
 ==2.1.1 Kernel==
@@ -71,3 +73,13 @@ Without further ado, here are the keys! Thanks to CPICH for writing the code to 
 *Name*: 018-4160-1.dmg
 
 *FileVault/vfdecrypt Key*: d1b957a0a5e56903adc523c5fa99f5d165c3963aea48274770b766b44ecdebab7b5a8f30
+
+==2.2 Root Filesystem==
+*Name*: 018-4056-128.dmg
+
+*FileVault/vfdecrypt Key*: 148025cde5c51d51d7733e74c6857dfca70d7240287d6eb039a1ed835413120b0af1e296
+
+==2.2.1 Root Filesystem==
+*Name*: 018-4491-11.dmg
+
+*FileVault/vfdecrypt Key*: 2611c9f73504344fb22c93791659ec92e65f914025c5814d708b2023ab67229d89c39791
