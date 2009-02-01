@@ -1,0 +1,8 @@
+0wnboot changes
+
+0.1 - initial build
+0.2 - commented out not working printf(); and optimized range and permissions check patch into the iboot flags patch, not to mention the iboot flags patch allows other stuff such as secure boot and unrestricted access to aes keys
+0.3 - added cleareenv hack for running unsigned code at 0x9000000
+0.5 - major revision, totally re-written in ARM and fixed up.
+0.8 - 0wnTest command and verbose booting for ramdisks.
+0.9 - modified and cleaned up for first public release
