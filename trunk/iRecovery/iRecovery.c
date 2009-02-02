@@ -1,6 +1,6 @@
 /**
   * iRecovery - Utility for DFU, WTF and Recovery
-  * Copyright (C) 2008  wEsTbAeR--, tom3q
+  * Copyright (C) 2008 - 2009 westbaer, tom3q
   * 
   * This program is free software: you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "usb.h"
-#define DFU_MODE	0x1222
-#define WTF_MODE	0x1227
-#define RECOVERY_MODE	0x1281
+#include <usb.h>
+#include <readline/readline.h>
+#define DFU_MODE 0x1222
+#define WTF_MODE 0x1227
+#define RECOVERY_MODE 0x1281
+#define TRANSFER_BUFFER_LEN 0x10000
+#define COMMAND_BUFFER_LEN 512
+#define AUTOCOMMAND_DUMPMEM 1
+
+struct usb_dev_handle *globalDevPhone;
 
 /*
  * A helper function dumping c bytes of a.
@@ -105,10 +111,12 @@ void iHelp()
 {
 	printf("List of internal commands:\n");
 	printf("/sendfile <file>\tsend <file> to the phone\n");
+	printf("/dumpMem <args>\tdump memory\n");
 	printf("/help\t\t\tshow this help\n");
 	printf("/exit\t\t\texit the shell\n");
 }
 void iSendFile(char *filename);
+void parseScript(char *filename);
 
 /*
  * Internal command parser for -s mode
@@ -123,79 +131,244 @@ void iParseCmd(char *cmd)
 		iHelp();
 	} else if(!strcmp("/sendfile", command)) {
 		iSendFile(parameters);
-	} else if(!strcmp("/exit", command)) {
+	} else if(!strcmp("/script", command)) {
+		parseScript(parameters);
+	} else if(!strcmp("/exit", command) || strstr("/dumpMem", command)) {
 		return;
 	} else {
 		printf("Unknown internal command. See /help\n");
 	}
 }
 
-/*
- * Main function of -s mode
- */
-void iStartConsole(void)
-{
+void finalizeDumpFile(char* dumpMemTmpFileName, char* dumpMemFileName) {
+	char tmpbuf[512]; // will get each line of mdb output.
+    	FILE * fTmp = fopen(dumpMemTmpFileName, "rb");
+	FILE * fFinal = fopen(dumpMemFileName, "wb");
+	unsigned int mdbByte;
+	unsigned int nbBytes = 0;
+	while (!feof(fTmp)) {
+	    if (fgets(tmpbuf, 512, fTmp)==NULL) break;
+
+	    	int count = strlen(tmpbuf);
+		char* pDst = tmpbuf;
+		while(pDst < tmpbuf + count) {
+			if (nbBytes%17 != 0) {
+				sscanf(pDst, "%x", &mdbByte);
+				fputc(mdbByte, fFinal);
+			}
+			nbBytes++;
+			while (*pDst!=' ' && pDst < tmpbuf + count) pDst++; // goto the next space
+			while ((*pDst<'0' || *pDst>'9') && (*pDst<'a' || *pDst>'f') && pDst < tmpbuf + count) pDst++; // goto the next digit
+        	}
+
+
+
+	}
+    	fclose(fFinal);
+    	fclose(fTmp);
+    	unlink(dumpMemTmpFileName);
+}
+
+void sendCommand(char *cmd) {
 	struct usb_dev_handle *devPhone;
-	int ret, length, skip_recv;
-	char *buf, *sendbuf, *cmd, *response;
-
+	char *sendbuf;
 	devPhone = iUSBInit(RECOVERY_MODE);
-
 	if(devPhone == 0) {
 		printf("No iPhone/iPod found.\n");
 		exit(EXIT_FAILURE);
 	}
-
-	if((ret = usb_set_configuration(devPhone, 1)) < 0)
-		printf("Error %d when setting configuration\n", ret);
-
-	if((ret = usb_claim_interface(devPhone, 1)) < 0)
-		printf("Error %d when claiming interface\n", ret);
-
-	if((ret = usb_set_altinterface(devPhone, 1)) < 0)
-		printf("Error %d when setting altinterface\n", ret);
-
-	buf = malloc(0x10001);
 	sendbuf = malloc(160);
-	cmd = malloc(160);
+	int length = (int)(((strlen(cmd)-1)/0x10)+1)*0x10;
+	memset(sendbuf, 0, length);
+	memcpy(sendbuf, cmd, strlen(cmd));
+	if(!usb_control_msg(devPhone, 0x40, 0, 0, 0, sendbuf, length, 1000)) {
+		printf("[ ERROR ] %s", usb_strerror());
+	}
+	free(sendbuf);
+	iUSBDeInit(devPhone);	
+}
 
-	skip_recv = 0;
+/*
+ * Main function of -s mode
+ */
+	void iStartConsole(void)
+	{
+		struct usb_dev_handle *devPhone;
+		int ret, length, skip_recv, firstresp;
+		char *buf, *sendbuf, *tmpbuf, *cmd, *response;
 
-	do {
-		if(!skip_recv) {
-			ret = usb_bulk_read(devPhone, 0x81, buf, 0x10000, 1000);
-			if(ret > 0) {
+		devPhone = iUSBInit(RECOVERY_MODE);
+		globalDevPhone = devPhone;
+
+		if(devPhone == 0) {
+			printf("No iPhone/iPod found.\n");
+			exit(EXIT_FAILURE);
+		}
+
+		if((ret = usb_set_configuration(devPhone, 1)) < 0)
+			printf("Error %d when setting configuration\n", ret);
+
+		if((ret = usb_claim_interface(devPhone, 1)) < 0)
+			printf("Error %d when claiming interface\n", ret);
+
+		if((ret = usb_set_altinterface(devPhone, 1)) < 0)
+			printf("Error %d when setting altinterface\n", ret);
+
+		buf = malloc(TRANSFER_BUFFER_LEN);
+		tmpbuf = malloc(TRANSFER_BUFFER_LEN);
+		sendbuf = malloc(COMMAND_BUFFER_LEN);
+		cmd = malloc(COMMAND_BUFFER_LEN);
+
+		skip_recv = 0;
+		firstresp = 0;
+
+		// >> variables related to /dumpMem command
+	    	unsigned int dumpMemPtr, dumpMemAddr, dumpMemSize;
+	    	FILE* dumpMemTmpFile;
+	    	char dumpMemTmpFileName[COMMAND_BUFFER_LEN];
+	    	char dumpMemFileName[COMMAND_BUFFER_LEN];
+	    // <<
+
+	    	int autoCommand = 0;
+	    	do {
+			if(!skip_recv) {
+	            		memset(buf, 0, TRANSFER_BUFFER_LEN);
+				ret = usb_bulk_read(devPhone, 0x81, buf, TRANSFER_BUFFER_LEN-1, 1000);
+
+	            		if(ret > 0) {
+					if (autoCommand == AUTOCOMMAND_DUMPMEM) {
+						// removing all those \0 in the response
+						char* pSrc = buf;
+						char* pDst = tmpbuf;
+						while (pSrc < buf + ret) {
+							if (*pSrc != 0) {
+								*(pDst++) = *pSrc;
+							}
+							pSrc++;
+						}
+						*pDst='\0'; // finishes the string
+
+						fputs(tmpbuf, dumpMemTmpFile);
+					} else {
+						response = buf;
+						while(response < buf + ret) {
+							printf("%s", response);
+							response += strlen(response) + 1;
+						}
+					}
+				}
+
+				if ( dumpMemPtr >= dumpMemAddr + dumpMemSize ) {
+					// temporary dump finished. closing dump file.
+					autoCommand = 0;
+					fclose(dumpMemTmpFile);
+
+					// reading the tmp dump file from the start and generates the final one
+				    	finalizeDumpFile(dumpMemTmpFileName, dumpMemFileName);
+				}
+			} else {
+				skip_recv = 0;
+			}
+
+			if (autoCommand==0) {
+				if(firstresp == 1) {
+					printf("] ", response);
+				}
+				cmd = readline(NULL);
+				if(cmd && *cmd) {
+					add_history(cmd);
+				}
+
+				if(firstresp == 0) {
+					firstresp = 1;
+				}
+			} else if (autoCommand == AUTOCOMMAND_DUMPMEM) {
+	   			memset(cmd, 0, COMMAND_BUFFER_LEN);
+				int mdbSize = dumpMemAddr + dumpMemSize - dumpMemPtr;
+	   			if (mdbSize > 0x40) mdbSize = 0x40;
+		        	sprintf(cmd, "mdb 0x%08x 0x%08x\n", dumpMemPtr, mdbSize);
+				// incrementing mdb pointer by 0x40
+	   			dumpMemPtr += mdbSize;
+			}
+
+			if(cmd[0] == '/') {
+				if (strstr(cmd, "/dumpMem")) {
+					// want to dump memory.
+
+					char command[COMMAND_BUFFER_LEN];
+					unsigned int cmdParamAddr = 0, cmdParamSize = 0;
+					sscanf(cmd, "%s %s 0x%x 0x%x", command, dumpMemFileName, &cmdParamAddr, &cmdParamSize);
+
+	                if (strlen(dumpMemFileName)>0 && cmdParamAddr > 0 && cmdParamSize > 0) {
+	                    autoCommand = AUTOCOMMAND_DUMPMEM;
+						strcpy(dumpMemTmpFileName, dumpMemFileName);
+						strcat(dumpMemTmpFileName, ".tmp");
+						dumpMemTmpFile = fopen(dumpMemTmpFileName, "wb");
+						dumpMemAddr = cmdParamAddr;
+						dumpMemSize = cmdParamSize;
+						dumpMemPtr = dumpMemAddr;
+					} else {
+						printf("syntax: /dumpMem <filename> 0x<addr> 0x<len>\n");
+					}
+				} else {
+	                iParseCmd(cmd);
+				}
+				skip_recv = 1;
+			} else {
+				length = (int)(((strlen(cmd)-1)/0x10)+1)*0x10;
+				memset(sendbuf, 0, length);
+				memcpy(sendbuf, cmd, strlen(cmd));
+				if(!usb_control_msg(devPhone, 0x40, 0, 0, 0, sendbuf, length, 1000)) {
+					printf("[ ERROR ] %s", usb_strerror());
+				}
+			}
+
+
+		} while(strcmp("/exit", cmd) != 0);
+
+		usb_release_interface(devPhone, 0);
+		free(buf);
+		free(tmpbuf);
+		free(sendbuf);
+		free(cmd);
+		iUSBDeInit(devPhone);
+}
+
+void parseScript(char *filename) { 
+	FILE *file;
+	char cmdbuf[100];
+	int length, ret;
+	char *sendbuf, *buf, *response;
+	sendbuf = malloc(160);
+	buf = malloc(0x10001);
+	file = fopen(filename, "rb");
+	if(file == NULL) {
+		printf("File %s not found.\n", filename);
+	} else {
+		while (!feof(file)) {
+			memset(buf, 0, TRANSFER_BUFFER_LEN);
+			ret = usb_bulk_read(globalDevPhone, 0x81, buf, TRANSFER_BUFFER_LEN-1, 1000);
+
+            		if(ret > 0) {
 				response = buf;
-				while(response < buf + ret)
-				{
+				while(response < buf + ret) {
 					printf("%s", response);
 					response += strlen(response) + 1;
 				}
 			}
-		} else {
-			skip_recv = 0;
-		}
-		printf("(Recovery) iPhone$ ");
-		iReadLine(cmd);
-
-		if(cmd[0] == '/') {
-			iParseCmd(cmd);
-			skip_recv = 1;
-		} else {
-			length = (int)(((strlen(cmd)-1)/0x10)+1)*0x10;
+			
+			fgets(cmdbuf, 99, file);
+			printf("send: %s", cmdbuf);
+			length = (int)(((strlen(cmdbuf)-1)/0x10)+1)*0x10;
 			memset(sendbuf, 0, length);
-			memcpy(sendbuf, cmd, strlen(cmd));
-			if(!usb_control_msg(devPhone, 0x40, 0, 0, 0, sendbuf, length, 1000)) {
+			memcpy(sendbuf, cmdbuf, strlen(cmdbuf));
+			if(!usb_control_msg(globalDevPhone, 0x40, 0, 0, 0, sendbuf, length, 1000)) {
 				printf("[ ERROR ] %s", usb_strerror());
 			}
 		}
-	} while(strcmp("/exit", cmd) != 0);
-
-	usb_release_interface(devPhone, 0);
-	free(buf);
-	free(sendbuf);
-	free(cmd);
-	iUSBDeInit(devPhone);
+	}
+	
+	fclose(file);
 }
 
 /*
@@ -306,6 +479,7 @@ int iShowUsage(void)
 {
 		printf("./iRecovery [args]\n");
 		printf("\t-f <file>\t\tupload file in DFU, WTF and Recovery modes\n");
+		printf("\t-c \"command\"\t\tsend a single command in recovery mode\n");
 		printf("\t-s\t\t\tstarts a shell in Recovery mode\n\n");
 }
 
@@ -315,7 +489,7 @@ int iShowUsage(void)
 int main(int argc, char *argv[])
 {
 	printf("iRecovery - Recovery Utility\n");
-	printf("by wEsTbAeR-- and Tom3q\n\n");
+	printf("by westbaer\nThanks to pod2g and tom3q\n\n");
 	if(argc < 2) {
 		iShowUsage();
 		exit(EXIT_FAILURE);
@@ -335,6 +509,8 @@ int main(int argc, char *argv[])
 		iSendFile(argv[2]);
 	} else if(strcmp(argv[1], "-s") == 0) {
 		iStartConsole();
+	} else if(strcmp(argv[1], "-c") == 0) {
+		sendCommand(argv[2]);
 	}
 	
 	return 0;
