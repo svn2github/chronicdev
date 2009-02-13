@@ -1,5 +1,7 @@
 #summary Very helpful for anyone reversing iBoot
 
+(for more info on hardware stuff see the page on The iPhone Wiki that I am writing [http://www.theiphonewiki.com/wiki/index.php?title=S5L8720_%28Hardware%29 here])
+
 Major thanks to roxfan for the magical devtree parsing script!
 
 {{{
