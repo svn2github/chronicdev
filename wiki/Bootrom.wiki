@@ -1,5 +1,4 @@
 #summary Notes on the bootrom (WTF / DFU 2.0)
-#labels Featured
 
 =Notes=
 ==Random==
