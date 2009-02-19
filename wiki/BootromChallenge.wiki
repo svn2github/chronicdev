@@ -1,5 +1,5 @@
 #summary Why there is much more to this than we are used to
-#labels Featured,Information
+#labels Information
 
 =Introduction=
 On Februrary 27, 2008, the iPhone Dev Team demonstrated that they had the ability to [http://www.youtube.com/watch?v=7mYSGbm02zQ load a custom recovery logo to the iPhone], bypassing signature checks. Then, two days later, they demonstrated that they could [http://www.youtube.com/watch?v=ks86VRzVLic restore to a custom IPSW file]. After that, they published [http://wikee.iphwn.org/s5l8900:pwnage some information on how the "Pwnage" exploit works], then finally, [http://www.youtube.com/watch?v=j7nbIvNf7MA a full presentation of the tool].
