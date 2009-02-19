@@ -2,7 +2,9 @@
 #labels Information,Featured
 
 ==Note==
-This is just something for people that know what they are doing and like to experiment. If you don't know what you are doing, just wait for the MuscleNerd / devteam tutorial, it will probably be much better and more in-depth
+This is just something for people that know what they are doing and like to experiment. If you don't know what you are doing, just wait for the MuscleNerd / devteam tutorial, it will probably be much better and more in-depth.
+
+Also, MuscleNerd brought up a good point. This is quite rudimentary, and I did not take into account 2.2+ OTB users while making it, so they are going to have trouble doing it to. If you bought your device with 2.2 or later on it, use the devteam method when they release that.
 
 ==iPod side==
 To make it actually work, you need to send a command to your iPod first. This will store the redsn0w payload in NVRAM, to put it simply. 
