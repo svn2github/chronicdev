@@ -1,0 +1,23 @@
+#summary Short and sweet jb dongle info
+#labels Information,Featured
+
+==Note==
+This is just something for people that know what they are doing and like to experiment. If you don't know what you are doing, just wait for the MuscleNerd / devteam tutorial, it will probably be much better and more in-depth
+
+==iPod side==
+To make it actually work, you need to send a command to your iPod first. This will store the redsn0w payload in NVRAM, to put it simply. 
+
+Grab the latest iRecovery from http://chronicdev.googlecode.com/svn/trunk/ and send the following command to your device in Recovery Mode:
+{{{
+setenv pwn "arm7_stop; mw 0x9000000 0xe59f3014; mw 0x9000004 0xe3a02a02; mw 0x9000008 0xe1c323b4; mw 0x900000c 0xe59f300c; mw 0x9000010 0xe3e02000; mw 0x9000014 0xe503223f; mw 0x9000018 0xeafffffe; mw 0x900001c 0x0ff1a100; mw 0x9000020 0x0ff2afff; arm7_go; arm7_stop"
+}}}
+
+The script / payload will now be stored in NVRAM, and will even survive a restore (although you must be running a 2.1.1 iBoot anyway in order to use arm7_go). You can run it by sending the following command:
+{{{
+run pwn
+}}}
+
+If you ever use clearenv to clear your enviromental variables though, then you would want to execute the setenv again.
+
+==Dongle Side==
+Send "run pwn\n\r" via serial to the device. I suggest using a PodBreakout board from SparkFun. Pinout can be found [[http://pinouts.ru/Devices/ipod_pinout.shtml here]]
