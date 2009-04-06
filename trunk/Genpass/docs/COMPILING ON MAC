@@ -1,0 +1,14 @@
+I personally had issues compiling this on my Mac, but thanks to some help from posixninja, I got it working great.
+
+First, download OpenSSL from here:
+http://www.openssl.org/source/openssl-0.9.8h.tar.gz
+
+Untar it, and cd to the directory it is in, in Terminal. Then, type:
+./config && make
+
+After that, rename the directory to "openssl" instead of "openssl(version)"
+
+As long as the "openssl" folder is in the directory you are building this in,
+you should be able to now compile it with:
+gcc genpass.c openssl/libcrypto.a -o genpass -I openssl/include/
+
