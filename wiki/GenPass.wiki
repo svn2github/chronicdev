@@ -5,7 +5,7 @@
 // genpass
 // get asr key for 3.x firmware
 //
-// by posixninja, geohot, chronic, and #iphone-rce
+// by posixninja, geohot, and chronic
 
 #include <stdio.h>
 #include <stdlib.h>
