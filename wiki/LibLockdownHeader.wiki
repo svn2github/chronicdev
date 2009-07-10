@@ -1,0 +1,40 @@
+#summary Header for liblockdown.dylib
+
+= Disclaimer =
+I made this awhile back, so I don't know if something changed in 3.0 GM that makes this not work. If it doesn't, let me know. You'll need to do some reversing to find out the "domain" and "key" that you want to get exactly.
+
+= Header =
+{{{
+/*
+ *  lockdown.h
+ *  Header for undocumented liblockdown.dylib
+ *  iPhoneOS
+ *
+ *  Created by Will Strafach on 4/5/09.
+ *  Copyright 2009 Chronic Dev. All rights reserved.
+ *
+ */
+
+typedef int lockdown_t;
+typedef const char lockval_t;
+typedef const char lockdom_t
+
+/*
+ *  Connecting to lockdown
+ */
+int lockdown_checkin();						//    "ping" lockdown, return -1 on fail
+lockdown_t lockdown_connect();				// connect to lockdown, return 0 on fail
+void lockdown_disconnect(lockdown_t conn);	//              disconnect from lockdown
+
+/*
+ *  Value list thingy
+ */
+int lockdown_copy_value(lockdown_t conn, lockdom_t *domain, lockval_t *value);    //    get value of smth in "defines.h"
+int lockdown_set_value(lockdown_t conn, lockdom_t *domain, lockval_t *value);     //    set value of smth in "defines.h"
+int lockdown_remove_value(lockdown_t conn, lockdom_t *domain, lockval_t *value);  // remove value of smth in "defines.h"
+
+/*
+ *  Logging
+ */
+int locklog(char *); // log text to lockdown's log at /Library/Logs/lockdownd.log
+}}}
