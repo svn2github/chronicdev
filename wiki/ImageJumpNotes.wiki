@@ -1,0 +1,15 @@
+#summary Notes on how images are jumped to
+
+== From Bootrom ==
+*LLB*: jmp(0, LLB, 0);
+
+*USB*: jmp(0, USB, 0);
+
+== From iBoot ==
+*Diags*: jmp(5, Diags, 0);
+
+*Halt*: jmp(1, Spin, 0);
+
+*iBEC*: jmp(0, iBEC, 0);
+
+*Kernel*: jmp(3, Kernel, 0);
