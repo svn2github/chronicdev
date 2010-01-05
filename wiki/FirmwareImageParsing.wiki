@@ -1,6 +1,11 @@
 #summary Notes on how iBoot and friends parse firmware images
 #labels Information,Reversing
 
+=Patent=
+Apple seems to have filed a patent for their Image3 firmware file format as well as the nature in which the iPhone securely boots. It gives a lot of useful information if you know what you are doing but just new do iPhone.
+
+You can find it here: http://www.google.com/patents?id=lyfJAAAAEBAJ&printsec=abstract&zoom=4&source=gbs_overview_r&cad=0#v=onepage&q=&f=false
+
 =Notes=
 ==Img3 Header Format==
 {{{
@@ -40,7 +45,7 @@ typedef struct BootromMemzStruct {
 }}}
 
 ==Diagnostic Flag==
-If bit 4 of the iBoot / LLB / bootrom / etc. flags is set, then that designates it as a diagnostic device it seems. If it is set, an image will still load even if the signature checks and / or tag checks fail.
+If bit 4 of the iBoot / LLB / bootrom / etc. flags is set, then that designates it as a diagnostic device it seems. If it is set, an image will still load even if the hardware tag checks fail.
 
 Unfortunately, this is CHIPID (hardware) based, and cannot be just simply 'changed'. This section is only here to note the existance of it so that if anyone else comes across it then time is not wasted looking into it.
 
@@ -67,6 +72,7 @@ typedef struct hbuff {
     long      Footer_Var;     // if what is at Img3Header->FooterStart is 0x00, then this will be set to "1", otherwise, it will be set to "0x20001"
     long       File_Size;     // full / packed size of firmware file
 } headbuff;
+}}}
 
 And then, the function will return the beforementioned buffer that it just filled, as long as everything went OK.
 
